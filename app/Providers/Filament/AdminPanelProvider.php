@@ -18,6 +18,14 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Filament\Pages\Auth\Login;
+use Filament\Pages\Auth\Register;
+use Filament\Pages\Auth\EmailVerification\EmailVerificationPrompt;
+use Filament\Pages\Auth\PasswordReset\RequestPasswordReset;
+use Filament\Pages\Auth\PasswordReset\ResetPassword;
+
+use Filament\Support\Enums\MaxWidth;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -27,6 +35,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->registration(Register::class)
+            ->emailVerification()
+            ->passwordReset()
+            ->profile()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -53,6 +65,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            
+            
+//            ->maxContentWidth(MaxWidth::ScreenLarge)
+            ;
     }
 }

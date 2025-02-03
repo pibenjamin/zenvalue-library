@@ -40,6 +40,11 @@ class Book extends Model
         return $this->belongsToMany(Author::class, 'author_books');
     }
 
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'tag_books');
+    }
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
