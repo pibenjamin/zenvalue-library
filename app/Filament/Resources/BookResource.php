@@ -13,6 +13,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Infolists\Infolist;
+use App\Models\Loan;
+use App\Models\Notification;
+use App\Services\LoanService;
+
 class BookResource extends Resource
 {
     protected static ?string $model = Book::class;
@@ -20,6 +25,21 @@ class BookResource extends Resource
     protected static ?string $pluralModelLabel = 'Ouvrages';
     
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('title')
+                    ->label('Titre')
+                    ->weight(FontWeight::Bold),
+                TextEntry::make('authors.name')
+                    ->label('Auteurs')
+                    ->weight(FontWeight::Bold),
+                    
+            ]);
+    }
+
 
     public static function form(Form $form): Form
     {
@@ -131,6 +151,7 @@ class BookResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Titre')
@@ -146,10 +167,11 @@ class BookResource extends Resource
                 ->label('Auteurs')
                 ->wrap()
                 ->searchable(),
-                Tables\Columns\TextColumn::make('tags.title')
-                ->label('Tags')
-                ->wrap()
-                ->searchable(),
+//                Tables\Columns\TextColumn::make('tags.title')
+//                ->label('Tags')
+//                ->wrap()
+//                ->searchable(),
+
 
 
                 Tables\Columns\ImageColumn::make('cover_url')
@@ -160,9 +182,10 @@ class BookResource extends Resource
 //                Tables\Columns\TextColumn::make('google_api_page')
 //                    ->label('Page Google')
 //                    ->searchable(),
-                Tables\Columns\TextColumn::make('isbn')
-                    ->label('ISBN')
-                    ->searchable(),
+//                Tables\Columns\TextColumn::make('isbn')
+//                    ->label('ISBN')
+//                    ->searchable(),
+
 
 
                 Tables\Columns\IconColumn::make('is_borrowed')
@@ -176,15 +199,17 @@ class BookResource extends Resource
 //                Tables\Columns\TextColumn::make('original_filename')
 //                ->disabled(false)
 //                ->searchable(),
-                Tables\Columns\TextColumn::make('owner.name')
-                    ->label('Propriétaire')
-                    ->wrap()
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('pages')
-                    ->label('# Pages')
-                    ->numeric()
-                    ->sortable(),
+//                Tables\Columns\TextColumn::make('owner.name')
+//                    ->label('Propriétaire')
+//                    ->wrap()
+//                    ->numeric()
+//                    ->sortable(),
+
+//                Tables\Columns\TextColumn::make('pages')
+//                    ->label('# Pages')
+//                    ->numeric()
+//                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('published_at')
                     ->date('Y')
                     ->label('Année')
@@ -192,14 +217,16 @@ class BookResource extends Resource
 //                Tables\Columns\TextColumn::make('publisher')
 //                    ->label('Editeur')
 //                    ->searchable(),
-                Tables\Columns\TextColumn::make('quantity')
-                    ->label('# Exemplaires')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('support.name')
-                    ->label('Support')
-                    ->numeric()
-                    ->sortable(),
+//                Tables\Columns\TextColumn::make('quantity')
+//                    ->label('# Exemplaires')
+//                    ->numeric()
+//                    ->sortable(),
+
+//                Tables\Columns\TextColumn::make('support.name')
+//                    ->label('Support')
+//                    ->numeric()
+//                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('theme.name')
                     ->label('Thème')
                     ->numeric()
@@ -218,7 +245,6 @@ class BookResource extends Resource
 
 
             ])
-            
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
 //            ->paginatedWhileReordering(true)
@@ -230,12 +256,29 @@ class BookResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('voirDetails')
+                ->label('Voir Détails')
+                ->color('success')
+                ->icon('heroicon-s-eye'),
+                Tables\Actions\Action::make('borrow')
+                    ->label('Emprunter')
+                    ->color('success')
+                    ->icon('heroicon-s-hand-raised')
+                    ->requiresConfirmation()
+                    ->modalHeading('Emprunter ce livre')
+                    ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
+                    ->action(function (Book $book) {
+                        app(LoanService::class)->borrowBook($book);
+                    })
+                    ->visible(fn (Book $book) => !$book->is_borrowed)
             ])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+
     }
 
     public static function getRelations(): array

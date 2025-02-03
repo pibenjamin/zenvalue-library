@@ -59,4 +59,14 @@ class Book extends Model
     {
         return $this->belongsTo(Theme::class);
     }
+
+    public function borrower(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'borrower_id');
+    }
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class);
+    }
 } 

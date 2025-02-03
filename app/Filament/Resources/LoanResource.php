@@ -26,7 +26,13 @@ class LoanResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Select::make('borrower_id')
+                    ->relationship('borrower', 'name')
+                    ->required(),
+                Forms\Components\Select::make('book_id')
+                    ->relationship('book', 'title')
+                    ->required(),
+                    
             ]);
     }
 
@@ -34,7 +40,13 @@ class LoanResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('borrower.name')
+                    ->label('Emprunteur')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('book.title')
+                    ->label('Ouvrage')
+                    ->sortable(),
+                    
             ])
             ->filters([
                 //

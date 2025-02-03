@@ -7,12 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Loan extends Model
 {
+    const STATUS_IN_PROGRESS    = 'in_progress';
+    const STATUS_RETURNED       = 'returned';
+    const STATUS_OVERDUE        = 'overdue';
+
     protected $fillable = [
         'book_id',
         'borrower_id',
         'borrowed_at',
         'returned_at',
         'to_be_returned_at',
+
+
         'return_signaled_at',
         'return_confirmed_by',
         'return_confirmation_token',
@@ -40,4 +46,40 @@ class Loan extends Model
     {
         return $this->belongsTo(User::class, 'return_confirmed_by');
     }
+
+    public function isOverdue(): bool
+    {
+        return $this->to_be_returned_at < now();
+    }
+
+    public function isReturned(): bool
+    {
+        return $this->returned_at !== null;
+    }
+
+    public function isInProgress(): bool
+    {
+        return $this->returned_at === null && !$this->isOverdue();
+    }
+
+    public function updateStatus(): void
+    {
+        if ($this->isOverdue()) {
+            $this->status = self::STATUS_OVERDUE;
+        } elseif ($this->isReturned()) {
+            $this->status = self::STATUS_RETURNED;
+        } else {
+            $this->status = self::STATUS_IN_PROGRESS;
+        }
+
+        $this->save();  
+    }
+
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', self::STATUS_IN_PROGRESS);
+    }
+
+    
+
 } 

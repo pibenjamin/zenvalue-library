@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    'max_loans' => env('MAX_LOANS', 10),
+
 ];

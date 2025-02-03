@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -56,6 +56,19 @@ class User extends Authenticatable
     public function role(): HasOne
     {
         return $this->hasOne(Role::class, 'id', 'role_id');
+    }
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class, 'borrower_id');
+    }
+
+    public function canBorrow(): bool
+    {
+        $currentLoans = $this->loans()->where('returned_at', null)->count();
+        $maxLoans = config('app.max_loans');
+        
+        return $currentLoans < $maxLoans;
     }
 
 }
