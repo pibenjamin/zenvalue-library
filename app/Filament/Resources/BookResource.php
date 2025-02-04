@@ -5,18 +5,25 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BookResource\Pages;
 use App\Filament\Resources\BookResource\RelationManagers;
 use App\Models\Book;
+use App\Models\Author;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Infolists\Infolist;
 use App\Models\Loan;
+use App\Models\Tag;
 use App\Models\Notification;
 use App\Services\LoanService;
+
+
+
+use Filament\Resources\Components\Tab;
 
 class BookResource extends Resource
 {
@@ -25,6 +32,26 @@ class BookResource extends Resource
     protected static ?string $pluralModelLabel  = 'Ouvrages';
     
     protected static ?string $navigationIcon    = 'heroicon-o-book-open';
+
+/*
+    public function getTabs(): array
+    {
+        return [
+            'all' => Tab::make('Tous les ouvrages'),
+            'borrowed' => Tab::make('Empruntés')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_borrowed', true)),
+            'available' => Tab::make('Disponibles')
+
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_borrowed', false)),
+
+        ];
+    }
+
+    public function getDefaultActiveTab(): string | int | null
+    {
+        return 'available';
+    }
+*/
 
     public static function form(Form $form): Form
     {
@@ -237,10 +264,29 @@ class BookResource extends Resource
 //            ->paginated(false)
 
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('is_borrowed')
+                    ->label('Emprunté')
+                    ->options([
+                        'true' => 'Oui',
+                        'false' => 'Non',
+                    ]),
+                Tables\Filters\SelectFilter::make('authors.name')
+                    ->label('Auteurs')
+                    ->options(Author::all()->pluck('name', 'id')),
+
+                Tables\Filters\SelectFilter::make('tags.title')
+                    ->label('Tags')
+                    ->multiple()
+                    ->relationship('tags', 'title')                    
+
+
+
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
+
 
                 Tables\Actions\Action::make('voirDetails')
                 ->label('Voir Détails')

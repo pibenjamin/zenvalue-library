@@ -75,6 +75,24 @@ class Loan extends Model
         $this->save();  
     }
 
+    public function getStatusColor(): string
+    {
+        return match ($this->status) {
+            self::STATUS_IN_PROGRESS => 'primary',
+            self::STATUS_RETURNED => 'success',
+            self::STATUS_OVERDUE => 'danger',
+        };
+    }
+
+
+    public function getStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_IN_PROGRESS => 'En cours',
+            self::STATUS_RETURNED => 'Retourné',
+            self::STATUS_OVERDUE => 'En retard',
+        };
+    }
     public function scopeInProgress($query)
     {
         return $query->where('status', self::STATUS_IN_PROGRESS);

@@ -6,7 +6,7 @@ use App\Http\Controllers\LoanController;
 Route::get('/test-email', function () {
 
     Mail::raw('Test de l\'envoi d\'un e-mail dans les logs.', function ($message) {
-        $message->to('test@example.com')
+        $message->to('benjaminpiscart+user@gmail.com')
                 ->subject('Test Mail Log tadda');
     });
 

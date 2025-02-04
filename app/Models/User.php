@@ -71,4 +71,9 @@ class User extends Authenticatable
         return $currentLoans < $maxLoans;
     }
 
+    public function canManageSettings(): bool
+    {
+        return $this->role->name === 'admin';
+    }
+
 }

@@ -40,18 +40,32 @@ class LoanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('borrower.name')
+                Tables\Columns\TextColumn::make('borrower.email')
                     ->label('Emprunteur')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('book.title')
                     ->label('Ouvrage')
                     ->sortable(),
 
+
+                Tables\Columns\TextColumn::make('returned_at')
+                    ->label('Date de retour')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Statut')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('return_confirmation_token')    
                     ->label('Token de confirmation')
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'En attente',
+                        'confirmed' => 'Confirmé',
+                        'returned' => 'Retourné',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

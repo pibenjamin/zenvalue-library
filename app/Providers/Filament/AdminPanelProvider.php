@@ -25,50 +25,61 @@ use Filament\Pages\Auth\PasswordReset\RequestPasswordReset;
 use Filament\Pages\Auth\PasswordReset\ResetPassword;
 
 use Filament\Support\Enums\MaxWidth;
+use Filament\Navigation\NavigationItem;
+ 
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
-            ->login()
-            ->registration(Register::class)
-            ->emailVerification()
-            ->passwordReset()
-            ->profile()
+            // Configuration de base du panel
+            ->default()                    // Définit ce panel comme le panel par défaut
+            ->id('admin')                  // Identifiant unique du panel
+            ->path('admin')                // URL d'accès : example.com/admin
+
+            // Configuration de l'authentification
+            ->login()                      // Active la page de connexion
+            ->registration(Register::class) // Active l'inscription utilisateur
+            ->emailVerification()          // Active la vérification d'email
+            ->passwordReset()              // Active la réinitialisation de mot de passe
+            ->profile()                    // Active la page de profil utilisateur
+
+            // Personnalisation du thème
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Amber, // Couleur principale du thème
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+
+            // Auto-découverte des composants Filament
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')  // Ressources (CRUD)
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')             // Pages personnalisées
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')       // Widgets du dashboard
+
+            // Configuration des pages et widgets par défaut
             ->pages([
-                Pages\Dashboard::class,
+                Pages\Dashboard::class,    // Page dashboard par défaut
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                Widgets\AccountWidget::class,                  // Widget d'informations du compte
+                Widgets\FilamentInfoWidget::class,             // Informations sur Filament
+                \App\Filament\Widgets\LatestBooks::class,      // Widget des derniers livres
             ])
+
+            // Middleware de sécurité et fonctionnalités
             ->middleware([
-                EncryptCookies::class,
-                AddQueuedCookiesToResponse::class,
-                StartSession::class,
-                AuthenticateSession::class,
-                ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
-                SubstituteBindings::class,
-                DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
+                EncryptCookies::class,                        // Chiffrement des cookies
+                AddQueuedCookiesToResponse::class,            // Gestion des cookies en file
+                StartSession::class,                          // Démarrage de la session
+                AuthenticateSession::class,                   // Authentication de la session
+                ShareErrorsFromSession::class,                // Partage des erreurs de validation
+                VerifyCsrfToken::class,                      // Protection contre les attaques CSRF
+                SubstituteBindings::class,                    // Injection de dépendances route
+                DisableBladeIconComponents::class,            // Désactive les icônes Blade par défaut
+                DispatchServingFilamentEvent::class,          // Events Filament
             ])
             ->authMiddleware([
-                Authenticate::class,
-            ])
-            
-            
-//            ->maxContentWidth(MaxWidth::ScreenLarge)
-            ;
+                Authenticate::class,                          // Vérifie que l'utilisateur est connecté
+            ]);
     }
+    
 }
