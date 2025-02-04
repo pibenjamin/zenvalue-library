@@ -126,4 +126,6 @@ return [
 
     'max_loans' => env('MAX_LOANS', 10),
 
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+
 ];

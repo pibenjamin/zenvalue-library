@@ -20,26 +20,11 @@ use App\Services\LoanService;
 
 class BookResource extends Resource
 {
-    protected static ?string $model = Book::class;
-    protected static ?string $modelLabel = 'Ouvrage';
-    protected static ?string $pluralModelLabel = 'Ouvrages';
+    protected static ?string $model             = Book::class;
+    protected static ?string $modelLabel        = 'Ouvrage';
+    protected static ?string $pluralModelLabel  = 'Ouvrages';
     
-    protected static ?string $navigationIcon = 'heroicon-o-book-open';
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                TextEntry::make('title')
-                    ->label('Titre')
-                    ->weight(FontWeight::Bold),
-                TextEntry::make('authors.name')
-                    ->label('Auteurs')
-                    ->weight(FontWeight::Bold),
-                    
-            ]);
-    }
-
+    protected static ?string $navigationIcon    = 'heroicon-o-book-open';
 
     public static function form(Form $form): Form
     {
@@ -256,10 +241,12 @@ class BookResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
                 Tables\Actions\Action::make('voirDetails')
                 ->label('Voir Détails')
                 ->color('success')
                 ->icon('heroicon-s-eye'),
+
                 Tables\Actions\Action::make('borrow')
                     ->label('Emprunter')
                     ->color('success')
@@ -270,7 +257,20 @@ class BookResource extends Resource
                     ->action(function (Book $book) {
                         app(LoanService::class)->borrowBook($book);
                     })
-                    ->visible(fn (Book $book) => !$book->is_borrowed)
+                    ->visible(fn (Book $book) => !$book->is_borrowed),
+
+                Tables\Actions\Action::make('return')
+                    ->label('Rendre')
+                    ->color('success')
+                    ->icon('heroicon-s-arrow-uturn-left')
+                    ->requiresConfirmation()
+                    ->modalHeading('Rendre ce livre')
+                    ->modalDescription(fn (Book $book) => "Voulez-vous rendre {$book->title} ?")
+                    ->action(function (Book $book) {
+                        app(LoanService::class)->userSignaleReturn($book);
+                    })
+                    ->visible(fn (Book $book) => $book->is_borrowed)
+
             ])
 
             ->bulkActions([

@@ -3,6 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Loan;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use App\Mail\AdminConfirmReturn;
+use App\Models\Book;
+
 
 class LoanController extends Controller
 {
@@ -60,50 +69,36 @@ class LoanController extends Controller
         ]);
     }
 
-    public function confirmReturn(Request $request, $id)
+    public function validateReturn(Request $request)
     {
-        $slug = $this->getSlug($request);
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-        
-        // Set the dataType on the controller
-        $this->dataType = $dataType;
+        $token = $request->token;
 
-        $loan = call_user_func([$dataType->model_name, 'findOrFail'], $id);
-        
-        // Vérifier le token
-        if (!$request->has('token') || $loan->return_confirmation_token !== $request->token) {
+        if(!$loan = Loan::where('return_confirmation_token', $token)->first())
+        {
             abort(403, 'Token de confirmation invalide');
         }
-
-        // Vérifier que le token n'a pas expiré (48h par exemple)
-        if (Carbon::parse($loan->return_signaled_at)->addHours(48)->isPast()) {
-            abort(403, 'Le lien de confirmation a expiré');
-        }
-        
-        // Marquer le livre comme retourné
+                
         $loan->update([
-            'returned_at' => now(),
-            'return_confirmed_by' => auth()->id(),
-            'return_confirmation_token' => null,
-            'status' => Loan::STATUS_RETURNED  // Ajout de cette ligne
+            'returned_at'                   => now(),
+            'return_confirmed_by'           => auth()->id(),
+            'return_confirmation_token'     => null,
+            'status'                        => Loan::STATUS_RETURNED  // Ajout de cette ligne
         ]);
 
-        // Marquer le livre comme disponible
-        $loan->book->update([
-            'status' => 'available',
+        $user = User::find($loan->borrower_id);
+        $book = Book::find($loan->book_id);
+
+        $book->update([
             'is_borrowed' => false
         ]);
 
-        // Envoyer l'email de confirmation à l'emprunteur
-        Mail::to($loan->borrower->email)->send(new ReturnConfirmed($loan));
+        Mail::to($user->email)->send(new AdminConfirmReturn(
+            userName: $user->name,
+            bookTitle: $book->title,
+            returnedAt: $loan->returned_at
+        ));
 
-        return redirect()
-            ->route('voyager.loans.index', ['status' => 'returned'])
-            ->with([
-                'message'    => "Le retour du livre '{$loan->book->title}' a été confirmé avec succès",
-                'alert-type' => 'success',
-                'highlighted_loan' => $loan->id
-            ]);
+        return $book->title . ' a bien été retourné';
     }
 
     public function late()

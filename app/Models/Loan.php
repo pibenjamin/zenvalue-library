@@ -80,6 +80,18 @@ class Loan extends Model
         return $query->where('status', self::STATUS_IN_PROGRESS);
     }
 
+    public function scopeReturned($query)
+    {
+        return $query->where('status', self::STATUS_RETURNED);
+    }
+
+    public function scopeOverdue($query)
+    {
+        return $query->where('status', self::STATUS_OVERDUE);
+    }
+
     
+
+
 
 } 

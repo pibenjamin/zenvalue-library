@@ -46,7 +46,9 @@ class LoanResource extends Resource
                 Tables\Columns\TextColumn::make('book.title')
                     ->label('Ouvrage')
                     ->sortable(),
-                    
+
+                Tables\Columns\TextColumn::make('return_confirmation_token')    
+                    ->label('Token de confirmation')
             ])
             ->filters([
                 //
