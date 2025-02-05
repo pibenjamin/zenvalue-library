@@ -6,12 +6,13 @@ use App\Http\Controllers\LoanController;
 Route::get('/test-email', function () {
 
     Mail::raw('Test de l\'envoi d\'un e-mail dans les logs.', function ($message) {
-        $message->to('benjaminpiscart+user@gmail.com')
+        $message->to('bpiscart@zenvalue.fr')->to('benjaminpiscart@gmail.com')
                 ->subject('Test Mail Log tadda');
     });
 
     return 'E-mail envoyé et logué';
 });
+
 
 Route::get('/loans/late', [LoanController::class],'late')->name('loans.late');
 Route::get('/my-loans', [LoanController::class],'myLoans')->name('my_loans');

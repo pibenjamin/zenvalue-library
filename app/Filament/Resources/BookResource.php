@@ -167,6 +167,7 @@ class BookResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Titre')
+                    ->sortable()
 //                    ->width('22%')
 //                    ->extraAttributes([
 //                        'style' => 'max-width:600px'
@@ -259,9 +260,6 @@ class BookResource extends Resource
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
-//            ->paginatedWhileReordering(true)
-
-//            ->paginated(false)
 
             ->filters([
                 Tables\Filters\SelectFilter::make('is_borrowed')
@@ -278,20 +276,25 @@ class BookResource extends Resource
                     ->label('Tags')
                     ->multiple()
                     ->relationship('tags', 'title')                    
-
-
-
-
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-
-
 
                 Tables\Actions\Action::make('voirDetails')
                 ->label('Voir Détails')
                 ->color('success')
                 ->icon('heroicon-s-eye'),
+
+                Tables\Actions\Action::make('open_library')
+                    ->label('O.L. API')
+                    ->color('success')
+                    ->icon('heroicon-s-eye')
+                    ->modalHeading('Open Library')
+                    ->modalDescription(fn (Book $book) => "Rechercher des informations sur {$book->title} sur Open Library")
+                    ->action(function (Book $book) {
+                        app(BookService::class)->parseOpenLibrary($book);
+                    })
+                    ->visible(fn (Book $book) => !$book->is_borrowed),             
 
                 Tables\Actions\Action::make('borrow')
                     ->label('Emprunter')

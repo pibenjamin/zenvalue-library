@@ -9,17 +9,18 @@ use App\Filament\Widgets\MyLoanHistory;
 
 use App\Filament\Widgets\StatsOverviewWidget;
 
-class UserDashboard extends Page
+class AdminDashboard extends Page
 {
     protected static ?string $navigationIcon    = 'heroicon-o-users';
-    protected static ?string $navigationLabel   = 'User Dashboard';
+    protected static ?string $navigationLabel   = 'Admin Dashboard';
     protected static string $view               = 'filament.pages.user-dashboard';
+
 
 
 
     public static function canAccess(): bool
     {
-        if(auth()->user()->role->name === 'user') 
+        if(in_array(auth()->user()->role->name, ['admin', 'librarian'])) 
         {
             return true;
         }
@@ -32,8 +33,6 @@ class UserDashboard extends Page
             MyLoanHistory::class
         ];
     }
-
-    pub
 
 
 }

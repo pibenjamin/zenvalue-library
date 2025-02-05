@@ -80,6 +80,8 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,                          // Vérifie que l'utilisateur est connecté
             ]);
+
+            
     }
     
 }
