@@ -21,9 +21,12 @@ use App\Models\Tag;
 use App\Models\Notification;
 use App\Services\LoanService;
 
+use Illuminate\Contracts\View\View;
 
 
 use Filament\Resources\Components\Tab;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Http;
 
 class BookResource extends Resource
 {
@@ -270,6 +273,7 @@ class BookResource extends Resource
                     ]),
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
+                    ->relationship('authors', 'name')
                     ->options(Author::all()->pluck('name', 'id')),
 
                 Tables\Filters\SelectFilter::make('tags.title')
@@ -278,23 +282,21 @@ class BookResource extends Resource
                     ->relationship('tags', 'title')                    
             ])
             ->actions([
+                
                 Tables\Actions\EditAction::make(),
-
-                Tables\Actions\Action::make('voirDetails')
-                ->label('Voir Détails')
-                ->color('success')
-                ->icon('heroicon-s-eye'),
-
                 Tables\Actions\Action::make('open_library')
                     ->label('O.L. API')
-                    ->color('success')
-                    ->icon('heroicon-s-eye')
-                    ->modalHeading('Open Library')
-                    ->modalDescription(fn (Book $book) => "Rechercher des informations sur {$book->title} sur Open Library")
-                    ->action(function (Book $book) {
-                        app(BookService::class)->parseOpenLibrary($book);
-                    })
-                    ->visible(fn (Book $book) => !$book->is_borrowed),             
+                    ->icon('heroicon-o-globe-alt')
+                    ->modalContent(fn (Book $record): View => view(
+                        'books.open-library-modal',
+                        [
+                            'record' => $record,
+                            'bookData' => Http::get("https://openlibrary.org/isbn/{$record->isbn}.json")->json(),
+                        ]
+                    ))
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(false)
+                    ->visible(fn (Book $record) => ($record->isbn !== null)),
 
                 Tables\Actions\Action::make('borrow')
                     ->label('Emprunter')
@@ -345,4 +347,6 @@ class BookResource extends Resource
             'edit' => Pages\EditBook::route('/{record}/edit'),
         ];
     }
+
+
 }

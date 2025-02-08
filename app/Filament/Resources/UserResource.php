@@ -44,9 +44,9 @@ class UserResource extends Resource
 //                            ->label('Nom')
 //                            ->required(),
 //                    ]),
-                Forms\Components\Select::make('role_id')
+                Forms\Components\Select::make('roles.name')
                     ->label('Rôle')
-                    ->relationship('role', 'display_name')
+                    ->relationship('roles', 'name')
                     ->required(),
 
 
@@ -73,7 +73,7 @@ class UserResource extends Resource
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('role.display_name')
+                Tables\Columns\TextColumn::make('role.name')
                     ->label('Rôle')
                     ->sortable(),
             ])

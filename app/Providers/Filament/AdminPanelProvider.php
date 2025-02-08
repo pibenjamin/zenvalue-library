@@ -26,7 +26,11 @@ use Filament\Pages\Auth\PasswordReset\ResetPassword;
 
 use Filament\Support\Enums\MaxWidth;
 use Filament\Navigation\NavigationItem;
- 
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+
+
+
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -76,6 +80,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,                    // Injection de dépendances route
                 DisableBladeIconComponents::class,            // Désactive les icônes Blade par défaut
                 DispatchServingFilamentEvent::class,          // Events Filament
+            ])
+
+            ->plugins([
+                FilamentShieldPlugin::make(),
             ])
             ->authMiddleware([
                 Authenticate::class,                          // Vérifie que l'utilisateur est connecté

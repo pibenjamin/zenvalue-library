@@ -33,7 +33,5 @@ class UserDashboard extends Page
         ];
     }
 
-    pub
-
 
 }
