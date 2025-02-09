@@ -9,6 +9,8 @@ use App\Filament\Widgets\MyLoanHistory;
 
 use App\Filament\Widgets\StatsOverviewWidget;
 use App\Filament\Widgets\UserStatsWidgets;
+use App\Filament\Widgets\BookTagCloud;
+use App\Filament\Widgets\AdminWidgets;
 
 class AdminDashboard extends Page
 {
@@ -22,7 +24,10 @@ class AdminDashboard extends Page
     {
         return [
             MyLoanHistory::class,
-            UserStatsWidgets::class
+            AdminWidgets::class,
+            UserStatsWidgets::class,
+            BookTagCloud::class,
+
         ];
     }
 
