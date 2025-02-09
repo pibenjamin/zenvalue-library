@@ -73,7 +73,7 @@ class UserResource extends Resource
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('role.name')
+                Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôle')
                     ->sortable(),
             ])

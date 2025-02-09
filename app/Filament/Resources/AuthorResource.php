@@ -32,7 +32,10 @@ class AuthorResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nom')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 //

@@ -28,9 +28,7 @@ use Filament\Support\Enums\MaxWidth;
 use Filament\Navigation\NavigationItem;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
-
-
-
+use App\Filament\Resources\RoleResource;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -64,9 +62,6 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,    // Page dashboard par défaut
             ])
             ->widgets([
-                Widgets\AccountWidget::class,                  // Widget d'informations du compte
-                Widgets\FilamentInfoWidget::class,             // Informations sur Filament
-                \App\Filament\Widgets\LatestBooks::class,      // Widget des derniers livres
             ])
 
             // Middleware de sécurité et fonctionnalités

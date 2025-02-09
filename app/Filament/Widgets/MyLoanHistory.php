@@ -11,8 +11,14 @@ use Illuminate\Support\Arr;
 
 class MyLoanHistory extends BaseWidget
 {
-    protected static ?int $sort = 3; // Position après le FilamentInfoWidget
+    protected static ?int $sort = 2; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
+
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasRole('user');
+    }
 
     public function table(Table $table): Table
     {

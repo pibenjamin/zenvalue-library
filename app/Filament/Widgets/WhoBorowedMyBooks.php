@@ -12,8 +12,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class WhoBorowedMyBooks extends BaseWidget
 {
-    protected static ?int $sort = 2; // Position après le FilamentInfoWidget
+    protected static ?int $sort = 3; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasRole('user');
+    }
 
     public function table(Table $table): Table
     {
@@ -27,20 +32,16 @@ class WhoBorowedMyBooks extends BaseWidget
             )
             ->heading('Qui a emprunté mes livres ? 📚')
             ->columns([
-//                Tables\Columns\TextColumn::make('book.title')
-//                    ->label('Livre')
-//                    ->searchable()
-//                    ->wrap()
-//                    ->sortable(),
-
+                Tables\Columns\TextColumn::make('book.title')
+                    ->label('Livre')
+                    ->wrap()
+                    ->sortable(),
                 Tables\Columns\ImageColumn::make('cover_url')
                     ->label('Couverture')
                     ->sortable()
                     ->height(100),
-
                 Tables\Columns\TextColumn::make('borrower.name')
                     ->label('Emprunté par')
-                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('borrowed_at')
                     ->label('Emprunté le')

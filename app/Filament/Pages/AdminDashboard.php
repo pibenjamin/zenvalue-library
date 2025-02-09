@@ -12,20 +12,9 @@ use App\Filament\Widgets\StatsOverviewWidget;
 class AdminDashboard extends Page
 {
     protected static ?string $navigationIcon    = 'heroicon-o-users';
-    protected static ?string $navigationLabel   = 'Admin Dashboard';
+    protected static ?string $navigationLabel   = 'Tableau de bord';
     protected static string $view               = 'filament.pages.user-dashboard';
 
-
-
-
-    public static function canAccess(): bool
-    {
-        if(in_array(auth()->user()->role->name, ['admin', 'librarian'])) 
-        {
-            return true;
-        }
-        return false;
-    }
 
     protected function getHeaderWidgets(): array
     {

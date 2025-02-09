@@ -12,6 +12,11 @@ class LatestBooks extends BaseWidget
     protected static ?int $sort = 4; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
 
+    public static function canView(): bool
+    {
+        return auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin');
+    }
+
     public function table(Table $table): Table
     {
         return $table
