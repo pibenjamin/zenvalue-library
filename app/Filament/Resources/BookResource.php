@@ -205,12 +205,15 @@ class BookResource extends Resource
 
 
                 Tables\Columns\IconColumn::make('is_borrowed')
-                    ->label('Emprunté')
-                    ->boolean(),
+                    ->label('Disponible')
+                    ->boolean()
+                    ->color(fn (Book $record) => $record->is_borrowed ? 'danger' : 'success')
+                    ->icon(fn (Book $record) => $record->is_borrowed ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle'),
 //                Tables\Columns\IconColumn::make('open_library_parsed')
 //                ->disabled(false)
 //                ->label('Open Library')
 //                    ->boolean(),
+
 
 //                Tables\Columns\TextColumn::make('original_filename')
 //                ->disabled(false)
