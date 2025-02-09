@@ -5,8 +5,9 @@ namespace App\Policies;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Spatie\Permission\Policies\RolePolicy as SpatieRolePolicy;
 
-class RolePolicy
+class RolePolicy extends SpatieRolePolicy   
 {
     use HandlesAuthorization;
 

@@ -76,7 +76,7 @@ class BookResource extends Resource
                             ->label('Nom')
                             ->required(),
                     ]),
-                Forms\Components\Select::make('tags ')
+                Forms\Components\Select::make('tags')
                     ->label('Tags')
                     ->multiple()
                     ->relationship('tags', 'title')
@@ -296,6 +296,7 @@ class BookResource extends Resource
                     ))
                     ->modalSubmitAction(false)
                     ->modalCancelAction(false)
+                    
                     ->visible(fn (Book $record) => ($record->isbn !== null)),
 
                 Tables\Actions\Action::make('borrow')

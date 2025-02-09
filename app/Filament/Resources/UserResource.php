@@ -12,6 +12,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Select;
+
+
+
+
 
 class UserResource extends Resource
 {
@@ -44,11 +49,11 @@ class UserResource extends Resource
 //                            ->label('Nom')
 //                            ->required(),
 //                    ]),
-                Forms\Components\Select::make('roles.name')
-                    ->label('Rôle')
-                    ->relationship('roles', 'name')
-                    ->required(),
-
+                Forms\Components\Select::make('roles')
+                ->label('Rôles')
+                ->multiple()
+                ->relationship('roles', 'name')
+                ->preload()
 
             ]);
     }
@@ -74,8 +79,11 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('roles.name')
-                    ->label('Rôle')
-                    ->sortable(),
+                ->label('Rôles')
+                ->searchable()
+
+
+                
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
