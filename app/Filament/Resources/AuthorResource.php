@@ -37,6 +37,8 @@ class AuthorResource extends Resource
                     ->searchable()
                     ->sortable(),
             ])
+            ->defaultPaginationPageOption(200)
+            ->paginationPageOptions([200, 500, 1000])
             ->filters([
                 //
             ])

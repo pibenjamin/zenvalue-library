@@ -17,6 +17,7 @@ class MyLoanHistory extends BaseWidget
 
     public static function canView(): bool
     {
+        return false;
         return auth()->user()->hasRole('user');
     }
 

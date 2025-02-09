@@ -15,15 +15,17 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
 
 
-
-
-
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static ?string $modelLabel = 'Utilisateur';
     protected static ?string $pluralModelLabel = 'Utilisateurs';    
     protected static ?string $navigationIcon = 'heroicon-o-user';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->hasRole(['admin', 'super_admin']);
+    }
 
 
     public static function form(Form $form): Form
