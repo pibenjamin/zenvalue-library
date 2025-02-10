@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists\Infolist;
 use App\Models\Loan;
 use App\Models\Tag;
+use App\Models\User;
 use App\Models\Notification;
 use App\Services\LoanService;
 
@@ -27,6 +28,10 @@ use Illuminate\Contracts\View\View;
 use Filament\Resources\Components\Tab;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Http;
+use Filament\Forms\Components\DatePicker;
+
+use App\Filament\Imports\ProductImporter;
+use Filament\Actions\ImportAction;
 
 class BookResource extends Resource
 {
@@ -66,9 +71,15 @@ class BookResource extends Resource
                     ->helperText('Le titre de l\'ouvrage est obligatoire')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->label('Description')
+                    ->placeholder('Description de l\'ouvrage')
+                    ->helperText('La description de l\'ouvrage est optionnelle'),
+
                 Forms\Components\Select::make('authors')
                     ->label('Auteurs')
                     ->multiple()
+
                     ->relationship('authors', 'name')
                     ->preload()
                     ->createOptionForm([
@@ -138,9 +149,18 @@ class BookResource extends Resource
                     ->numeric()
                     ->default(null),
 
-                Forms\Components\DatePicker::make('published_at')
+                DatePicker::make('published_at')
                     ->label('Date de publication')
+                    ->format('Y-m-d')
+                    ->displayFormat('Y')
+                    ->native(false)
                     ->default(null),
+
+
+
+
+
+
                 Forms\Components\TextInput::make('publisher')
                     ->label('Editeur')
                     ->maxLength(255)
@@ -168,9 +188,17 @@ class BookResource extends Resource
         return $table
         
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('isbn')
+                    ->label('ISBN')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('title')
+
                     ->label('Titre')
                     ->sortable()
+
 //                    ->width('22%')
 //                    ->extraAttributes([
 //                        'style' => 'max-width:600px'
@@ -218,11 +246,11 @@ class BookResource extends Resource
 //                Tables\Columns\TextColumn::make('original_filename')
 //                ->disabled(false)
 //                ->searchable(),
-//                Tables\Columns\TextColumn::make('owner.name')
-//                    ->label('Propriétaire')
-//                    ->wrap()
-//                    ->numeric()
-//                    ->sortable(),
+                Tables\Columns\TextColumn::make('owner.name')
+                    ->label('Propriétaire')
+                    ->sortable()
+                    ->searchable()
+                    ->wrap(),
 
 //                Tables\Columns\TextColumn::make('pages')
 //                    ->label('# Pages')
@@ -250,11 +278,13 @@ class BookResource extends Resource
                     ->label('Thème')
                     ->numeric()
                     ->sortable(),
+                    
 //                Tables\Columns\TextColumn::make('created_at')
 //                    ->dateTime()
 //                    ->label('Date de création')
 //                    ->sortable()
 //                    ->toggleable(isToggledHiddenByDefault: true),//
+
 
 //                Tables\Columns\TextColumn::make('updated_at')
 //                    ->dateTime()
@@ -282,11 +312,24 @@ class BookResource extends Resource
                 Tables\Filters\SelectFilter::make('tags.title')
                     ->label('Tags')
                     ->multiple()
-                    ->relationship('tags', 'title')                    
+                    ->relationship('tags', 'title'),
+
+                Tables\Filters\SelectFilter::make('owner.name')
+                    ->label('Propriétaire')
+                    ->relationship('owner', 'name')
+                    ->options(User::all()->pluck('name', 'id')),
             ])
+//            ->headerActions([
+//                ImportAction::make()
+//                    ->importer(BookImporter::class)
+//            ])
+
+
             ->actions([
                 
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->requiresConfirmation(false),
                 Tables\Actions\Action::make('open_library')
                     ->label('O.L. API')
                     ->icon('heroicon-o-globe-alt')

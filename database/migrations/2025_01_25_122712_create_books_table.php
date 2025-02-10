@@ -11,6 +11,7 @@ class CreateBooksTable extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('description')->nullable();
             $table->string('slug')->nullable();
             $table->string('author')->nullable();
             $table->string('cover_url')->nullable();
@@ -25,7 +26,7 @@ class CreateBooksTable extends Migration
             $table->string('publisher')->nullable();
             $table->integer('quantity')->default(1);
             $table->foreignId('support_id')->constrained('supports');
-            $table->foreignId('theme_id')->constrained('themes');
+            $table->foreignId('theme_id')->constrained('themes')->nullable();
             $table->timestamps();
         });
     }
