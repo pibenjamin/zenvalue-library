@@ -7,7 +7,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Spatie\Permission\Policies\RolePolicy as SpatieRolePolicy;
 
-class RolePolicy extends SpatieRolePolicy   
+class RolePolicy
 {
     use HandlesAuthorization;
 

@@ -18,8 +18,7 @@ class UserStatsWidgets extends BaseWidget
         return [
             Stat::make('Nombre de livres', Book::count()),
             Stat::make('Nombre d\'auteurs', Author::count()),
-            Stat::make('Nombre d\'utilisateurs activés', User::where('updated_at', '>=', env('APP_RELEASE_DATE'))->count()),
-            Stat::make('Combien sommes-nous à partager des livres ?', Book::where('owner_id', '!=', null)->distinct()->count('owner_id')),
+            Stat::make('Nombre de tags', Tag::count()),
 
 
 

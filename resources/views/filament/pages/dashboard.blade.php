@@ -14,7 +14,6 @@
 
         <li>Gestion des réservations</li>
         <li>Gestion des retours</li>
-        <li>Gestion des paiements</li>
         <li>Emprunts autonome via scan code barre (ISBN)</li>
         <li>... et bien d'autres choses encore !</li>
     </ul>

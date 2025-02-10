@@ -64,25 +64,29 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nom')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Créé le')
-                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Modifié le')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('roles.name')
                 ->label('Rôles')
-                ->searchable()
+                ->searchable(),
+                Tables\Columns\TextColumn::make('is_after_release')
+                    ->label('Activé après la sortie')
+                    ->state(function ($record): string {
+                        return $record->updated_at > env('APP_RELEASE_DATE') ? 'OK' : 'NON';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'OK' => 'success',
+                        'NON' => 'danger',
+                    }),
+                
+
 
 
                 
