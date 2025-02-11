@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Tag extends Model
 {
     protected $fillable = [
-        'name',
+        'title',
     ];
 
     public function books(): BelongsToMany
