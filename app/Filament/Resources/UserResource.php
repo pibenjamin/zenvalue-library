@@ -13,7 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
-
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\DatePicker;
 
 class UserResource extends Resource
 {
@@ -46,12 +48,26 @@ class UserResource extends Resource
                 ->multiple()
                 ->relationship('roles', 'name')
                 ->preload(),
-                Forms\Components\TextInput::make('password')
-                ->label('Mot de passe')
-                ->password()
-                ->required()
-                ->maxLength(255),
 
+
+                
+                Forms\Components\FileUpload::make('avatar')
+                ->label('Avatar')
+                ->image()
+                ->imageEditor()
+                ->directory('/users/avatars')
+                ->disk('public')
+                ->maxSize(1024),
+                Forms\Components\DatePicker::make('updated_at')
+                ->label('Modifié le')
+                ->displayFormat('d/m/Y')
+                ->locale('fr')
+                ->native(false)
+                ->required(),
+                Forms\Components\DatePicker::make('created_at')
+                ->label('Créé le')
+                ->displayFormat('d/m/Y')
+                ->required(),
             ]);
     }
 
@@ -76,11 +92,11 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('is_after_release')
                     ->label('Activé après la sortie')
                     ->state(function ($record): string {
-                        return $record->updated_at > env('APP_RELEASE_DATE') ? 'OK' : 'NON';
+                        return $record->password == $record->email.'598625' ? 'NON' : 'OUI';
                     })
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'OK' => 'success',
+                        'OUI' => 'success',
                         'NON' => 'danger',
                     }),
 
