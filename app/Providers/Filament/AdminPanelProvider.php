@@ -30,8 +30,12 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 use App\Filament\Resources\RoleResource;
 
+
 class AdminPanelProvider extends PanelProvider
 {
+
+
+    
     public function panel(Panel $panel): Panel
     {
         return $panel
