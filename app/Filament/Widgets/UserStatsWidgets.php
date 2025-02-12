@@ -7,6 +7,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\Author;
+use App\Models\Tag;
 
 class UserStatsWidgets extends BaseWidget
 {
