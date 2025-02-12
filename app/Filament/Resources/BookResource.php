@@ -221,6 +221,7 @@ class BookResource extends Resource
                 Tables\Columns\ImageColumn::make('cover_url')
                     ->label('Couverture')
                     ->sortable()
+                    ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
                     ->height(100),
 //                    ->defaultImageUrl(url('/images/no-cover.jpg')),
 //                Tables\Columns\TextColumn::make('google_api_page')

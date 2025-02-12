@@ -41,21 +41,16 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-//                Forms\Components\Select::make('roles')
-//                    ->label('Rôles')
-//                    ->multiple()
-//                    ->relationship('roles', 'display_name')
-//                    ->preload()
-//                    ->createOptionForm([
-//                        Forms\Components\TextInput::make('name')
-//                            ->label('Nom')
-//                            ->required(),
-//                    ]),
                 Forms\Components\Select::make('roles')
                 ->label('Rôles')
                 ->multiple()
                 ->relationship('roles', 'name')
-                ->preload()
+                ->preload(),
+                Forms\Components\TextInput::make('password')
+                ->label('Mot de passe')
+                ->password()
+                ->required()
+                ->maxLength(255),
 
             ]);
     }
@@ -88,6 +83,7 @@ class UserResource extends Resource
                         'OK' => 'success',
                         'NON' => 'danger',
                     }),
+
                 
 
 
