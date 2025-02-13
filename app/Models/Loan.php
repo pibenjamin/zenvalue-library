@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Loan extends Model
 {
-    const STATUS_IN_PROGRESS    = 'in_progress';
-    const STATUS_RETURNED       = 'returned';
-    const STATUS_OVERDUE        = 'overdue';
+    const STATUS_IN_PROGRESS        = 'in_progress';
+    const STATUS_RETURNED           = 'returned';
+    const STATUS_OVERDUE            = 'overdue';
+    const STATUS_RETURN_IN_PROGRESS = 'return_in_progress';
+
 
     protected $fillable = [
         'book_id',
@@ -36,6 +38,7 @@ class Loan extends Model
     private const STATUS_COLORS = [
         self::STATUS_IN_PROGRESS => 'primary',
         self::STATUS_RETURNED => 'success',
+        self::STATUS_RETURN_IN_PROGRESS => 'warning',
         self::STATUS_OVERDUE => 'danger',
     ];
 
@@ -43,6 +46,7 @@ class Loan extends Model
         self::STATUS_IN_PROGRESS => 'En cours',
         self::STATUS_RETURNED => 'Retourné',
         self::STATUS_OVERDUE => 'En retard',
+        self::STATUS_RETURN_IN_PROGRESS => 'Retour en cours',
     ];
 
     public function book(): BelongsTo

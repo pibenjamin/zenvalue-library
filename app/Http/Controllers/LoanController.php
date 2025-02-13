@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Mail\AdminConfirmReturn;
 use App\Models\Book;
+use App\Services\LoanService;
 
 
 class LoanController extends Controller
@@ -71,34 +72,15 @@ class LoanController extends Controller
 
     public function validateReturn(Request $request)
     {
-        $token = $request->token;
-
-        if(!$loan = Loan::where('return_confirmation_token', $token)->first())
+        $loanService = new LoanService();
+        if(!$loan = Loan::where('return_confirmation_token', $request->token)->first())
         {
             abort(403, 'Token de confirmation invalide');
         }
-                
-        $loan->update([
-            'returned_at'                   => now(),
-            'return_confirmed_by'           => auth()->id(),
-            'return_confirmation_token'     => null,
-            'status'                        => Loan::STATUS_RETURNED  // Ajout de cette ligne
-        ]);
 
-        $user = User::find($loan->borrower_id);
-        $book = Book::find($loan->book_id);
+        $loanService->validateReturn($loan);
 
-        $book->update([
-            'is_borrowed' => false
-        ]);
-
-        Mail::to($user->email)->send(new AdminConfirmReturn(
-            userName: $user->name,
-            bookTitle: $book->title,
-            returnedAt: $loan->returned_at
-        ));
-
-        return $book->title . ' a bien été retourné';
+        return $loan->book->title . ' a bien été retourné';
     }
 
     public function late()

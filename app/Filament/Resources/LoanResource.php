@@ -20,7 +20,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
-
+use Filament\Tables\Actions\ActionGroup;
 
 class LoanResource extends Resource
 {
@@ -78,7 +78,7 @@ class LoanResource extends Resource
 
         $adminColumns = [
             Tables\Columns\TextColumn::make('return_confirmation_token')    
-                ->label('Token de confirmation')
+                ->label('Token')
         ];
 
 
@@ -128,19 +128,33 @@ class LoanResource extends Resource
 
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
 
-                Tables\Actions\Action::make('return')
-                ->label('Rendre le livre')
-                ->icon('heroicon-s-arrow-up-on-square')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Rendre ce livre')
-                ->modalDescription(fn (Loan $record) => "Voulez-vous rendre {$record->book->title} ?")
-                ->action(function (Loan $record) {
-                    app(LoanService::class)->userSignaleReturn($record);
-                })
-                ->visible(fn (Loan $record) => $record->status === 'in_progress'),
+                    Tables\Actions\Action::make('validate_return')
+                        ->label('Valider le retour')
+                        ->visible(fn (Loan $record) => auth()->user()?->hasRole('super_admin') && $record->status === 'in_progress')
+                        ->action(function (Loan $record) {
+                            app(LoanService::class)->validateReturn($record);
+                        })
+                        ->color('success')
+                        ->requiresConfirmation(),
+    
+                    Tables\Actions\Action::make('return')
+                    ->label('Rendre ce livre')
+                    ->icon('heroicon-s-arrow-up-on-square')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Rendre ce livre')
+                    ->modalDescription(fn (Loan $record) => "Voulez-vous rendre {$record->book->title} ?")
+                    ->action(function (Loan $record) {
+                        app(LoanService::class)->userSignaleReturn($record);
+                        $record->refresh();
+                    })
+                    ->visible(fn (Loan $record) => auth()->user()?->can('return', $record) && $record->status === 'in_progress')
+
+                ])
+                
 
 
             ])

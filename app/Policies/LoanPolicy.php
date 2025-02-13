@@ -63,4 +63,24 @@ class LoanPolicy
     {
         return $user->can('force_delete_loan');
     }
+
+    public function validateReturn(User $user, Loan $loan): bool
+    {
+        if($user->hasRole('super_admin') || $user->hasRole('admin'))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function return(User $user, Loan $loan): bool
+    {
+        if($user->hasRole('user'))
+        {
+            return $loan->status === 'in_progress';
+        }
+
+        return false;
+    }
 }

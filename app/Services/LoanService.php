@@ -6,10 +6,13 @@ use App\Mail\LoanConfirmed;
 use App\Mail\UserSignaledReturn;
 use App\Models\Book;
 use App\Models\Loan;
+use App\Models\User;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+
+use App\Mail\AdminConfirmReturn;
 
 
 
@@ -66,6 +69,32 @@ class LoanService
         }
     }
 
+
+    public function validateReturn(Loan $loan)
+    {
+        $token = $loan->token;
+                
+        $loan->update([
+            'returned_at'                   => now(),
+            'return_confirmed_by'           => auth()->id(),
+            'return_confirmation_token'     => null,
+            'status'                        => Loan::STATUS_RETURNED  // Ajout de cette ligne
+        ]);
+
+        $user = User::find($loan->borrower_id);
+        $book = Book::find($loan->book_id);
+
+        $book->update([
+            'is_borrowed' => false
+        ]);
+
+        Mail::to($user->email)->send(new AdminConfirmReturn(
+            userName: $user->name,
+            bookTitle: $book->title,
+            returnedAt: $loan->returned_at
+        ));
+    }    
+
     public function userSignaleReturn(Loan $loan): void
     {
         if (!$loan) 
@@ -96,6 +125,7 @@ class LoanService
         $token = hash('sha256', Str::random(32) . time() . config('app.key'));
 
         $loan->returned_at = now();
+        $loan->status = Loan::STATUS_RETURN_IN_PROGRESS;
         $loan->return_confirmation_token = $token;
         $loan->save();
 
