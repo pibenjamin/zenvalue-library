@@ -90,7 +90,7 @@ class BookResource extends Resource
                     ->preload()
 
                     ->createOptionForm([
-                        Forms\Components\TextInput::make('name')
+                        Forms\Components\TextInput::make('title')
                             ->label('Nom')
                             ->required(),
                     ]),                    
@@ -198,7 +198,6 @@ class BookResource extends Resource
                 ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
                 ->sortable()
                 ->height(100),
-
                 
             Tables\Columns\TextColumn::make('is_borrowed')
                 ->label('Disponibilité')
@@ -225,6 +224,13 @@ class BookResource extends Resource
                 ->sortable()
                 ->searchable()
                 ->wrap(),
+
+            TextColumn::make('tags.title')
+                ->label('Tags')
+                ->badge()
+                ->wrap()
+                ->searchable(),
+
 
             TextColumn::make('difficulty_level')
                 ->label('Difficulté')

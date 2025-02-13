@@ -41,6 +41,13 @@ class TagResource extends Resource
                     ->label('Nom')
                     ->wrap()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('books_count')
+                    ->label('Nombre de livres')
+                    ->counts('books')
+                    ->sortable(),
+
+
             ])
             ->filters([
                 //
