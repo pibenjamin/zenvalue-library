@@ -33,6 +33,11 @@ use Filament\Forms\Components\DatePicker;
 use App\Filament\Imports\ProductImporter;
 use Filament\Actions\ImportAction;
 
+use Filament\Tables\Filters\TextInputFilter;
+use Filament\Tables\Filters\Filter;
+
+use Filament\Tables\Columns\TextColumn;
+
 class BookResource extends Resource
 {
     protected static ?string $model             = Book::class;
@@ -40,26 +45,6 @@ class BookResource extends Resource
     protected static ?string $pluralModelLabel  = 'Ouvrages';
     
     protected static ?string $navigationIcon    = 'heroicon-o-book-open';
-
-/*
-    public function getTabs(): array
-    {
-        return [
-            'all' => Tab::make('Tous les ouvrages'),
-            'borrowed' => Tab::make('Empruntés')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_borrowed', true)),
-            'available' => Tab::make('Disponibles')
-
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_borrowed', false)),
-
-        ];
-    }
-
-    public function getDefaultActiveTab(): string | int | null
-    {
-        return 'available';
-    }
-*/
 
     public static function form(Form $form): Form
     {
@@ -136,13 +121,10 @@ class BookResource extends Resource
                     ->maxLength(255)
                     ->default(null),
 
-
                 Forms\Components\Select::make('owner_id')
                     ->label('Propriétaire')
                     ->relationship('owner', 'name')
                     ->required(),
-
-                    
 
                 Forms\Components\TextInput::make('pages')
                     ->label('# Pages')
@@ -155,11 +137,6 @@ class BookResource extends Resource
                     ->displayFormat('Y')
                     ->native(false)
                     ->default(null),
-
-
-
-
-
 
                 Forms\Components\TextInput::make('publisher')
                     ->label('Editeur')
@@ -185,199 +162,149 @@ class BookResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-        
-            ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('isbn')
-                    ->label('ISBN')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('title')
+        // Colonnes communes à tous les utilisateurs
+        $commonColumns = [
+            TextColumn::make('title')
+                ->label('Titre')
+                ->sortable()
+                ->wrap()
+                ->searchable(),
 
-                    ->label('Titre')
-                    ->sortable()
-
-//                    ->width('22%')
-//                    ->extraAttributes([
-//                        'style' => 'max-width:600px'
-//                    ])
-                    ->wrap()
-                    ->searchable(),
-//                Tables\Columns\TextColumn::make('slug')
-//                    ->searchable(),
-                Tables\Columns\TextColumn::make('authors.name')
+            TextColumn::make('authors.name')
                 ->label('Auteurs')
                 ->wrap()
                 ->searchable(),
-//                Tables\Columns\TextColumn::make('tags.title')
-//                ->label('Tags')
-//                ->wrap()
-//                ->searchable(),
 
+            Tables\Columns\ImageColumn::make('cover_url')
+                ->label('Couverture')
+                ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
+                ->height(100),
 
-
-                Tables\Columns\ImageColumn::make('cover_url')
-                    ->label('Couverture')
-                    ->sortable()
-                    ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
-                    ->height(100),
-//                    ->defaultImageUrl(url('/images/no-cover.jpg')),
-//                Tables\Columns\TextColumn::make('google_api_page')
-//                    ->label('Page Google')
-//                    ->searchable(),
-//                Tables\Columns\TextColumn::make('isbn')
-//                    ->label('ISBN')
-//                    ->searchable(),
-
-
-
-                Tables\Columns\IconColumn::make('is_borrowed')
-                    ->label('Disponible')
-                    ->boolean()
-                    ->color(fn (Book $record) => $record->is_borrowed ? 'danger' : 'success')
-                    ->icon(fn (Book $record) => $record->is_borrowed ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle'),
-//                Tables\Columns\IconColumn::make('open_library_parsed')
-//                ->disabled(false)
-//                ->label('Open Library')
-//                    ->boolean(),
-
-
-//                Tables\Columns\TextColumn::make('original_filename')
-//                ->disabled(false)
-//                ->searchable(),
-                Tables\Columns\TextColumn::make('owner.name')
-                    ->label('Propriétaire')
-                    ->sortable()
-                    ->searchable()
-                    ->wrap(),
-
-//                Tables\Columns\TextColumn::make('pages')
-//                    ->label('# Pages')
-//                    ->numeric()
-//                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('published_at')
-                    ->date('Y')
-                    ->label('Année')
-                    ->sortable(),
-//                Tables\Columns\TextColumn::make('publisher')
-//                    ->label('Editeur')
-//                    ->searchable(),
-//                Tables\Columns\TextColumn::make('quantity')
-//                    ->label('# Exemplaires')
-//                    ->numeric()
-//                    ->sortable(),
-
-//                Tables\Columns\TextColumn::make('support.name')
-//                    ->label('Support')
-//                    ->numeric()
-//                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('theme.name')
-                    ->label('Thème')
-                    ->numeric()
-                    ->sortable(),
-                    
-//                Tables\Columns\TextColumn::make('created_at')
-//                    ->dateTime()
-//                    ->label('Date de création')
-//                    ->sortable()
-//                    ->toggleable(isToggledHiddenByDefault: true),//
-
-
-//                Tables\Columns\TextColumn::make('updated_at')
-//                    ->dateTime()
-//                    ->label('Date de modification')
-//                    ->sortable()
-//                    ->toggleable(isToggledHiddenByDefault: true),
-
-
-            ])
-            ->defaultPaginationPageOption(200)
-            ->paginationPageOptions([200, 500, 1000])
-
-            ->filters([
-                Tables\Filters\SelectFilter::make('is_borrowed')
-                    ->label('Emprunté')
-                    ->options([
-                        'true' => 'Oui',
-                        'false' => 'Non',
-                    ]),
-                Tables\Filters\SelectFilter::make('authors.name')
-                    ->label('Auteurs')
-                    ->relationship('authors', 'name')
-                    ->options(Author::all()->pluck('name', 'id')),
-
-                Tables\Filters\SelectFilter::make('tags.title')
-                    ->label('Tags')
-                    ->multiple()
-                    ->relationship('tags', 'title'),
-
-                Tables\Filters\SelectFilter::make('owner.name')
-                    ->label('Propriétaire')
-                    ->relationship('owner', 'name')
-                    ->options(User::all()->pluck('name', 'id')),
-            ])
-//            ->headerActions([
-//                ImportAction::make()
-//                    ->importer(BookImporter::class)
-//            ])
-
-
-            ->actions([
                 
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            Tables\Columns\TextColumn::make('is_borrowed')
+                ->label('Disponibilité')
+                ->state(function ($record): string {
+                    return $record->is_borrowed ? 'Emprunté' : 'Disponible';
+                })
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'Emprunté' => 'danger',
+                    'Disponible' => 'success',
+                })
+                ->tooltip(fn (Book $record) => $record->is_borrowed 
+                    ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
+                    : "Ce livre est actuellement disponible"
+                ),
+
+
+            TextColumn::make('owner.name')
+                ->label('Propriétaire')
+                ->sortable()
+                ->searchable()
+                ->wrap(),
+
+
+        ];
+
+        // Colonnes supplémentaires pour les admins
+        $adminColumns = [
+            TextColumn::make('id')
+                ->label('ID')
+                ->sortable(),
+
+            TextColumn::make('isbn')
+                ->label('ISBN')
+                ->sortable(),
+
+            TextColumn::make('slug')
+                ->searchable(),
+
+            TextColumn::make('published_at')
+                ->date('Y')
+                ->label('Année')
+                ->sortable(),
+
+            TextColumn::make('theme.name')
+                ->label('Thème')
+                ->numeric()
+                ->sortable(),
+        ];
+
+
+
+        // Actions communes
+        $commonActions = [
+            Tables\Actions\Action::make('borrow')
+                ->label('Emprunter')
+                ->color('success')
+                ->icon('heroicon-s-hand-raised')
+                ->requiresConfirmation()
+                ->modalHeading('Emprunter ce livre')
+                ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
+                ->action(function (Book $book) {
+                    app(LoanService::class)->borrowBook($book);
+                })
+                ->visible(fn (Book $book) => !$book->is_borrowed)
+
+        ];
+
+        // Actions supplémentaires pour les admins
+        $adminActions = [
+            Tables\Actions\EditAction::make(),
+            Tables\Actions\DeleteAction::make()
                 ->requiresConfirmation(false),
-                Tables\Actions\Action::make('open_library')
-                    ->label('O.L. API')
-                    ->icon('heroicon-o-globe-alt')
-                    ->modalContent(fn (Book $record): View => view(
-                        'books.open-library-modal',
-                        [
-                            'record' => $record,
-                            'bookData' => Http::get("https://openlibrary.org/isbn/{$record->isbn}.json")->json(),
-                        ]
-                    ))
-                    ->modalSubmitAction(false)
-                    ->modalCancelAction(false)
-                    
-                    ->visible(fn (Book $record) => ($record->isbn !== null)),
+            Tables\Actions\Action::make('open_library')
+                ->label('O.L. API')
+                ->icon('heroicon-o-globe-alt')
+                ->modalContent(fn (Book $record): View => view(
+                    'books.open-library-modal',
+                    [
+                        'record' => $record,
+                        'bookData' => Http::get("https://openlibrary.org/isbn/{$record->isbn}.json")->json(),
+                    ]
+                ))
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false)
+                ->visible(fn (Book $record) => $record->isbn !== null),
+        ];
 
-                Tables\Actions\Action::make('borrow')
-                    ->label('Emprunter')
-                    ->color('success')
-                    ->icon('heroicon-s-hand-raised')
-                    ->requiresConfirmation()
-                    ->modalHeading('Emprunter ce livre')
-                    ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
-                    ->action(function (Book $book) {
-                        app(LoanService::class)->borrowBook($book);
-                    })
-                    ->visible(fn (Book $book) => !$book->is_borrowed),
+        // Configuration de la table selon le rôle
+        if (auth()->user()?->hasAnyRole(['super_admin', 'admin'])) {
+            $table->columns(array_merge($adminColumns, $commonColumns))
+                ->defaultPaginationPageOption(200)
+                ->paginationPageOptions([200, 500, 1000])
+                ->actions(array_merge($adminActions, $commonActions))
+                ->bulkActions([
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\DeleteBulkAction::make(),
+                    ]),
+                ]);
+        } else {
+            $table->columns($commonColumns)
+                ->defaultPaginationPageOption(50)
+                ->paginationPageOptions([25, 50, 100])
+                ->actions($commonActions);
+        }
 
-                Tables\Actions\Action::make('return')
-                    ->label('Rendre')
-                    ->color('success')
-                    ->icon('heroicon-s-arrow-uturn-left')
-                    ->requiresConfirmation()
-                    ->modalHeading('Rendre ce livre')
-                    ->modalDescription(fn (Book $book) => "Voulez-vous rendre {$book->title} ?")
-                    ->action(function (Book $book) {
-                        app(LoanService::class)->userSignaleReturn($book);
-                    })
-                    ->visible(fn (Book $book) => $book->is_borrowed)
-
-            ])
-
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+        // Filtres communs à tous
+        $table->filters([
+            Tables\Filters\SelectFilter::make('is_borrowed')
+                ->label('Emprunté')
+                ->options([
+                    'true' => 'Oui',
+                    'false' => 'Non',
                 ]),
-            ]);
+            Tables\Filters\SelectFilter::make('authors.name')
+                ->label('Auteurs')
+                ->relationship('authors', 'name')
+                ->options(Author::all()->pluck('name', 'id')),
+            Tables\Filters\SelectFilter::make('owner.name')
+                ->label('Propriétaire')
+                ->relationship('owner', 'name')
+                ->options(User::all()->pluck('name', 'id')),
+        ]);
 
+        return $table;
     }
 
     public static function getRelations(): array

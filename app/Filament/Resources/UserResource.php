@@ -48,9 +48,6 @@ class UserResource extends Resource
                 ->multiple()
                 ->relationship('roles', 'name')
                 ->preload(),
-
-
-                
                 Forms\Components\FileUpload::make('avatar')
                 ->label('Avatar')
                 ->image()
@@ -87,8 +84,8 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('roles.name')
-                ->label('Rôles')
-                ->searchable(),
+                    ->label('Rôles')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('is_after_release')
                     ->label('Activé après la sortie')
                     ->state(function ($record): string {
@@ -100,11 +97,6 @@ class UserResource extends Resource
                         'NON' => 'danger',
                     }),
 
-                
-
-
-
-                
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])

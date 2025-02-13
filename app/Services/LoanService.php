@@ -66,15 +66,28 @@ class LoanService
         }
     }
 
-    public function userSignaleReturn(Book $book): void
+    public function userSignaleReturn(Loan $loan): void
     {
-        $user = Auth::user();
-        $loan = $book->loans()->where(['book_id' => $book->id, 'borrower_id' => $user->id])->first();
-
         if (!$loan) 
         {
             Notification::make()
-                ->title('Nous n\'avons pas trouvé de prêt pour ce livre')
+                ->title('Nous n\'avons retrouvé ce prêt')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        if(!$user = $loan->borrower){
+                Notification::make()
+                    ->title('Nous n\'avons pas trouvé d\'utilisateur pour ce prêt')
+                    ->danger()
+                    ->send();
+                return;
+        }
+
+        if(!$book = $loan->book){
+            Notification::make()
+                ->title('Nous n\'avons pas trouvé de livre pour ce prêt')
                 ->danger()
                 ->send();
             return;
@@ -91,7 +104,6 @@ class LoanService
             ->success()
             ->send();
 
-
         $returnedAt = $loan->returned_at;
         $adminEmail = config('app.admin_email');
 
@@ -101,8 +113,5 @@ class LoanService
             returnedAt: $returnedAt,
             validationToken: $token
         ));
-
-
-
     }
 } 

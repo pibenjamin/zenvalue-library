@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Loan extends Model
 {
@@ -32,11 +33,23 @@ class Loan extends Model
         'return_signaled_at' => 'datetime'
     ];
 
+    private const STATUS_COLORS = [
+        self::STATUS_IN_PROGRESS => 'primary',
+        self::STATUS_RETURNED => 'success',
+        self::STATUS_OVERDUE => 'danger',
+    ];
+
+    private const STATUS_LABELS = [
+        self::STATUS_IN_PROGRESS => 'En cours',
+        self::STATUS_RETURNED => 'Retourné',
+        self::STATUS_OVERDUE => 'En retard',
+    ];
+
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
     }
-
+    
     public function borrower(): BelongsTo
     {
         return $this->belongsTo(User::class, 'borrower_id');
@@ -77,22 +90,24 @@ class Loan extends Model
 
     public function getStatusColor(): string
     {
-        return match ($this->status) {
-            self::STATUS_IN_PROGRESS => 'primary',
-            self::STATUS_RETURNED => 'success',
-            self::STATUS_OVERDUE => 'danger',
-        };
+        return self::STATUS_COLORS[$this->status] ?? 'secondary';
     }
 
+    public function getStatusColors(): array
+    {
+        return self::STATUS_COLORS;
+    }
 
     public function getStatusLabel(): string
     {
-        return match ($this->status) {
-            self::STATUS_IN_PROGRESS => 'En cours',
-            self::STATUS_RETURNED => 'Retourné',
-            self::STATUS_OVERDUE => 'En retard',
-        };
+        return self::STATUS_LABELS[$this->status] ?? 'Inconnu';
     }
+    
+    public function getStatusLabels(): array
+    {
+        return self::STATUS_LABELS;
+    }
+
     public function scopeInProgress($query)
     {
         return $query->where('status', self::STATUS_IN_PROGRESS);

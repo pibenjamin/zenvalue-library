@@ -5,6 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LoanResource\Pages;
 use App\Filament\Resources\LoanResource\RelationManagers;
 use App\Models\Loan;
+use App\Models\Book;
+use App\Models\User;
+use App\Services\LoanService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +15,12 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
+
 
 class LoanResource extends Resource
 {
@@ -38,7 +47,17 @@ class LoanResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        // L'utilisateur ne peut voir que ses propres emprunts
+        if(auth()->user()->role->name === 'user') 
+        {
+            $table->modifyQueryUsing(function (Builder $query) { 
+                if (auth()->user()->role->name === 'user') { 
+                    return $query->where('borrower_id', auth()->id()); 
+                } 
+            }); 
+        }
+
+        $table
             ->columns([
                 Tables\Columns\TextColumn::make('borrower.email')
                     ->label('Emprunteur')
@@ -48,33 +67,68 @@ class LoanResource extends Resource
                     ->sortable(),
 
 
-                Tables\Columns\TextColumn::make('returned_at')
+                Tables\Columns\TextColumn::make('to_be_returned_at')
                     ->label('Date de retour')
+                    ->date('d/m/Y')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
+                    ->badge()
+                    ->color(fn (Loan $record): string => $record->getStatusColor())
+                    ->state(function ($record): string {
+                        $statusLabels = $record->getStatusLabels();
+                        return $statusLabels[$record->status];
+                    })
+              
                     ->sortable(),
+                ]);
 
-                Tables\Columns\TextColumn::make('return_confirmation_token')    
-                    ->label('Token de confirmation')
-            ])
-            ->filters([
+                if(auth()->user()->role->name === 'admin' || auth()->user()->role->name === 'super_admin') {
+                    $table->columns([
+                        Tables\Columns\TextColumn::make('return_confirmation_token')    
+                            ->label('Token de confirmation')
+                        ]);
+                }
+
+
+            $table->filters([
+                
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'pending' => 'En attente',
                         'confirmed' => 'Confirmé',
                         'returned' => 'Retourné',
                     ]),
+
+
+
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
+                Tables\Actions\Action::make('return')
+                ->label('Rendre le livre')
+                ->icon('heroicon-s-arrow-up-on-square')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Rendre ce livre')
+                ->modalDescription(fn (Loan $record) => "Voulez-vous rendre {$record->book->title} ?")
+                ->action(function (Loan $record) {
+                    app(LoanService::class)->userSignaleReturn($record);
+                })
+                ->visible(fn (Loan $record) => $record->status === 'in_progress'),
+
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+
+            return $table;
     }
 
     public static function getRelations(): array

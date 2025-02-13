@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Filament\Facades\Filament;
-
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +22,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
+        Password::defaults(function () {
+            $rule = Password::min(8)
+            ->letters()
+            ->mixedCase()
+            ->numbers();
+
+            return $this->app->isProduction()
+                        ? $rule->mixedCase()->uncompromised()
+                        : $rule;
+        });
 
     }
 }
