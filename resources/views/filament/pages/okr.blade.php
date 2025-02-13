@@ -11,9 +11,10 @@
 <h2 class="fi-header-heading text-xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-2xl">Objectif : Créer une application web conviviale permettant aux consultants de gérer efficacement les emprunts et retours de livres.</h2>
 <ul>
     <li>Résultat Clé 1 : Importer 100% des ouvrages dans l’outil</li>
-    <li>Résultat Clé 2 : Développer les fonctionnalités principales de l'application, y compris la recherche de livres, la gestion des emprunts et des retours, et la consultation des disponibilités, d'ici la fin du trimestre.</li>
-    <li>Résultat Clé 3 : Ouvrir a tous le monde et beta tester plus finement avec 3 citizens volontaires</li>
-    <li>Résultat Clé 4 : Faire un bilan le XX-XX-XXXX sur l’usage, taux d’utilisation parmis les citizens</li>
+    <li>Résultat Clé 2 : Qualité des données : 100% des ouvrages ont un titre, un auteur, une date de publication, une ISBN, une couverture</li>
+    <li>Résultat Clé 3 : Développer les fonctionnalités principales de l'application, y compris la recherche de livres, la gestion des emprunts et des retours, et la consultation des disponibilités, d'ici la fin du trimestre.</li>
+    <li>Résultat Clé 4 : Ouvrir a tous le monde et beta tester plus finement avec 3 citizens volontaires</li>
+    <li>Résultat Clé 5 : Faire un bilan le XX-XX-XXXX sur l’usage, taux d’utilisation parmis les citizens</li>
 </ul>
 
 </x-filament::page>
