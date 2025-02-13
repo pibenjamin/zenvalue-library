@@ -27,9 +27,28 @@ class LoanResource extends Resource
     protected static ?string $model = Loan::class;
     protected static ?string $modelLabel = 'Prêt';
     protected static ?string $pluralModelLabel = 'Prêts';
-    
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+
+    public static function getNavigationBadge(): ?string
+    {
+
+        if(in_array(auth()->user()->role->name, ['admin', 'super_admin']))
+        {
+            $loansInProgress = static::getModel()::where('status', 'in_progress')->count();
+                return $loansInProgress;
+        }
+
+        return null;
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return in_array(auth()->user()->role->name, ['admin', 'super_admin']) 
+            ? 'Nombre de prêts en cours' 
+            : null;
+    }
 
     public static function form(Form $form): Form
     {
