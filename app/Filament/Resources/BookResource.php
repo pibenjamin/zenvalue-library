@@ -159,7 +159,6 @@ class BookResource extends Resource
             ]);
     }
 
-
     public static function table(Table $table): Table
     {
         // Colonnes communes à tous les utilisateurs

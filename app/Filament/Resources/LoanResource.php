@@ -57,39 +57,42 @@ class LoanResource extends Resource
             }); 
         }
 
-        $table
-            ->columns([
-                Tables\Columns\TextColumn::make('borrower.email')
-                    ->label('Emprunteur')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('book.title')
-                    ->label('Ouvrage')
-                    ->sortable(),
+        $adminColumns = [
+            Tables\Columns\TextColumn::make('return_confirmation_token')    
+                ->label('Token de confirmation')
+        ];
 
 
-                Tables\Columns\TextColumn::make('to_be_returned_at')
-                    ->label('Date de retour')
-                    ->date('d/m/Y')
-                    ->sortable(),
+        $commonColumns = [
+            Tables\Columns\TextColumn::make('borrower.email')
+            ->label('Emprunteur')
+            ->sortable(),
 
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Statut')
-                    ->badge()
-                    ->color(fn (Loan $record): string => $record->getStatusColor())
-                    ->state(function ($record): string {
-                        $statusLabels = $record->getStatusLabels();
-                        return $statusLabels[$record->status];
-                    })
-              
-                    ->sortable(),
-                ]);
+            Tables\Columns\TextColumn::make('book.title')
+                ->label('Ouvrage')
+                ->sortable(),
 
-                if(auth()->user()->role->name === 'admin' || auth()->user()->role->name === 'super_admin') {
-                    $table->columns([
-                        Tables\Columns\TextColumn::make('return_confirmation_token')    
-                            ->label('Token de confirmation')
-                        ]);
-                }
+            Tables\Columns\TextColumn::make('to_be_returned_at')
+                ->label('Date de retour')
+                ->date('d/m/Y')
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('status')
+                ->label('Statut')
+                ->badge()
+                ->color(fn (Loan $record): string => $record->getStatusColor())
+                ->state(function ($record): string {
+                    $statusLabels = $record->getStatusLabels();
+                    return $statusLabels[$record->status];
+                })
+                ->sortable(),
+        ];
+
+        if (auth()->user()?->hasAnyRole(['super_admin', 'admin'])) {
+            $table->columns(array_merge($commonColumns, $adminColumns));
+        }else{
+            $table->columns($commonColumns);
+        }
 
 
             $table->filters([

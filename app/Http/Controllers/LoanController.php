@@ -42,32 +42,32 @@ class LoanController extends Controller
         return view('vendor.voyager.loans.my-loans', compact('loans'));
     }
 
-    public function signalReturn(Request $request)
-    {
-        $loan = Loan::findOrFail($request->loan_id);
+//    public function signalReturn(Request $request)
+//    {
+//        $loan = Loan::findOrFail($request->loan_id);
         
         // Générer un token unique
-        $token = hash_hmac('sha256', $loan->id . $loan->book_id . time(), config('app.key'));
+//        $token = hash_hmac('sha256', $loan->id . $loan->book_id . time(), config('app.key'));
         
         // Marquer comme "retour en cours"
-        $loan->update([
-            'return_signaled_at' => now(),
-            'return_confirmation_token' => $token,
-            'status' => Loan::STATUS_RETURN_IN_PROGRESS  // Utilisation de la constante
-        ]);
+//        $loan->update([
+//            'return_signaled_at' => now(),
+//            'return_confirmation_token' => $token,
+//            'status' => Loan::STATUS_RETURN_IN_PROGRESS  // Utilisation de la constante
+//        ]);
 
-        // Envoyer l'email au gestionnaire
-        $librarians = User::where('role_id', 3)->get();
+//        // Envoyer l'email au gestionnaire
+//        $librarians = User::where('role_id', 3)->get();
 
-        foreach($librarians as $librarian) {
-            Mail::to($librarian->email)->send(new ReturnSignaled($loan));
-        }
+//        foreach($librarians as $librarian) {
+//            Mail::to($librarian->email)->send(new ReturnSignaled($loan));
+//        }
 
-        return response()->json([
-            'message' => 'Retour signalé avec succès. Un bibliothécaire va confirmer le retour.',
-            'success' => true
-        ]);
-    }
+//        return response()->json([
+//            'message' => 'Retour signalé avec succès. Un bibliothécaire va confirmer le retour.',
+//            'success' => true
+//        ]);
+//    }
 
     public function validateReturn(Request $request)
     {
