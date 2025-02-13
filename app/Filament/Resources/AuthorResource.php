@@ -36,6 +36,10 @@ class AuthorResource extends Resource
                     ->label('Nom')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('books_count')
+                    ->label('Nombre de livres')
+                    ->counts('books')
+                    ->sortable(),
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
