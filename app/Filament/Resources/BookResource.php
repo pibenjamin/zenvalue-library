@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\Http;
 use Filament\Forms\Components\DatePicker;
 
 use App\Filament\Imports\ProductImporter;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use Faker\Provider\ar_EG\Text;
 use Filament\Actions\ImportAction;
 
 use Filament\Tables\Filters\TextInputFilter;
@@ -57,6 +59,13 @@ class BookResource extends Resource
                     ->helperText('Le titre de l\'ouvrage est obligatoire')
                     ->required()
                     ->maxLength(255),
+
+                Forms\Components\Toggle::make('missing')
+                    ->label('Manquant')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->default(false),
+
                 Forms\Components\Textarea::make('description')
                     ->label('Description')
                     ->placeholder('Description de l\'ouvrage')
@@ -156,7 +165,6 @@ class BookResource extends Resource
                 Forms\Components\Select::make('theme_id')
                     ->label('Thème')
                     ->relationship('theme', 'name')
-
             ]);
     }
 
@@ -207,14 +215,24 @@ class BookResource extends Resource
                 ->sortable()
                 ->searchable()
                 ->wrap(),
-
-
         ];
 
         // Colonnes supplémentaires pour les admins
         $adminColumns = [
             TextColumn::make('id')
                 ->label('ID')
+                ->sortable(),
+
+                TextColumn::make('missing')
+                ->label('Perdu')
+                ->state(function ($record): string {
+                    return $record->missing ? 'oui' : 'non';
+                })
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'oui' => 'success',
+                    'non' => 'danger',
+                })
                 ->sortable(),
 
             TextColumn::make('isbn')
@@ -226,8 +244,6 @@ class BookResource extends Resource
                 ->numeric()
                 ->sortable(),
         ];
-
-
 
         // Actions communes
         $commonActions = [
@@ -242,7 +258,6 @@ class BookResource extends Resource
                     app(LoanService::class)->borrowBook($book);
                 })
                 ->visible(fn (Book $book) => !$book->is_borrowed)
-
         ];
 
         // Actions supplémentaires pour les admins
@@ -310,13 +325,6 @@ class BookResource extends Resource
         return $table;
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
@@ -325,6 +333,4 @@ class BookResource extends Resource
             'edit' => Pages\EditBook::route('/{record}/edit'),
         ];
     }
-
-
 }

@@ -25,8 +25,12 @@ class Book extends Model
         'publisher',
         'quantity',
         'support_id',
-        'theme_id',
+        'is_borrowed',
+        'missing',
     ];
+
+
+    
 
     protected $casts = [
         'is_borrowed' => 'boolean',
@@ -34,6 +38,7 @@ class Book extends Model
         'published_at' => 'date',
         'quantity' => 'integer',
         'pages' => 'integer',
+        'missing' => 'boolean'
     ];
 
     public function authors(): BelongsToMany
