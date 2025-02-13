@@ -29,6 +29,7 @@ use Filament\Resources\Components\Tab;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Http;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
 
 use App\Filament\Imports\ProductImporter;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
@@ -158,13 +159,22 @@ class BookResource extends Resource
                     ->label('# Exemplaires')
                     ->numeric()
                     ->default(1),
+
                 Forms\Components\Select::make('support_id')
                     ->label('Support')
                     ->relationship('support', 'name')
                     ->required(),
+
                 Forms\Components\Select::make('theme_id')
                     ->label('Thème')
-                    ->relationship('theme', 'name')
+                    ->relationship('theme', 'name'),
+
+                Forms\Components\Radio::make('difficulty_level')
+                    ->label('Difficulté')
+                    ->options(Book::getDifficulties())
+                    ->default(null),
+
+
             ]);
     }
 
@@ -215,6 +225,16 @@ class BookResource extends Resource
                 ->sortable()
                 ->searchable()
                 ->wrap(),
+
+            TextColumn::make('difficulty_level')
+                ->label('Difficulté')
+                ->sortable()
+                ->badge()
+                ->state(function ($record): string {
+                    return $record->getDifficultyLabel();
+                })
+                ->color(fn (Book $record): string => $record->getDifficultyColor()),
+
         ];
 
         // Colonnes supplémentaires pour les admins
@@ -237,11 +257,6 @@ class BookResource extends Resource
 
             TextColumn::make('isbn')
                 ->label('ISBN')
-                ->sortable(),
-
-            TextColumn::make('theme.name')
-                ->label('Thème')
-                ->numeric()
                 ->sortable(),
         ];
 

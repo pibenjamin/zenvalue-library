@@ -13,15 +13,12 @@ class Loan extends Model
     const STATUS_OVERDUE            = 'overdue';
     const STATUS_RETURN_IN_PROGRESS = 'return_in_progress';
 
-
     protected $fillable = [
         'book_id',
         'borrower_id',
         'borrowed_at',
         'returned_at',
         'to_be_returned_at',
-
-
         'return_signaled_at',
         'return_confirmed_by',
         'return_confirmation_token',

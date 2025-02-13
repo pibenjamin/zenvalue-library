@@ -9,6 +9,26 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
+
+    const DIFFICULTY_LEVEL_EASY         = 'easy';
+    const DIFFICULTY_LEVEL_MEDIUM       = 'medium';
+    const DIFFICULTY_LEVEL_HARD         = 'hard';
+    const DIFFICULTY_LEVEL_EXPERT       = 'expert';
+
+    private const DIFFICULTY_LABELS = [
+        self::DIFFICULTY_LEVEL_EASY     => 'Facile',
+        self::DIFFICULTY_LEVEL_MEDIUM   => 'Moyen',
+        self::DIFFICULTY_LEVEL_HARD     => 'Difficile',
+        self::DIFFICULTY_LEVEL_EXPERT   => 'Expert',
+    ];  
+
+    private const DIFFICULTY_COLORS = [
+        self::DIFFICULTY_LEVEL_EASY     => 'success',
+        self::DIFFICULTY_LEVEL_MEDIUM   => 'warning',
+        self::DIFFICULTY_LEVEL_HARD     => 'danger',
+        self::DIFFICULTY_LEVEL_EXPERT   => 'expert',
+    ];
+
     protected $fillable = [
         'title',
         'slug',
@@ -27,18 +47,16 @@ class Book extends Model
         'support_id',
         'is_borrowed',
         'missing',
+        'difficulty_level'
     ];
-
-
-    
-
     protected $casts = [
         'is_borrowed' => 'boolean',
         'open_library_parsed' => 'boolean',
         'published_at' => 'date',
         'quantity' => 'integer',
         'pages' => 'integer',
-        'missing' => 'boolean'
+        'missing' => 'boolean',
+        'difficulty_level' => 'string'
     ];
 
     public function authors(): BelongsToMany
@@ -80,4 +98,20 @@ class Book extends Model
     {
         return $this->loans()->latest()->first();
     }
+
+    public static function getDifficulties(): array
+    {
+        return self::DIFFICULTY_LABELS;
+    }
+
+    public function getDifficultyLabel(): string
+    {
+        return self::DIFFICULTY_LABELS[$this->difficulty_level] ?? 'Non défini';
+    }
+
+    public function getDifficultyColor(): string
+    {
+        return self::DIFFICULTY_COLORS[$this->difficulty_level] ?? 'secondary';
+    }
+
 } 

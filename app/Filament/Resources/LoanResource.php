@@ -29,7 +29,21 @@ class LoanResource extends Resource
     protected static ?string $pluralModelLabel = 'Prêts';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Gestion des prêts';
 
+
+
+    public static function getNavigationLabel(): string
+    {
+        if(in_array(auth()->user()->role->name, ['admin', 'super_admin'])){
+            return 'Prêts';
+        }
+        if(in_array(auth()->user()->role->name, ['user'])){
+            return 'Mes prêts';            
+        }
+
+
+    }
 
     public static function getNavigationBadge(): ?string
     {
