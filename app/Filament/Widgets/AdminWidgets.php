@@ -20,6 +20,8 @@ class AdminWidgets extends BaseWidget
             Stat::make('# de tags', Tag::count()),
             Stat::make('# d\'utilisateurs activés / utilisateurs', User::where('updated_at', '>=', env('APP_RELEASE_DATE'))->count() . ' / ' . User::count()),
             Stat::make('Combien sommes-nous à partager des livres ?', Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id')),
+            Stat::make('# de livres sans couverture', Book::where('cover_url', null)->count() . ' soit ' . round(Book::where('cover_url', null)->count() / Book::count() * 100) . '%'),
+            Stat::make('# de livres sans ISBN', Book::where('isbn', null)->count() . ' soit ' . round(Book::where('isbn', null)->count() / Book::count() * 100) . '%'),
         ];
     }
 

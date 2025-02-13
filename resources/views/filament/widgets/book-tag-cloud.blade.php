@@ -10,7 +10,9 @@
                         style="font-size: {{ $word['size'] }}px"
                         title="{{ $word['count'] }} occurrences"
                     >
+                    <a href="/admin/books?tableSearch={{ $word['text'] }}">
                         {{ $word['text'] }}
+                    </a>
                     </span>
                 @endforeach
             </div>

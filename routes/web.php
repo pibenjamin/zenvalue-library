@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\LoanController;
+use App\Models\Role;
+
 Route::get('/test-email', function () {
 
     Mail::raw('Test de l\'envoi d\'un e-mail dans les logs.', function ($message) {
@@ -24,6 +26,10 @@ Route::post('/loans/signal-return', [LoanController::class],'signalReturn')->nam
 
 Route::get('/admin/validate-return/{token}', [LoanController::class,'validateReturn'])->name('admin.validate-return');
 
+Route::get('/admin/books/custom-filter/{filter}', function ($filter) {
+    $books = Book::all();
+    return view('admin.books.custom-filter', compact('books'));
+});
 
 //oute::get('/book/borrow/{id}', [VoyagerLibraryController::class],'borrow')->name('borrow');
 //Route::post('/books/mass-update-theme', [VoyagerBookController::class],'massUpdateTheme')->name('books.mass-update-theme');

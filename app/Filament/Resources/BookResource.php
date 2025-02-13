@@ -178,6 +178,7 @@ class BookResource extends Resource
             Tables\Columns\ImageColumn::make('cover_url')
                 ->label('Couverture')
                 ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
+                ->sortable()
                 ->height(100),
 
                 
@@ -196,6 +197,10 @@ class BookResource extends Resource
                     : "Ce livre est actuellement disponible"
                 ),
 
+            TextColumn::make('published_at')
+                ->date('Y')
+                ->label('Année')
+                ->sortable(),
 
             TextColumn::make('owner.name')
                 ->label('Propriétaire')
@@ -214,11 +219,6 @@ class BookResource extends Resource
 
             TextColumn::make('isbn')
                 ->label('ISBN')
-                ->sortable(),
-
-            TextColumn::make('published_at')
-                ->date('Y')
-                ->label('Année')
                 ->sortable(),
 
             TextColumn::make('theme.name')
