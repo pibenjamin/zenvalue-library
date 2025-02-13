@@ -37,6 +37,7 @@ use Filament\Tables\Filters\TextInputFilter;
 use Filament\Tables\Filters\Filter;
 
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\ActionGroup;
 
 class BookResource extends Resource
 {
@@ -215,9 +216,6 @@ class BookResource extends Resource
                 ->label('ISBN')
                 ->sortable(),
 
-            TextColumn::make('slug')
-                ->searchable(),
-
             TextColumn::make('published_at')
                 ->date('Y')
                 ->label('Année')
@@ -249,6 +247,8 @@ class BookResource extends Resource
 
         // Actions supplémentaires pour les admins
         $adminActions = [
+            ActionGroup::make([
+
             Tables\Actions\EditAction::make(),
             Tables\Actions\DeleteAction::make()
                 ->requiresConfirmation(false),
@@ -265,14 +265,15 @@ class BookResource extends Resource
                 ->modalSubmitAction(false)
                 ->modalCancelAction(false)
                 ->visible(fn (Book $record) => $record->isbn !== null),
+            ])
         ];
 
         // Configuration de la table selon le rôle
         if (auth()->user()?->hasAnyRole(['super_admin', 'admin'])) {
             $table->columns(array_merge($adminColumns, $commonColumns))
-                ->defaultPaginationPageOption(200)
-                ->paginationPageOptions([200, 500, 1000])
-                ->actions(array_merge($adminActions, $commonActions))
+                ->actions(
+                        array_merge($adminActions)
+                )
                 ->bulkActions([
                     Tables\Actions\BulkActionGroup::make([
                         Tables\Actions\DeleteBulkAction::make(),
@@ -284,6 +285,9 @@ class BookResource extends Resource
                 ->paginationPageOptions([25, 50, 100])
                 ->actions($commonActions);
         }
+
+        $table->defaultPaginationPageOption(200)
+        ->paginationPageOptions([200, 500, 1000]);
 
         // Filtres communs à tous
         $table->filters([
