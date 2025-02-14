@@ -24,6 +24,7 @@ use App\Services\LoanService;
 
 use Illuminate\Contracts\View\View;
 
+use Filament\Tables\Enums\ActionsPosition;
 
 use Filament\Resources\Components\Tab;
 use Filament\Tables\Actions\Action;
@@ -345,6 +346,8 @@ class BookResource extends Resource
                 ->relationship('owner', 'name')
                 ->options(User::all()->pluck('name', 'id')),
         ]);
+
+        $table->actionsPosition(ActionsPosition::BeforeColumns);
 
         return $table;
     }
