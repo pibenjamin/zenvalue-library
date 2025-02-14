@@ -15,13 +15,18 @@ class AdminWidgets extends BaseWidget
 
     protected function getCards(): array
     {
+        $activatedUsers         = User::whereDate('updated_at', '>=', env('APP_RELEASE_DATE'))->count();
+        $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
+        $booksWithoutCover      = Book::where('cover_url', null)->count();
+        $booksWithoutISBN       = Book::where('isbn', null)->count();
+
         return [
             Stat::make('# de livres', Book::count()),
             Stat::make('# de tags', Tag::count()),
-            Stat::make('# d\'utilisateurs activés / utilisateurs', User::where('updated_at', '>=', env('APP_RELEASE_DATE'))->count() . ' / ' . User::count()),
-            Stat::make('Combien sommes-nous à partager des livres ?', Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id')),
-            Stat::make('# de livres sans couverture', Book::where('cover_url', null)->count() . ' soit ' . round(Book::where('cover_url', null)->count() / Book::count() * 100) . '%'),
-            Stat::make('# de livres sans ISBN', Book::where('isbn', null)->count() . ' soit ' . round(Book::where('isbn', null)->count() / Book::count() * 100) . '%'),
+            Stat::make('# d\'utilisateurs activés / utilisateurs', $activatedUsers . ' / ' . User::count()),
+            Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks),
+            Stat::make('# de livres sans couverture', $booksWithoutCover . ' soit ' . round($booksWithoutCover / Book::count() * 100) . '%'),
+            Stat::make('# de livres sans ISBN', $booksWithoutISBN . ' soit ' . round($booksWithoutISBN / Book::count() * 100) . '%'),
         ];
     }
 

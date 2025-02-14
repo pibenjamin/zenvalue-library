@@ -190,6 +190,8 @@ class BookResource extends Resource
 
             TextColumn::make('authors.name')
                 ->label('Auteurs')
+                ->badge()
+                ->color('gray')
                 ->wrap()
                 ->searchable(),
 
@@ -228,6 +230,7 @@ class BookResource extends Resource
             TextColumn::make('tags.title')
                 ->label('Tags')
                 ->badge()
+                ->color('gray')
                 ->wrap()
                 ->searchable(),
 
