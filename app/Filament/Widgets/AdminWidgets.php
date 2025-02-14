@@ -3,29 +3,50 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\Tag;
+
+use Filament\Support\Enums\IconPosition;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class AdminWidgets extends BaseWidget
 {
 
     protected static ?int $sort = 1; // Position après le FilamentInfoWidget
 
+    protected function getHeading(): ?string
+    {
+        return 'Statistiques';
+    }
+     
+    protected function getDescription(): ?string
+    {
+        return 'Un résumé des statistiques de l\'application.';
+    }
+
+
     protected function getCards(): array
     {
-        $activatedUsers         = User::whereDate('updated_at', '>=', env('APP_RELEASE_DATE'))->count();
-        $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
-        $booksWithoutCover      = Book::where('cover_url', null)->count();
+//        $activatedUsers         = User::whereDate('updated_at', '>=', env('APP_RELEASE_DATE'))->count();
+//        $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
+//        $booksWithoutCover      = Book::where('cover_url', null)->count();
         $booksWithoutISBN       = Book::where('isbn', null)->count();
 
         return [
-            Stat::make('# de livres', Book::count()),
-            Stat::make('# de tags', Tag::count()),
-            Stat::make('# d\'utilisateurs activés / utilisateurs', $activatedUsers . ' / ' . User::count()),
-            Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks),
-            Stat::make('# de livres sans couverture', $booksWithoutCover . ' soit ' . round($booksWithoutCover / Book::count() * 100) . '%'),
+//            Stat::make('', Book::count() . ' livres')
+//                ->description('Total des livres répertoriés')
+//                ->descriptionIcon('heroicon-m-book-open', IconPosition::Before)
+//                ->chart([7, 2, 10, 3, 15, 4, 17])
+//                ->color('success'),
+
+
+
+
+//            Stat::make('# de tags', Tag::count()),
+//            Stat::make('# d\'utilisateurs activés / utilisateurs', $activatedUsers . ' / ' . User::count()),
+//            Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks),
+//            Stat::make('# de livres sans couverture', $booksWithoutCover . ' soit ' . round($booksWithoutCover / Book::count() * 100) . '%'),
             Stat::make('# de livres sans ISBN', $booksWithoutISBN . ' soit ' . round($booksWithoutISBN / Book::count() * 100) . '%'),
         ];
     }

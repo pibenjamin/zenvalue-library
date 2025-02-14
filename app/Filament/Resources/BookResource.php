@@ -194,7 +194,9 @@ class BookResource extends Resource
                 ->badge()
                 ->color('gray')
                 ->wrap()
+                ->verticallyAlignStart()
                 ->searchable(),
+                
 
             Tables\Columns\ImageColumn::make('cover_url')
                 ->label('Couverture')

@@ -17,9 +17,9 @@ class UserStatsWidgets extends BaseWidget
     protected function getCards(): array
     {
         return [
-            Stat::make('Nombre de livres', Book::count()),
-            Stat::make('Nombre d\'auteurs', Author::count()),
-            Stat::make('Nombre de tags', Tag::count()),
+            Stat::make('', Book::count() . ' livres'),
+            Stat::make('', Author::count() . ' auteurs'),
+            Stat::make('', Tag::count() . ' tags'),
 
 
 
