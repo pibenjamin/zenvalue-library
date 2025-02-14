@@ -41,6 +41,11 @@ class User extends Authenticatable implements FilamentUser
         'remember_token',
     ];
 
+    const ROLE_SUPER_ADMIN  = 1;
+    const ROLE_ADMIN        = 2;
+    const ROLE_USER         = 3;
+
+
     /**
      * Get the attributes that should be cast.
      *

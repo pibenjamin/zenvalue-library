@@ -28,11 +28,10 @@ class LoanOverdueReminder extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Rappel : Livre en retard')
-            ->line('Ceci est un rappel concernant un livre en retard.')
-            ->line('Livre : ' . $this->loan->book->title)
-            ->line('Date de retour prévue : ' . $this->loan->to_be_returned_at->format('d/m/Y'))
-            ->line('Jours de retard : ' . $this->daysOverdue)
-            ->action('Déclarer un retour', url('/loans/return/' . $this->loan->id));
+            ->subject("Rappel : Retour de livre en retard")
+            ->view('emails.loans.overdue-reminder', [
+                'loan' => $this->loan,
+                'daysOverdue' => $this->daysOverdue
+            ]);
     }
 } 

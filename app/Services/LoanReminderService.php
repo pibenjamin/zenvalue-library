@@ -32,7 +32,7 @@ class LoanReminderService
         return Loan::query()
             ->where('to_be_returned_at', '<', Carbon::now())
             ->whereNull('returned_at')
-            ->whereRaw('DATEDIFF(NOW(), to_be_returned_at) % 3 = 0')
+            ->whereRaw('DATEDIFF(NOW(), to_be_returned_at) % ' . config('app.recurring_late_loan_reminder_days') . ' = 0')
             ->with(['book', 'borrower']) // Eager load relationships
             ->get();
     }

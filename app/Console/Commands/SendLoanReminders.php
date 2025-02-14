@@ -64,24 +64,47 @@ class SendLoanReminders extends Command
         $loans = $this->reminderService->getLoansNeedingRecurringReminder();
         
         foreach ($loans as $loan) {
-            $daysOverdue = $loan->to_be_returned_at->diffInDays(now());
+            $daysOverdue = round($loan->to_be_returned_at->diffInDays(now()));
             $loan->borrower->notify(new LoanOverdueReminder($loan, $daysOverdue));
+
+            // Update the recurring_reminder_sent_at timestamp
+            $loan->last_recurring_reminder_sent_at = now();
+            $loan->save();
             
-            $this->info("Sent recurring reminder for loan #{$loan->id}");
+            $this->info(sprintf(
+                "Sent recurring reminder for loan #%d | Book: %s (#%d) | User: %s (#%d) | Overdue: %d days",
+                $loan->id,
+                $loan->book->title,
+                $loan->book->id,
+                $loan->borrower->email,
+                $loan->borrower->id,
+                $daysOverdue
+            ));
         }
     }
 
     protected function sendUrgentNotifications()
     {
-        $loans = $this->reminderService->getLoansOverdueByMonth();
-        $librarians = User::where('role_id', 3)->get();
+        $loans      = $this->reminderService->getLoansOverdueByMonth();
+        $librarians = User::whereIn('role_id', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN])->get();
         
         foreach ($loans as $loan) {
             foreach ($librarians as $librarian) {
                 $librarian->notify(new UrgentOverdueNotification($loan));
             }
+
+            // Update the urgent_notification_sent_at timestamp
+            $loan->urgent_notification_sent_at = now();
+            $loan->save();
             
-            $this->info("Sent urgent notification for loan #{$loan->id} to librarians");
+            $this->info(sprintf(
+                "Sent urgent notification for loan #%d | Book: %s (#%d) | User: %s (#%d)",
+                $loan->id,
+                $loan->book->title,
+                $loan->book->id,
+                $loan->borrower->email,
+                $loan->borrower->id
+            ));
         }
     }
 } 

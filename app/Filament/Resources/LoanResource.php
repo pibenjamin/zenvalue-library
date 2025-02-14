@@ -109,7 +109,7 @@ class LoanResource extends Resource
                     ->relationship('book', 'title')
                     ->required(),
                 Forms\Components\DatePicker::make('to_be_returned_at')
-                    ->label('Rappel envoyé le')
+                    ->label('Date de retour programmée')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
@@ -118,12 +118,12 @@ class LoanResource extends Resource
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
-                Forms\Components\DatePicker::make('recurring_reminder_sent_at')
+                Forms\Components\DatePicker::make('last_recurring_reminder_sent_at')
                     ->label('Rappel récurrent envoyé le')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
-                Forms\Components\DatePicker::make('urgent_reminder_sent_at')
+                Forms\Components\DatePicker::make('urgent_notification_sent_at')
                     ->label('Rappel urgent envoyé le')
                     ->displayFormat('D d/m/Y')
                     ->native(false)

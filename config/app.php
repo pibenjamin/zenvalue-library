@@ -128,6 +128,6 @@ return [
 
     'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
 
-
+    'recurring_late_loan_reminder_days' => env('RECURRING_LATE_LOAN_REMINDER_DAYS', 5),
 
 ];
