@@ -19,11 +19,7 @@ class UserStatsWidgets extends BaseWidget
         return [
             Stat::make('', Book::count() . ' livres'),
             Stat::make('', Author::count() . ' auteurs'),
-            Stat::make('', Tag::count() . ' tags'),
-
-
-
-            
+            Stat::make('', Tag::count() . ' mots-clés'),
         ];
     }
 
