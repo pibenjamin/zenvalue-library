@@ -22,6 +22,7 @@ use App\Filament\Resources\LoanResource\RelationManagers;
 // Filament Forms
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\DatePicker;
 
 // Filament Tables
 use Filament\Tables;
@@ -106,6 +107,10 @@ class LoanResource extends Resource
                 Forms\Components\Select::make('book_id')
                     ->relationship('book', 'title')
                     ->required(),
+                Forms\Components\DatePicker::make('to_be_returned_at')
+                    ->label('Date de retour')
+                    ->required()
+
                     
             ]);
     }

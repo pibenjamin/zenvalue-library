@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up()
+    {
+        Schema::table('loans', function (Blueprint $table) {
+            $table->timestamp('first_reminder_sent_at')->nullable();
+            $table->timestamp('last_recurring_reminder_sent_at')->nullable();
+            $table->timestamp('urgent_notification_sent_at')->nullable();
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('loans', function (Blueprint $table) {
+            $table->dropColumn([
+                'first_reminder_sent_at',
+                'last_recurring_reminder_sent_at',
+                'urgent_notification_sent_at'
+            ]);
+        });
+    }
+}; 
