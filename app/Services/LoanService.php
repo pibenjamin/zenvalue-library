@@ -144,4 +144,19 @@ class LoanService
             validationToken: $token
         ));
     }
+
+    public function getLoanCountsByStatus(?int $borrowerId = null): array
+    {
+        $query = Loan::query();
+        
+        if ($borrowerId) {
+            $query->where('borrower_id', $borrowerId);
+        }
+
+        return [
+            'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
+            'pending' => (clone $query)->where('status', 'pending')->count(),
+            'returned' => (clone $query)->where('status', 'returned')->count(),
+        ];
+    }
 } 
