@@ -272,6 +272,7 @@ class BookResource extends Resource
 
         // Actions communes
         $commonActions = [
+            
             Tables\Actions\Action::make('borrow')
                 ->label('Emprunter')
                 ->color('success')
