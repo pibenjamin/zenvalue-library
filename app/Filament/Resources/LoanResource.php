@@ -105,31 +105,52 @@ class LoanResource extends Resource
                 Forms\Components\Select::make('borrower_id')
                     ->relationship('borrower', 'name')
                     ->required(),
+                
                 Forms\Components\Select::make('book_id')
                     ->relationship('book', 'title')
                     ->required(),
+                
+                Forms\Components\DatePicker::make('borrowed_at')
+                    ->label('Date d\'emprunt')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
+                
+                Forms\Components\DatePicker::make('returned_at')
+                    ->label('Date de retour')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
+
                 Forms\Components\DatePicker::make('to_be_returned_at')
                     ->label('Date de retour programmée')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
+                
+                Forms\Components\DatePicker::make('return_signaled_at')
+                    ->label('Date d\'emprunt')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
+
                 Forms\Components\DatePicker::make('first_reminder_sent_at')
                     ->label('Rappel envoyé le')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
+                
                 Forms\Components\DatePicker::make('last_recurring_reminder_sent_at')
                     ->label('Rappel récurrent envoyé le')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
+                
                 Forms\Components\DatePicker::make('urgent_notification_sent_at')
                     ->label('Rappel urgent envoyé le')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
-                    ->nullable(true),
-
-                    
+                    ->nullable(true),     
             ]);
     }
 
