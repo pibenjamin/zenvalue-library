@@ -2,25 +2,41 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LoanResource\Pages;
-use App\Filament\Resources\LoanResource\RelationManagers;
-use App\Models\Loan;
-use App\Models\Book;
-use App\Models\User;
-use App\Services\LoanService;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
+// Framework & Base
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use Filament\Tables\Filters\Filter;
+// Models
+use App\Models\Loan;
+use App\Models\Book;
+use App\Models\User;
+
+// Services
+use App\Services\LoanService;
+
+// Filament Base
+use Filament\Resources\Resource;
+use App\Filament\Resources\LoanResource\Pages;
+use App\Filament\Resources\LoanResource\RelationManagers;
+
+// Filament Forms
+use Filament\Forms;
+use Filament\Forms\Form;
+
+// Filament Tables
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Grouping\Group;
+
+// Filament Filters
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
-use Filament\Tables\Actions\ActionGroup;
+
+// Filament Components
+use Filament\Infolists\Components\Tabs;
 
 class LoanResource extends Resource
 {
@@ -178,6 +194,15 @@ class LoanResource extends Resource
                 ]),
             ]);
 
+
+            $table
+            ->groups([
+                Group::make('status')
+                    ->label('Statut')
+                    ->getTitleFromRecordUsing(fn (Loan $record): string => $record->getStatusLabel()),   
+            ])
+            ->defaultGroup('status');
+            
             return $table;
     }
 
