@@ -32,13 +32,15 @@ class SendLoanReminders extends Command
     protected function sendFirstReminders()
     {
         $loans = $this->reminderService->getLoansDueForFirstReminder();
+        $this->info("Sending first reminders for " . $loans->count() . " loans");
         
         foreach ($loans as $loan) {
-            $daysUntilDue = now()->diffInDays($loan->to_be_returned_at);
+            $daysUntilDue = round(now()->diffInDays($loan->to_be_returned_at));
             $loan->borrower->notify(new LoanDueReminder($loan, $daysUntilDue));
             
             // Update the reminder sent timestamp
-            $loan->update(['first_reminder_sent_at' => now()]);
+            $loan->first_reminder_sent_at = now();
+            $loan->save();
             
             // Log the reminder details with:
             // - Loan ID

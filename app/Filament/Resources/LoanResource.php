@@ -23,6 +23,7 @@ use App\Filament\Resources\LoanResource\RelationManagers;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Toggle;
 
 // Filament Tables
 use Filament\Tables;
@@ -108,8 +109,25 @@ class LoanResource extends Resource
                     ->relationship('book', 'title')
                     ->required(),
                 Forms\Components\DatePicker::make('to_be_returned_at')
-                    ->label('Date de retour')
-                    ->required()
+                    ->label('Rappel envoyé le')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
+                Forms\Components\DatePicker::make('first_reminder_sent_at')
+                    ->label('Rappel envoyé le')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
+                Forms\Components\DatePicker::make('recurring_reminder_sent_at')
+                    ->label('Rappel récurrent envoyé le')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
+                Forms\Components\DatePicker::make('urgent_reminder_sent_at')
+                    ->label('Rappel urgent envoyé le')
+                    ->displayFormat('D d/m/Y')
+                    ->native(false)
+                    ->nullable(true),
 
                     
             ]);

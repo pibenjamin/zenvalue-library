@@ -2,37 +2,32 @@
 
 namespace App\Notifications;
 
+use App\Models\Loan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-use App\Models\Loan;
 
 class LoanDueReminder extends Notification
 {
     use Queueable;
 
-    protected $loan;
-    protected $daysUntilDue;
+    public function __construct(
+        public Loan $loan,
+        public int $daysUntilDue
+    ) {}
 
-    public function __construct(Loan $loan, $daysUntilDue)
-    {
-        $this->loan = $loan;
-        $this->daysUntilDue = $daysUntilDue;
-    }
-
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Rappel de retour de livre')
-            ->line('Ceci est un rappel concernant un livre à retourner prochainement.')
-            ->line('Livre : ' . $this->loan->book->title)
-            ->line('Date de retour : ' . $this->loan->to_be_returned_at->format('d/m/Y'))
-            ->line('Jours restants : ' . $this->daysUntilDue)
-            ->action('Voir mes emprunts', url('/loans'));
+            ->subject("Rappel : Retour de livre dans {$this->daysUntilDue} jours")
+            ->view('emails.loans.due-reminder', [
+                'loan' => $this->loan,
+                'daysUntilDue' => $this->daysUntilDue
+            ]);
     }
 } 
