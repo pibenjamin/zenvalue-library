@@ -1,8 +1,7 @@
-- créer un dashboard pour l'admin avec les widgets
-- créer un dashboard pour l'utilisateur avec les widgets
-    - emprunts en cours avec lien pour retourner les livres
-    - emprunts par d'autres utilisateurs de mes livres
-    - derniers livres ajoutés à la bibliothèque
-    - mon historique de prêts
+tester que les notifications de rappel fonctionnent:
+sendFirstReminders
+sendRecurringReminders
+sendUrgentNotifications
 
-    
+
+

@@ -12,7 +12,8 @@
         "filament/filament": "3.2.136",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
-        "livewire/livewire": "3.5.12"
+        "livewire/livewire": "3.5.12",
+        "solution-forest/filament-access-management": "^2.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

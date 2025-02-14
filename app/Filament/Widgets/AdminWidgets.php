@@ -34,11 +34,13 @@ class AdminWidgets extends BaseWidget
         $booksWithoutISBN       = Book::where('isbn', null)->count();
 
         return [
-//            Stat::make('', Book::count() . ' livres')
-//                ->description('Total des livres répertoriés')
-//                ->descriptionIcon('heroicon-m-book-open', IconPosition::Before)
-//                ->chart([7, 2, 10, 3, 15, 4, 17])
-//                ->color('success'),
+            Stat::make('', Book::count() . ' livres')
+                ->description('Total des livres répertoriés')
+                ->descriptionIcon('heroicon-m-book-open', IconPosition::Before)
+                ->tap(function () {
+                    $this->info('Widget AdminWidgets chargé');
+                    $this->comment('Position de l\'icône : Before');
+                }),
 
 
 
