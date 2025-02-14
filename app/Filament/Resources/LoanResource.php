@@ -61,11 +61,13 @@ class LoanResource extends Resource
             $query->where('borrower_id', $borrowerId);
         }
 
-        return [
-            'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
-            'pending' => (clone $query)->where('status', 'pending')->count(),
-            'returned' => (clone $query)->where('status', 'returned')->count(),
-        ];
+        if(auth()->user()?->hasRole(['admin', 'super_admin'])){
+            return [
+                'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
+                'pending' => (clone $query)->where('status', 'pending')->count(),
+                'returned' => (clone $query)->where('status', 'returned')->count(),
+            ];
+        }
     }
 
     public static function getNavigationBadge(): ?string
@@ -73,13 +75,25 @@ class LoanResource extends Resource
         $counts = app(LoanService::class)->getLoanCountsByStatus(
             auth()->user()?->hasRole('user') ? auth()->id() : null
         );
+        
+        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+    
+            return implode(' - ', array_values($counts));
+        }
+        if(auth()->user()?->hasRole(['user'])){
+    
+            return $counts['in_progress'];
+        }
 
-        return implode(' - ', array_values($counts));
     }
 
     public static function getNavigationBadgeTooltip(): ?string
     {
-        return 'Nombre de prêts en cours - en attente - retournés';
+        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+            return 'Nombre de prêts en cours - en attente - retournés';
+        }
+
+        return 'Nombre de prêts en cours';
     }
 
     public static function form(Form $form): Form
