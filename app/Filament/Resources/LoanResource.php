@@ -117,7 +117,7 @@ class LoanResource extends Resource
                     ->nullable(true),
                 
                 Forms\Components\DatePicker::make('returned_at')
-                    ->label('Date de retour')
+                    ->label('Date de retour effective')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
@@ -129,7 +129,7 @@ class LoanResource extends Resource
                     ->nullable(true),
                 
                 Forms\Components\DatePicker::make('return_signaled_at')
-                    ->label('Date d\'emprunt')
+                    ->label('Date de signalement du retour')
                     ->displayFormat('D d/m/Y')
                     ->native(false)
                     ->nullable(true),
