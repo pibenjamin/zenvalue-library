@@ -29,7 +29,7 @@ use Filament\Navigation\NavigationItem;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 use App\Filament\Resources\RoleResource;
-
+use App\Filament\Pages\Auth\EditProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -49,8 +49,8 @@ class AdminPanelProvider extends PanelProvider
             ->registration(Register::class) // Active l'inscription utilisateur
             ->emailVerification()          // Active la vérification d'email
             ->passwordReset()              // Active la réinitialisation de mot de passe
-            ->profile()                    // Active la page de profil utilisateur
-
+            ->profile(EditProfile::class)                    // Active la page de profil utilisateur
+            
             // Personnalisation du thème
             ->colors([
                 'primary' => Color::Amber, // Couleur principale du thème
