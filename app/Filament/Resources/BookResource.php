@@ -43,6 +43,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\ActionGroup;
 
+use Filament\Forms\Components\Textarea;
+
 class BookResource extends Resource
 {
     protected static ?string $model             = Book::class;
@@ -174,6 +176,15 @@ class BookResource extends Resource
                     ->label('Difficulté')
                     ->options(Book::getDifficulties())
                     ->default(null),
+
+                Forms\Components\Textarea::make('amazon_content_page')
+                    ->label('Contenu Amazon')
+                    ->rows(200)
+                    ->default(null)
+                    ->afterStateHydrated(function (Textarea $component, string $state) {
+                        $component->state(preg_replace('/\s+/', ' ', trim($state)));
+                    })
+                    ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
 
 
             ]);

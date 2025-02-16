@@ -47,7 +47,8 @@ class Book extends Model
         'support_id',
         'is_borrowed',
         'missing',
-        'difficulty_level'
+        'difficulty_level',
+        'amazon_content_page'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',
@@ -56,7 +57,8 @@ class Book extends Model
         'quantity' => 'integer',
         'pages' => 'integer',
         'missing' => 'boolean',
-        'difficulty_level' => 'string'
+        'difficulty_level' => 'string',
+        'amazon_content_page' => 'string'
     ];
 
     public function authors(): BelongsToMany
