@@ -181,9 +181,6 @@ class BookResource extends Resource
                     ->label('Contenu Amazon')
                     ->rows(200)
                     ->default(null)
-                    ->afterStateHydrated(function (Textarea $component, string $state) {
-                        $component->state(preg_replace('/\s+/', ' ', trim($state)));
-                    })
                     ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
 
 
