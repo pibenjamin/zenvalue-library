@@ -179,7 +179,7 @@ class BookResource extends Resource
 
                 Forms\Components\Textarea::make('amazon_content_page')
                     ->label('Contenu Amazon')
-                    ->rows(200)
+                    ->rows(20)
                     ->default(null)
                     ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
 
