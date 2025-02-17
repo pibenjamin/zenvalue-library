@@ -390,8 +390,20 @@ class BookResource extends Resource
             ActionGroup::make([
 
             Tables\Actions\EditAction::make(),
+
             Tables\Actions\DeleteAction::make()
                 ->requiresConfirmation(false),
+
+            Action::make('qrcode')
+                ->label('QR Code')
+                ->icon('heroicon-o-qr-code')
+                ->action(fn (Book $record) => $record)   
+                ->modalContent(fn (Book $record): View => view(
+                    'filament.modals.view.qrcode',
+                    ['record' => $record, 'qrCode' => app(QrCodeService::class)->generateQrCode($record)],
+                ))
+                ->modalSubmitAction(false),
+
             Tables\Actions\Action::make('open_library')
                 ->label('O.L. API')
                 ->icon('heroicon-o-globe-alt')
