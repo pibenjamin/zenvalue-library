@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AuthorResource\Pages;
 use App\Filament\Resources\AuthorResource\RelationManagers;
 use App\Models\Author;
+use App\Models\Book;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,14 +13,15 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\User;
 
 class AuthorResource extends Resource
 {
-    protected static ?string $model = Author::class;
-    protected static ?string $modelLabel = 'Auteur';
-    protected static ?string $pluralModelLabel = 'Auteurs';
+    protected static ?string $model             = Author::class;
+    protected static ?string $modelLabel        = 'Auteur';
+    protected static ?string $pluralModelLabel  = 'Auteurs';
     
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon    = 'heroicon-o-user-group';
     public static function form(Form $form): Form
     {
         return $form
@@ -32,6 +34,10 @@ class AuthorResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nom')
                     ->searchable()
@@ -40,8 +46,20 @@ class AuthorResource extends Resource
                     ->label('Nombre de livres')
                     ->counts('books')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('books.title')
+                    ->label('Livres')
+                    ->badge()
+                    ->tooltip(fn (Author $record) => $record->books->pluck('title')->implode(' - '))
+                    ->url(function (Author $record, $state): string {
+                        $book = Book::query()->where('title', $state[0])->first();
+                
+                        return route('filament.admin.resources.books.edit', $book);
+                    })
+                    ->limit(20)
+                    ->sortable(),
             ])
             ->defaultPaginationPageOption(200)
+            ->defaultSort('name', 'asc')
             ->paginationPageOptions([200, 500, 1000])
             ->filters([
                 //

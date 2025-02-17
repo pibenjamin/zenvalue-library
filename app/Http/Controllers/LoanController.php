@@ -12,10 +12,45 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\AdminConfirmReturn;
 use App\Models\Book;
 use App\Services\LoanService;
+use App\Services\OcrService;
+use Illuminate\Http\UploadedFile;
+
+use Illuminate\Support\Facades\FileUpload;
+use Illuminate\Support\Facades\Form;
+use Illuminate\Support\Facades\View;
+
+
 
 
 class LoanController extends Controller
 {
+    public function scanBook(Request $request)
+    {
+        return view('j-emprunte');
+    }
+
+
+    public function processImage(Request $request)
+    {
+        $image = $request->file('image');
+        $text = (new OcrService())->processImage($image);
+        return view('j-emprunte', compact('text'));
+    }
+
+    public function emprunter(Request $request)
+    {
+
+        $book = Book::find($request->book_id);
+
+        dd($book);
+
+
+    }
+    
+
+
+
+
     public function myLoans(Request $request)
     {
         $user = Auth::user();

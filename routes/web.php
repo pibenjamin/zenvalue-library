@@ -37,3 +37,23 @@ Route::get('/', function () {
     return redirect()->to('admin/login');
 //    return view('welcome');
 });
+
+
+
+
+Route::get('/emprunter/{book_id}', function () {
+
+    $book_id = request()->book_id;
+    $session = session();
+    $session->put('url.intended', url('admin/books?tableFilters[id][value]='.$book_id));
+    // http://zbv.local/admin/books?tableFilters[id][value]=1
+
+    return redirect()->to('admin/login');
+//    return view('welcome');
+});
+
+
+
+Route::post('/process-image', [LoanController::class, 'processImage'])->name('process-image');
+Route::post('/extract-isbn', [LoanController::class, 'extractISBNFromImage'])->name('extract-isbn');
+

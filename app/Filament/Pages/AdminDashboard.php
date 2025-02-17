@@ -15,16 +15,13 @@ use Illuminate\Support\Facades\App;
 
 class AdminDashboard extends Page
 {
-    protected static ?string $navigationIcon    = 'heroicon-o-users';
-    protected static ?string $navigationLabel   = 'Tableau de bord';
-    protected static string $view               = 'filament.pages.dashboard';
-    protected static ?string $title               = 'Tableau de bord';
-
+    protected static ?string $navigationIcon        = 'heroicon-o-users';
+    protected static ?string $navigationLabel       = 'Tableau de bord';
+    protected static string $view                   = 'filament.pages.dashboard';
+    protected static ?string $title                 = 'Tableau de bord';
 
     protected function getHeaderWidgets(): array
     {
-
-
         return [
             MyLoanHistory::class,
             AdminWidgets::class,
@@ -33,6 +30,4 @@ class AdminDashboard extends Page
 
         ];
     }
-
-
 }
