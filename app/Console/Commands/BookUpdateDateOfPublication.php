@@ -26,10 +26,14 @@ class BookUpdateDateOfPublication extends Command
     public function handle()
     {
         $books = Book::whereNull('year_of_publication')->get();
-        foreach ($books as $book) {
-            if($book->published_at !== null) {
-            $book->year_of_publication = $book->published_at->year;
-            $book->save();
+        foreach ($books as $book) 
+        {
+            if($book->published_at !== null) 
+            {
+                $book->year_of_publication = $book->published_at->year;
+                $book->save();
+            }
         }
+        $this->info('Date de publication mise à jour pour ' . $books->count() . ' livres.');
     }
 }
