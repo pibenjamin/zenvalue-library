@@ -201,7 +201,7 @@ class BookResource extends Resource
                 ->wrap()
                 ->searchable(),
 
-            TextColumn::make('authors.name')
+                TextColumn::make('authors.name')
                 ->label('Auteurs')
                 ->badge()
                 ->color('gray')
