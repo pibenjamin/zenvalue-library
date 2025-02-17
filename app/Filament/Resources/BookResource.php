@@ -150,12 +150,12 @@ class BookResource extends Resource
                     ->label('# Pages')
                     ->numeric()
                     ->default(null),
-
-                DatePicker::make('published_at')
-                    ->label('Date de publication')
-                    ->format('Y-m-d')
-                    ->displayFormat('Y')
-                    ->native(false)
+                    
+                Forms\Components\TextInput::make('year_of_publication')
+                    ->label('Année de publication')
+                    ->numeric()
+                    ->minValue(1800)
+                    ->maxValue(now()->year)
                     ->default(null),
 
                 Forms\Components\TextInput::make('publisher')
@@ -273,8 +273,8 @@ class BookResource extends Resource
                 })
                 ->badge()
                 ->color(fn (string $state): string => match ($state) {
-                    'oui' => 'success',
-                    'non' => 'danger',
+                    'oui' => 'danger',
+                    'non' => 'success',
                 })
                 ->sortable(),
 

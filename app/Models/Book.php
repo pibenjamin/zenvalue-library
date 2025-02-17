@@ -41,7 +41,7 @@ class Book extends Model
         'original_filename',
         'owner_id',
         'pages',
-        'published_at',
+        'year_of_publication',
         'publisher',
         'quantity',
         'support_id',
@@ -53,7 +53,7 @@ class Book extends Model
     protected $casts = [
         'is_borrowed' => 'boolean',
         'open_library_parsed' => 'boolean',
-        'published_at' => 'date',
+        'year_of_publication' => 'integer',
         'quantity' => 'integer',
         'pages' => 'integer',
         'missing' => 'boolean',
