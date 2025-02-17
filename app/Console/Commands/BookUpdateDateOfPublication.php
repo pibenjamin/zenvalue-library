@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Book;
+use Carbon\Carbon;
+
 class BookUpdateDateOfPublication extends Command
 {
     /**
@@ -30,7 +32,7 @@ class BookUpdateDateOfPublication extends Command
         {
             if($book->published_at !== null) 
             {
-                $book->year_of_publication = $book->published_at->year;
+                $book->year_of_publication = Carbon::parse($book->published_at)->year;
                 $book->save();
             }
         }
