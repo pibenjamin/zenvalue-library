@@ -150,7 +150,7 @@ class BookResource extends Resource
                     ->label('# Pages')
                     ->numeric()
                     ->default(null),
-                    
+
                 Forms\Components\TextInput::make('year_of_publication')
                     ->label('Année de publication')
                     ->numeric()
@@ -230,8 +230,7 @@ class BookResource extends Resource
                     : "Ce livre est actuellement disponible"
                 ),
 
-            TextColumn::make('published_at')
-                ->date('Y')
+            TextColumn::make('year_of_publication')
                 ->label('Année')
                 ->sortable(),
 
