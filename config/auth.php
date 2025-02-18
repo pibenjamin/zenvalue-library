@@ -39,6 +39,8 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+            'remember_token_expiration' => 3600,
+            'remember_token_expiration_unit' => 'minutes',
         ],
     ],
 
