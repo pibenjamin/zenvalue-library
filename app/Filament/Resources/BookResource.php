@@ -13,6 +13,7 @@ use App\Models\Author;
 use App\Models\Loan;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\Support;
 use App\Models\Notification;
 
 // Services
@@ -109,16 +110,13 @@ class BookResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->label('Nom')
                             ->required(),
-                    ]),                    
-                Forms\Components\TextInput::make('slug')
-                    ->visibleOn(['edit', 'create'])
-                    ->maxLength(255)
-                    ->default(null),
+                    ]),           
 
                 Forms\Components\FileUpload::make('cover_url')
                     ->label('Couverture')
                     ->maxSize(5120) // 5MB
                     ->columnSpanFull(),
+
                 Forms\Components\TextInput::make('google_api_page')
                     ->label('Google API')
                     ->maxLength(255)
@@ -131,15 +129,16 @@ class BookResource extends Resource
                     ->default(null),
                 Forms\Components\Toggle::make('is_borrowed')
                     ->label('Emprunté')
+                    ->required(),
 
-                    ->required(),
-                Forms\Components\Toggle::make('open_library_parsed')
-                    ->label('Open Library')
-                    ->required(),
-                Forms\Components\TextInput::make('original_filename')
-                    ->label('Nom du fichier original')
-                    ->maxLength(255)
-                    ->default(null),
+//                 Forms\Components\Toggle::make('open_library_parsed')
+//                    ->label('Open Library')
+//                    ->required(),
+
+//                Forms\Components\TextInput::make('original_filename')
+//                    ->label('Nom du fichier original')
+//                    ->maxLength(255)
+//                    ->default(null),
 
                 Forms\Components\Select::make('owner_id')
                     ->label('Propriétaire')
@@ -161,33 +160,40 @@ class BookResource extends Resource
                 Forms\Components\TextInput::make('publisher')
                     ->label('Editeur')
                     ->maxLength(255)
-
                     ->default(null),
-                Forms\Components\TextInput::make('quantity')
-                    ->required()
-                    ->label('# Exemplaires')
-                    ->numeric()
-                    ->default(1),
 
-                Forms\Components\Select::make('support_id')
-                    ->label('Support')
-                    ->relationship('support', 'name')
-                    ->required(),
+//                Forms\Components\TextInput::make('quantity')
+//                    ->required()
+//                    ->label('# Exemplaires')
+//                    ->numeric()
+//                    ->default(1),
 
-                Forms\Components\Select::make('theme_id')
-                    ->label('Thème')
-                    ->relationship('theme', 'name'),
+//                Forms\Components\Select::make('theme_id')
+//                    ->label('Thème')
+//                    ->relationship('theme', 'name'),
 
                 Forms\Components\Radio::make('difficulty_level')
                     ->label('Difficulté')
                     ->options(Book::getDifficulties())
                     ->default(null),
 
-                Forms\Components\Textarea::make('amazon_content_page')
-                    ->label('Contenu Amazon')
-                    ->rows(20)
-                    ->default(null)
-                    ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
+                Forms\Components\Select::make('support_id')
+                    ->label('Support')
+                    ->default(Support::where('slug', 'papier')->first()->id)
+                    ->relationship('support', 'name')
+                    ->required(),
+
+                Forms\Components\TextInput::make('slug')
+                    ->visibleOn(['edit', 'create'])
+                    ->maxLength(255)
+                    ->default(null),
+
+
+//                Forms\Components\Textarea::make('amazon_content_page')
+//                    ->label('Contenu Amazon')
+//                    ->rows(20)
+//                    ->default(null)
+//                    ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
             ]);
     }
 
