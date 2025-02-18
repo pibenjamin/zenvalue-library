@@ -50,11 +50,7 @@ class AuthorResource extends Resource
                     ->label('Livres')
                     ->badge()
                     ->tooltip(fn (Author $record) => $record->books->pluck('title')->implode(' - '))
-                    ->url(function (Author $record, $state): string {
-                        $book = Book::query()->where('title', $state[0])->first();
-                
-                        return route('filament.admin.resources.books.edit', $book);
-                    })
+
                     ->limit(20)
                     ->sortable(),
             ])
