@@ -7,7 +7,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
-class LatestBooks extends BaseWidget
+class LatestBooksPublished extends BaseWidget
 {
     protected static ?int $sort = 4; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
@@ -22,10 +22,10 @@ class LatestBooks extends BaseWidget
         return $table
             ->query(
                 Book::query()
-                    ->latest('created_at')
+                    ->latest('year_of_publication')
                     ->limit(5)
             )
-            ->heading('Derniers livres ajoutés 📚')
+            ->heading('Derniers livres publiés 📚')
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Titre')
@@ -36,15 +36,11 @@ class LatestBooks extends BaseWidget
                     ->sortable()
                     ->height(100),
 
-
                 Tables\Columns\TextColumn::make('author')
                     ->label('Auteur')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Ajouté le')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+
             ]);
     }
 } 

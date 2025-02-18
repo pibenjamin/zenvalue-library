@@ -10,6 +10,11 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+
+use App\Filament\Widgets\LatestBooksAdded;
+use App\Filament\Widgets\LatestBooksPublished;
+
+
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -66,6 +71,8 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,    // Page dashboard par défaut
             ])
             ->widgets([
+                LatestBooksAdded::class,
+                LatestBooksPublished::class,
             ])
 
             // Middleware de sécurité et fonctionnalités
