@@ -15,7 +15,7 @@
                         class="inline-flex items-center gap-x-1.5 rounded-full ring-1 ring-inset ring-gray-200 text-gray-900 hover:ring-gray-300 dark:ring-gray-700 dark:text-gray-200 dark:hover:ring-gray-600 {{ $size }}"
                         title="{{ $word['count'] }} occurrences"
                     >
-                        <a href="/admin/books?tableSearch={{ $word['text'] }}" class="hover:text-primary-600">
+                        <a href="/admin/books?tableSearch={{ $word['text'] }}" target="_blank" class="hover:text-primary-600">
                             {{ $word['text'] }}
                         </a>
                         <span class="text-xs text-gray-500 dark:text-gray-400">({{ $word['count'] }})</span>
