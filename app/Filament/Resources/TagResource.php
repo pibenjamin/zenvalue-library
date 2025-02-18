@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class TagResource extends Resource
 {
     protected static ?string $model = Tag::class;
-    protected static ?string $modelLabel = 'Tag';
-    protected static ?string $pluralModelLabel = 'Tags';    
+    protected static ?string $modelLabel = 'Mot-clé';
+    protected static ?string $pluralModelLabel = 'Mots-clés';    
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
     public static function form(Form $form): Form
