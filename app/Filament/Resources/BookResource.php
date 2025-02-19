@@ -209,9 +209,11 @@ class BookResource extends Resource
 
                 TextColumn::make('authors.name')
                 ->label('Auteurs')
+                ->width('200px')
                 ->badge()
                 ->color('gray')
                 ->wrap()
+                ->listWithLineBreaks()
                 ->verticallyAlignStart()
                 ->searchable(),
                 
@@ -219,7 +221,9 @@ class BookResource extends Resource
                 ->label('Couverture')
                 ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
                 ->sortable()
-                ->height(100),
+                
+                ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                ->height(75),
                 
             Tables\Columns\TextColumn::make('is_borrowed')
                 ->label('Disponibilité')
@@ -248,13 +252,6 @@ class BookResource extends Resource
                 ->searchable()
                 ->wrap(),
 
-            TextColumn::make('tags.title')
-                ->label('Tags')
-                ->badge()
-                ->color('gray')
-                ->wrap()
-                ->searchable(),
-
             TextColumn::make('difficulty_level')
                 ->label('Difficulté')
                 ->sortable()
@@ -263,6 +260,13 @@ class BookResource extends Resource
                     return $record->getDifficultyLabel();
                 })
                 ->color(fn (Book $record): string => $record->getDifficultyColor()),
+
+            TextColumn::make('tags.title')
+                ->label('Mots-clés')
+                ->badge()
+                ->color('gray')
+                ->wrap()
+                ->searchable(),
         ];
 
         // Colonnes supplémentaires pour les admins

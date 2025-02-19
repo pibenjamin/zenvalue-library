@@ -39,6 +39,8 @@ use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
 
 // Filament Components
 use Filament\Infolists\Components\Tabs;
+use Filament\Tables\Filters\SelectFilter;
+
 
 class LoanResource extends Resource
 {
@@ -158,9 +160,10 @@ class LoanResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => 
-                auth()->user()?->hasRole('user')
-                    ? $query->where('borrower_id', auth()->id())
-                    : $query
+                $query->when(
+                    auth()->user()?->hasRole('user'),
+                    fn (Builder $query) => $query->where('borrower_id', auth()->id())
+                )->orderBy('to_be_returned_at', 'asc')
             )
             ->columns(self::getTableColumns())
             ->filters([

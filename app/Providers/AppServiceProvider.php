@@ -24,7 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
         FilamentColor::register([
             'expert' => Color::Purple,
         ]);        
@@ -38,7 +37,8 @@ class AppServiceProvider extends ServiceProvider
             return $this->app->isProduction()
                         ? $rule->mixedCase()->uncompromised()
                         : $rule;
-        });
-
+        })
+        ->
+        ;
     }
 }
