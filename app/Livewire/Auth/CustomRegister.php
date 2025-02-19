@@ -7,7 +7,9 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewUserCreated;
+use Exception;
 class CustomRegister extends BaseRegister
 {
     public function form(Form $form): Form
@@ -53,10 +55,25 @@ class CustomRegister extends BaseRegister
 
     protected function handleRegistration(array $data): User
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+        $user = User::create([
+            'name'          => $data['name'],
+            'email'         => $data['email'],
+            'password'      => bcrypt($data['password']),
+            'is_activated'  => false,
+            'avatar'        => 'default-avatar.png',
         ]);
+
+        if($user){
+
+            $data['new_user_id'] = $user->id;
+
+            $admin = User::where('email', config('app.admin_email'))->first();
+            $admin->notify(new NewUserCreated($user));
+
+            abort(403, 'Votre compte n\'est pas encore activé. Vous serez informé par email lorsque votre compte sera activé.');
+
+
+            //return $user;
+        }   
     }
 }

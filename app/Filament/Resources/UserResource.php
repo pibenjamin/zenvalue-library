@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\Tag;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,6 +17,12 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Toggle;
+
+use App\Filament\Actions\SaveAndNotifyActivation;
+
+use Filament\Forms\Components\Actions\Action;
+
 
 class UserResource extends Resource
 {
@@ -29,7 +36,6 @@ class UserResource extends Resource
         return auth()->user()->hasRole(['admin', 'super_admin']);
     }
 
-
     public static function form(Form $form): Form
     {
         return $form
@@ -38,16 +44,25 @@ class UserResource extends Resource
                     ->label('Nom')
                     ->required()
                     ->maxLength(255),
+
                 Forms\Components\TextInput::make('email')
                     ->label('Email')
                     ->email()
                     ->required()
                     ->maxLength(255),
+
+                Toggle::make('is_activated')
+                    ->label('Activé')
+                    ->default(false)
+                    ->onColor('success')
+                    ->offColor('danger'),
+
                 Forms\Components\Select::make('roles')
                 ->label('Rôles')
                 ->multiple()
                 ->relationship('roles', 'name')
                 ->preload(),
+
                 Forms\Components\FileUpload::make('avatar')
                 ->label('Avatar')
                 ->image()
