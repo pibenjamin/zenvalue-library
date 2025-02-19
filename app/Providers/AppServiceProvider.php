@@ -29,10 +29,6 @@ class AppServiceProvider extends ServiceProvider
         ]);        
 
 
-        Throttle::for('login', function ($request) {
-            return Limit::perMinute(5)->by($request->email);
-        });
-
 
         
         
