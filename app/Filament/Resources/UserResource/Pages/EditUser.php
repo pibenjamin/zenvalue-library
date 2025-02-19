@@ -34,10 +34,6 @@ class EditUser extends EditRecord
                 ->color('primary')
                 ->disabled(fn () => $this->record->is_activated),
 
-
-
-
-
             $this->getCancelFormAction(),
         ];
     }
@@ -56,7 +52,10 @@ class EditUser extends EditRecord
 
         $this->record->notify(new UserActivated($this->record));
 
-        $this->refreshFormData(['is_activated' => true, 'roles' => [$role]]);
+
+        // array_flip error ici pourquoi ?
+//        $this->refreshFormData(['is_activated' => true, 'roles' => [$role]]);
 
     }
+
 }

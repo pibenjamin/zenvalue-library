@@ -9,9 +9,12 @@ use Filament\Forms\Components\Select;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewUserCreated;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 class CustomRegister extends BaseRegister
 {
+
+    // ajouter des regles de validation supplémentaires
     public function form(Form $form): Form
     {
         return $form
@@ -29,17 +32,19 @@ class CustomRegister extends BaseRegister
 
                 TextInput::make('password')
                     ->label('Mot de passe')
-                    ->helperText('8 caractères minimum, une majuscule, une minuscule et un chiffre')
+                    ->helperText('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un caractère spécial')
                     ->password()
                     ->required()
+                    ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
                     ->maxLength(255),
 
                 TextInput::make('password_confirmation')
                     ->label('Confirmation du mot de passe')
-                    ->helperText('8 caractères minimum, une majuscule, une minuscule et un chiffre')
+                    ->helperText('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un caractère spécial')
                     ->password()
                     ->required()
+                    ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
                     ->maxLength(255),
 

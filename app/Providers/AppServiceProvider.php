@@ -28,15 +28,9 @@ class AppServiceProvider extends ServiceProvider
             'expert' => Color::Purple,
         ]);        
 
-        Password::defaults(function () {
-            $rule = Password::min(8)
-            ->letters()
-            ->mixedCase()
-            ->numbers();
 
-            return $this->app->isProduction()
-                        ? $rule->mixedCase()->uncompromised()
-                        : $rule;
+        Throttle::for('login', function ($request) {
+            return Limit::perMinute(5)->by($request->email);
         });
 
 
