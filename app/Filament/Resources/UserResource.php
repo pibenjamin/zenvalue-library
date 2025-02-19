@@ -36,6 +36,23 @@ class UserResource extends Resource
         return auth()->user()->hasRole(['admin', 'super_admin']);
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $counts = User::where('is_activated', false)->count();
+        
+        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+    
+            return $counts;
+        }
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+            return 'Nombre d\'utilisateurs non activés';
+        }
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -111,6 +128,18 @@ class UserResource extends Resource
                         'OUI' => 'success',
                         'NON' => 'danger',
                     }),
+
+                Tables\Columns\TextColumn::make('is_activated')
+                    ->label('Activé')
+                    ->badge()
+                    ->state(function ($record): string {
+                        return $record->is_activated ? 'OUI' : 'NON';
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'OUI' => 'success',
+                        'NON' => 'danger',
+                    }),
+
 
             ])
             ->defaultPaginationPageOption(200)
