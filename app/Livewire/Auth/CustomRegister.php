@@ -15,15 +15,27 @@ class CustomRegister extends BaseRegister
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nom')
                     ->required()
                     ->maxLength(255),
 
                 TextInput::make('email')
+                    ->label('Courriel')
                     ->email()
                     ->required()
                     ->maxLength(255),
 
                 TextInput::make('password')
+                    ->label('Mot de passe')
+                    ->helperText('8 caractères minimum, une majuscule, une minuscule et un chiffre')
+                    ->password()
+                    ->required()
+                    ->minLength(8)
+                    ->maxLength(255),
+
+                TextInput::make('password_confirmation')
+                    ->label('Confirmation du mot de passe')
+                    ->helperText('8 caractères minimum, une majuscule, une minuscule et un chiffre')
                     ->password()
                     ->required()
                     ->minLength(8)
@@ -45,7 +57,6 @@ class CustomRegister extends BaseRegister
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-            'role' => $data['role'], // Store custom field
         ]);
     }
 }

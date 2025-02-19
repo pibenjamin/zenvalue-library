@@ -37,8 +37,10 @@ class AppServiceProvider extends ServiceProvider
             return $this->app->isProduction()
                         ? $rule->mixedCase()->uncompromised()
                         : $rule;
-        })
-        ->
-        ;
+        });
+
+
+        
+        
     }
 }

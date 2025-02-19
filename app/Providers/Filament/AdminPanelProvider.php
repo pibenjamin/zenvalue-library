@@ -37,7 +37,7 @@ use App\Filament\Resources\RoleResource;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Livewire\Auth\CustomRegister;
 
-
+use App\Filament\Pages\CustomLogin;
 
 
 class AdminPanelProvider extends PanelProvider
@@ -50,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')                  // Identifiant unique du panel
             ->path('admin')                // URL d'accès : example.com/admin
             // Configuration de l'authentification
-            ->login()                      // Active la page de connexion
+            ->login(CustomLogin::class)                      // Active la page de connexion
             ->registration(CustomRegister::class) // Active l'inscription utilisateur
             ->emailVerification()          // Active la vérification d'email
             ->passwordReset()              // Active la réinitialisation de mot de passe
