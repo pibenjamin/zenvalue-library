@@ -11,6 +11,7 @@ use App\Filament\Widgets\StatsOverviewWidget;
 use App\Filament\Widgets\UserStatsWidgets;
 use App\Filament\Widgets\BookTagCloud;
 use App\Filament\Widgets\AdminWidgets;
+use App\Filament\Widgets\MyBookLenders;
 use Illuminate\Support\Facades\App;
 
 class AdminDashboard extends Page
@@ -24,6 +25,7 @@ class AdminDashboard extends Page
     {
         return [
             MyLoanHistory::class,
+            MyBookLenders::class,
             AdminWidgets::class,
             UserStatsWidgets::class,
             BookTagCloud::class,

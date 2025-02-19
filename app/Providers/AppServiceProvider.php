@@ -28,9 +28,6 @@ class AppServiceProvider extends ServiceProvider
             'expert' => Color::Purple,
         ]);        
 
-
-
-        
         
     }
 }

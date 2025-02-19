@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewUserCreated;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Validation\ValidationException;
+
+
 class CustomRegister extends BaseRegister
 {
 
@@ -60,6 +63,12 @@ class CustomRegister extends BaseRegister
 
     protected function handleRegistration(array $data): User
     {
+
+        if(!str_ends_with($data['email'], '@zenvalue.fr')){
+            abort(403, 'Seules les adresses email @zenvalue.fr sont autorisées.');
+        }
+
+
         $user = User::create([
             'name'          => $data['name'],
             'email'         => $data['email'],
@@ -67,6 +76,8 @@ class CustomRegister extends BaseRegister
             'is_activated'  => false,
             'avatar'        => 'default-avatar.png',
         ]);
+
+        
 
         if($user){
 

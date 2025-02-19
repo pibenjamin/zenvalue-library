@@ -17,7 +17,6 @@ class MyLoanHistory extends BaseWidget
 
     public static function canView(): bool
     {
-        return false;
         return auth()->user()->hasRole('user');
     }
 
@@ -27,6 +26,7 @@ class MyLoanHistory extends BaseWidget
             ->query(
                 Loan::query()
                     ->where('borrower_id', auth()->id())
+                    ->whereIn('status', ['returned'])
                     ->latest('borrowed_at')
             )
             ->heading('Mon historique de prêts 📚')
@@ -39,21 +39,11 @@ class MyLoanHistory extends BaseWidget
                     Tables\Columns\ImageColumn::make('book.cover_url')
                     ->label('Couverture')
                     ->sortable()
-                    ->height(100),
+                    ->height(50),
 
                 Tables\Columns\TextColumn::make('returned_at')
                     ->label('Retourné le')
-                    ->dateTime('d/m/Y')
-                    ->default('-'),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Statut')
-                    ->getStateUsing(function (Loan $record) {
-                        return $record->getStatusLabel();
-                    })
-                    ->color(function (Loan $record) {
-                        return $record->getStatusColor();
-                    })
-                    ->badge(),
+                    ->dateTime('d/m/Y'),
             ]);
     }
 
