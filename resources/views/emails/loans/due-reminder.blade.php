@@ -19,7 +19,7 @@ Rappel de retour de livre 📚
         <p class="due-date">Date de retour : {{ $loan->to_be_returned_at->format('d/m/Y') }}</p>
     </div>
 
-    <p>Pour rappel, ce livre a été emprunté le {{ $loan->created_at->format('d/m/Y') }}.</p>
+    <p>Pour rappel, ce livre a été emprunté le {{ $loan->borrowed_at->format('d/m/Y') }}.</p>
 @endsection
 
 @section('footer-extra')

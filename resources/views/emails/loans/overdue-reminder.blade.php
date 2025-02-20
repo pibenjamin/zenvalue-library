@@ -19,7 +19,7 @@
         <p class="alert">Date de retour prévue : {{ $loan->to_be_returned_at->format('d/m/Y') }}</p>
     </div>
 
-    <p>Pour rappel, ce livre a été emprunté le {{ $loan->created_at->format('d/m/Y') }}.</p>
+    <p>Pour rappel, ce livre a été emprunté le {{ $loan->borrowed_at->format('d/m/Y') }}.</p>
 
     <p>Merci de le rapporter dès que possible pour permettre à d'autres lecteurs d'en profiter.</p>
 @endsection 
