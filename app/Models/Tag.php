@@ -9,13 +9,12 @@ class Tag extends Model
 {
     protected $fillable = [
         'title',
+        'slug',
     ];
 
     public function books(): BelongsToMany
     {
         return $this->belongsToMany(Book::class, 'tag_books');
     }
-
-
 
 } 

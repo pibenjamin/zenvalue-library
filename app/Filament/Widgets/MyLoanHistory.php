@@ -20,6 +20,7 @@ class MyLoanHistory extends BaseWidget
         return auth()->user()->hasRole('user');
     }
 
+
     public function table(Table $table): Table
     {
         return $table
@@ -30,6 +31,7 @@ class MyLoanHistory extends BaseWidget
                     ->latest('borrowed_at')
             )
             ->heading('Mon historique de prêts 📚')
+            ->description('Cette liste affiche les livres que vous avez empruntés, si le prêt est terminé.')
             ->columns([
                 Tables\Columns\TextColumn::make('book.title')
                     ->label('Livre')

@@ -19,6 +19,5 @@
     </ul>
 
     <p>Bonne lecture !</p>
-    <p>Cordialement,</p>
     <p>Benjamin</p>
 </x-filament::page>

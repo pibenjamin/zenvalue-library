@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Loan extends Model
 {
     const STATUS_IN_PROGRESS        = 'in_progress';
+    const STATUS_RETURN_IN_PROGRESS = 'return_in_progress';
     const STATUS_RETURNED           = 'returned';
     const STATUS_OVERDUE            = 'overdue';
-    const STATUS_RETURN_IN_PROGRESS = 'return_in_progress';
 
     protected $fillable = [
         'book_id',
@@ -105,6 +105,11 @@ class Loan extends Model
     }
     
     public function getStatusLabels(): array
+    {
+        return self::STATUS_LABELS;
+    }
+
+    public static function getStatusLabelsForAdmin(): array
     {
         return self::STATUS_LABELS;
     }

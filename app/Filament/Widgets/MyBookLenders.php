@@ -14,7 +14,6 @@ class MyBookLenders extends BaseWidget
     protected static ?int $sort = 3; 
     protected static ?int $defaultTableRecordsPerPage = 5;
 
-
     public static function canView(): bool
     {
         return auth()->user()->hasRole('user');
@@ -33,7 +32,8 @@ class MyBookLenders extends BaseWidget
                 ->selectRaw('lenders.id, lenders.name, COUNT(*) as total_books')
                 ->groupBy('lenders.id', 'lenders.name')
         )
-        ->heading('A qui ai-je emprunté ? 📚')
+        ->heading('A qui ai-je emprunté ? 👤')
+        ->description('Cette liste affiche les personnes à qui vous avez emprunté des livres, si le prêt est terminé.')
         ->columns([
             Tables\Columns\TextColumn::make('name')
                 ->label('Prêteur')
@@ -43,8 +43,7 @@ class MyBookLenders extends BaseWidget
             Tables\Columns\TextColumn::make('total_books')
                 ->label('Nombre de livres empruntés')
                 ->sortable(),
-        ])
-        ->recordUrl(null);
+        ]);    
     }
 
 

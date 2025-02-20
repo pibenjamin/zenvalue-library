@@ -13,7 +13,7 @@ use App\Filament\Widgets\BookTagCloud;
 use App\Filament\Widgets\AdminWidgets;
 use App\Filament\Widgets\MyBookLenders;
 use Illuminate\Support\Facades\App;
-
+use App\Filament\Widgets\MyBookBorrowers;
 class AdminDashboard extends Page
 {
     protected static ?string $navigationIcon        = 'heroicon-o-users';
@@ -29,6 +29,7 @@ class AdminDashboard extends Page
             AdminWidgets::class,
             UserStatsWidgets::class,
             BookTagCloud::class,
+            MyBookBorrowers::class,
 
         ];
     }

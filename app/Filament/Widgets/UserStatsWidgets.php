@@ -11,8 +11,12 @@ use App\Models\Tag;
 
 class UserStatsWidgets extends BaseWidget
 {
-
     protected static ?int $sort = 1; // Position après le FilamentInfoWidget
+
+    protected function getHeading(): ?string
+    {
+        return __('Statistiques de l\'application');
+    }
 
     protected function getCards(): array
     {

@@ -99,6 +99,16 @@
                         </details>
                     </div>
                 </div>
+
+                <div>
+                    <h3>Contactez-nous</h3>
+                    <div class="mt-2 text-sm">
+                        <span class="text-gray-600">Une question ? </span>
+                        <a href="mailto:benjaminpiscart@gmail.com" class="text-primary-600 hover:text-primary-500">
+                            Contactez le support 📧
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </x-filament::section>

@@ -162,8 +162,9 @@ class LoanResource extends Resource
             ->modifyQueryUsing(fn (Builder $query) => 
                 $query->when(
                     auth()->user()?->hasRole('user'),
-                    fn (Builder $query) => $query->where('borrower_id', auth()->id())
-                )->orderBy('to_be_returned_at', 'asc')
+                    fn (Builder $query) => 
+                    $query->where('borrower_id', auth()->id())
+                )->orderBy('status', 'asc')->orderBy('to_be_returned_at', 'asc')
             )
             ->columns(self::getTableColumns())
             ->filters([
@@ -184,21 +185,34 @@ class LoanResource extends Resource
     private static function getTableColumns(): array
     {
         $commonColumns = [
-            Tables\Columns\TextColumn::make('borrower.email')
-                ->label('Emprunteur')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('book.title')
-                ->label('Ouvrage')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('to_be_returned_at')
-                ->label('Date de retour')
-                ->date('d/m/Y')
-                ->sortable(),
             Tables\Columns\TextColumn::make('status')
                 ->label('Statut')
                 ->badge()
                 ->color(fn (Loan $record): string => $record->getStatusColor())
                 ->state(fn (Loan $record): string => $record->getStatusLabel())
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('borrower.email')
+                ->label('Emprunteur')
+                ->sortable()
+                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin')),
+
+            Tables\Columns\ImageColumn::make('book.cover_url')
+                ->label('Couverture')
+                ->url(fn (Loan $record): string => $record->book->cover_url)
+                ->sortable()
+                ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                ->height(75),
+
+            Tables\Columns\TextColumn::make('book.title')
+                ->label('Ouvrage')
+                ->sortable()
+                ->wrap()
+                ->width('15%'),
+
+            Tables\Columns\TextColumn::make('to_be_returned_at')
+                ->label('Date de retour')
+                ->date('d/m/Y')
                 ->sortable(),
         ];
 
@@ -213,11 +227,8 @@ class LoanResource extends Resource
     private static function getStatusFilter(): Tables\Filters\SelectFilter
     {
         return Tables\Filters\SelectFilter::make('status')
-            ->options([
-                'pending' => 'En attente',
-                'confirmed' => 'Confirmé',
-                'returned' => 'Retourné',
-            ]);
+            ->label('Statut')
+            ->options(Loan::getStatusLabelsForAdmin());
     }
 
     private static function getTableActions(): ActionGroup
@@ -268,7 +279,8 @@ class LoanResource extends Resource
     private static function getTableBulkActions(): Tables\Actions\BulkActionGroup
     {
         return Tables\Actions\BulkActionGroup::make([
-            Tables\Actions\DeleteBulkAction::make(),
+            Tables\Actions\DeleteBulkAction::make()
+                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin')),
         ]);
     }
 

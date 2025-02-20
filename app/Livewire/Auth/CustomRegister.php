@@ -13,10 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Validation\ValidationException;
 
-
 class CustomRegister extends BaseRegister
 {
-
     // ajouter des regles de validation supplémentaires
     public function form(Form $form): Form
     {
@@ -63,11 +61,11 @@ class CustomRegister extends BaseRegister
 
     protected function handleRegistration(array $data): User
     {
-
-        if(!str_ends_with($data['email'], '@zenvalue.fr')){
-            abort(403, 'Seules les adresses email @zenvalue.fr sont autorisées.');
+        if(env('APP_ENV') == 'production'){
+            if(!str_ends_with($data['email'], '@zenvalue.fr')){
+                abort(403, 'Seules les adresses email @zenvalue.fr sont autorisées.');
+            }
         }
-
 
         $user = User::create([
             'name'          => $data['name'],
@@ -77,19 +75,13 @@ class CustomRegister extends BaseRegister
             'avatar'        => 'default-avatar.png',
         ]);
 
-        
-
         if($user){
 
-            $data['new_user_id'] = $user->id;
-
-            $admin = User::where('email', config('app.admin_email'))->first();
+            $data['new_user_id']    = $user->id;
+            $admin                  = User::where('email', config('app.admin_email'))->first();
             $admin->notify(new NewUserCreated($user));
 
             abort(403, 'Votre compte n\'est pas encore activé. Vous serez informé par email lorsque votre compte sera activé.');
-
-
-            //return $user;
         }   
     }
 }
