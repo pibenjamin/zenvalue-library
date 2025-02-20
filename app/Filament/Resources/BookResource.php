@@ -58,7 +58,7 @@ use Illuminate\Support\Facades\Http;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Faker\Provider\ar_EG\Text;
 use Livewire\WithFileUploads;
-
+use Filament\Tables\Columns\ImageColumn;
 
 class BookResource extends Resource
 {
@@ -184,7 +184,16 @@ class BookResource extends Resource
                 ->wrap()
                 ->searchable(),
 
-                TextColumn::make('authors.name')
+
+            ImageColumn::make('authors.photo_url')
+                ->label('Auteurs')
+                ->circular()
+                ->stacked()
+
+                ->height(50),
+
+
+            TextColumn::make('authors.name')
                 ->label('Auteurs')
                 ->width('200px')
                 ->badge()
@@ -370,6 +379,20 @@ class BookResource extends Resource
                 ->multiple()
                 ->relationship('tags', 'title')
                 ->options(Tag::all()->pluck('title', 'id')),
+
+            Tables\Filters\SelectFilter::make('difficulty_level')
+                ->label('Difficulté')
+                ->options(Book::getDifficulties())
+                ->default(null),
+
+            Tables\Filters\SelectFilter::make('is_borrowed')
+                ->label('Disponibilité')
+                ->options([
+                    'true' => 'Disponible',
+                    'false' => 'Emprunté',
+                ]),
+                
+                
 
 
         ]);

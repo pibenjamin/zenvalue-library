@@ -14,7 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\User;
-
+use Filament\Forms\Components\FileUpload;
 class AuthorResource extends Resource
 {
     protected static ?string $model             = Author::class;
@@ -29,6 +29,14 @@ class AuthorResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
+                Forms\Components\FileUpload::make('photo_url')
+                    ->label('Photo')
+                    ->directory('authors')
+                    ->maxSize(5120) // 5MB
+                    ->columnSpanFull(),
+
+
             ]);
     }
 
@@ -44,6 +52,13 @@ class AuthorResource extends Resource
                     ->label('Nom')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\ImageColumn::make('photo_url')
+                    ->label('Photo')
+                    ->circular()
+                    ->url(fn (Author $record): string => $record->photo_url ? $record->photo_url : url('/authors/photo/author-placeholder.jpeg'))
+                    ->height(50),
+
                 Tables\Columns\TextColumn::make('books_count')
                     ->label('Nombre de livres')
                     ->counts('books')
