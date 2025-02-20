@@ -184,14 +184,12 @@ class BookResource extends Resource
                 ->wrap()
                 ->searchable(),
 
-
             ImageColumn::make('authors.photo_url')
-                ->label('Auteurs')
+                ->label('Portraits')
                 ->circular()
                 ->stacked()
-
+                ->tooltip(fn (Book $record): string => $record->authors->pluck('name')->implode(', '))
                 ->height(50),
-
 
             TextColumn::make('authors.name')
                 ->label('Auteurs')
@@ -207,7 +205,6 @@ class BookResource extends Resource
                 ->label('Couverture')
                 ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
                 ->sortable()
-                
                 ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
                 ->height(75),
                 
@@ -249,6 +246,10 @@ class BookResource extends Resource
 
             TextColumn::make('tags.title')
                 ->label('Mots-clés')
+                ->tooltip(fn (Book $record) => $record->tags->pluck('title')->implode(' - '))
+                ->url(fn (Book $record) => url('/admin/tags?tableSearch=&tableFilters[tags][id][value]=' . $record->id))
+                ->openUrlInNewTab()
+                ->listWithLineBreaks()
                 ->badge()
                 ->color('gray')
                 ->wrap()

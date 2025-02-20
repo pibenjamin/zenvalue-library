@@ -60,14 +60,19 @@ class AuthorResource extends Resource
                     ->height(50),
 
                 Tables\Columns\TextColumn::make('books_count')
-                    ->label('Nombre de livres')
+                    ->label('# livres')
                     ->counts('books')
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('books.title')
                     ->label('Livres')
                     ->badge()
+                    ->openUrlInNewTab()
+                    ->wrap()
                     ->tooltip(fn (Author $record) => $record->books->pluck('title')->implode(' - '))
-
+                    ->url(fn (Author $record) => url('/admin/books?tableSearch=&tableFilters[authors][name][value]=' . $record->id))
+                    ->openUrlInNewTab()
+                    ->listWithLineBreaks()
                     ->limit(20)
                     ->sortable(),
             ])

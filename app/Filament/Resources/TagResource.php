@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TagResource\Pages;
 use App\Filament\Resources\TagResource\RelationManagers;
 use App\Models\Tag;
+use App\Models\Book;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -64,8 +65,13 @@ class TagResource extends Resource
 
             ])
             ->filters([
-                //
-            ])
+                Tables\Filters\SelectFilter::make('books.title')
+                ->label('Livres')
+                ->relationship('books', 'title')
+                ->options(Book::all()->pluck('title', 'id')),
+
+
+                ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
