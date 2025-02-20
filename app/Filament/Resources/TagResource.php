@@ -26,9 +26,10 @@ class TagResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->label('Nom')
-                    ->placeholder('Nom du tag')
-                    ->helperText('Le nom du tag est obligatoire')
+                    ->placeholder('Nom du mot-clé')
+                    ->helperText('Le nom du mot-clé est obligatoire')
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
             ]);
     }
@@ -37,10 +38,23 @@ class TagResource extends Resource
     {
         return $table
             ->columns([
+
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
+
+
                 Tables\Columns\TextColumn::make('title')
                     ->label('Nom')
                     ->wrap()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->wrap()
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
 
                 Tables\Columns\TextColumn::make('books_count')
                     ->label('Nombre de livres')

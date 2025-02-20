@@ -109,6 +109,8 @@ class BookResource extends Resource
                     ->createOptionForm([
                         Forms\Components\TextInput::make('title')
                             ->label('Nom')
+                            ->placeholder('Nom du mot-clé')
+                            ->unique(ignoreRecord: true)
                             ->required(),
                     ]),           
 
