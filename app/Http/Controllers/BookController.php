@@ -20,10 +20,17 @@ use Illuminate\Support\Facades\Form;
 use Illuminate\Support\Facades\View;
 
 
+
+
 class BookController extends Controller
 {
+
+
+
     public function printQrCodes(Request $request)
     {
+        $this->canAccess();
+
         $books      = Book::all();
         $qrCodes    = [];
         $printSize  = $request->print_size ?? 300;
@@ -37,6 +44,7 @@ class BookController extends Controller
             $qrCodes[] = [
                 'qrCode' => $qrCodeService->generateAndSaveAsFile($book, 300, $regenerate),
                 'title' => $book->title,
+                'isbn' => $book->isbn,
             ];
 
             $i++;
@@ -44,5 +52,23 @@ class BookController extends Controller
 
         return view('print-qr-codes', compact('qrCodes', 'printSize'));
     }
+
+    protected function canAccess()
+    {
+        if (!Auth::check()) {
+
+            $user = auth()->user();
+            if(!$user) {
+                abort(403, 'Unauthorized');
+            }
+
+            dd($user);
+            if($user->role->name != 'super-admin') {
+                abort(403, 'Unauthorized');
+            }
+
+        }
+    }
+
 }
 

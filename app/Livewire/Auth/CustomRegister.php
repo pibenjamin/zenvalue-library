@@ -48,14 +48,6 @@ class CustomRegister extends BaseRegister
                     ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
                     ->maxLength(255),
-
-                // Example: Adding a custom role selection
-//                Select::make('role')
-//                    ->options([
-//                        'admin' => 'Admin',
-//                        'user' => 'User',
-//                    ])
-//                    ->required(),
             ]);
     }
 

@@ -70,6 +70,7 @@
                     <img src="{{ asset('storage/qr-codes/' . $qrCode['qrCode']) }}" alt="QR Code" width="{{ $printSize }}" height="{{ $printSize }}">
                 </div>
                 <div class="book-title">{{ $qrCode['title'] }}</div>
+                <div class="book-isbn">{{ $qrCode['isbn'] }}</div>
             </div>
         @endforeach
     </div>

@@ -213,6 +213,11 @@ class LoanResource extends Resource
                 })
                 ->sortable(),
 
+            Tables\Columns\TextColumn::make('to_be_returned_at')
+                ->label('Date de retour')
+                ->date('d/m/Y')
+                ->sortable(),                
+
             Tables\Columns\TextColumn::make('status')
                 ->label('Statut')
                 ->badge()
@@ -236,11 +241,6 @@ class LoanResource extends Resource
                 ->sortable()
                 ->wrap()
                 ->width('15%'),
-
-            Tables\Columns\TextColumn::make('to_be_returned_at')
-                ->label('Date de retour')
-                ->date('d/m/Y')
-                ->sortable(),
         ];
 
         return $commonColumns;

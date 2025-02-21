@@ -265,6 +265,7 @@ class BookResource extends Resource
                     ->action(function (Book $book) {
                         app(LoanService::class)->borrowBook($book);
                     })
+                    ->tooltip(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous avez déjà emprunté ce livre' : 'Emprunter')
                     ->button()
                     ->visible(fn (Book $book) => !$book->is_borrowed),
             ])

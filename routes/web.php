@@ -7,17 +7,6 @@ use App\Models\Role;
 use App\Http\Controllers\BookController;
 use App\Models\Book;
 
-Route::get('/test-email', function () {
-
-    Mail::raw('Test de l\'envoi d\'un e-mail dans les logs.', function ($message) {
-        $message->to('bpiscart@zenvalue.fr')->to('benjaminpiscart@gmail.com')
-                ->subject('Test Mail Log tadda');
-    });
-
-    return 'E-mail envoyé et logué';
-});
-
-
 Route::get('/loans/late', [LoanController::class],'late')->name('loans.late');
 Route::get('/my-loans', [LoanController::class],'myLoans')->name('my_loans');
 Route::get('/return-book/{id}', [LoanController::class],'returnBook')->name('return_book');
@@ -40,7 +29,9 @@ Route::get('/', function () {
 //    return view('welcome');
 });
 
-Route::get('/print-qr-codes', [BookController::class, 'printQrCodes'])->name('print-qr-codes');
+Route::middleware(['web'])->group(function () {
+    Route::get('/print-qr-codes', [BookController::class, 'printQrCodes'])->name('print-qr-codes');
+});
 
 Route::get('/emprunter/{book_id}', function () {
 
