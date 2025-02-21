@@ -67,10 +67,10 @@ class LoanResource extends Resource
 
         if(auth()->user()?->hasRole(['admin', 'super_admin'])){
             return [
-                'overdue' => (clone $query)->where('status', 'overdue')->count(),
-                'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
-                'returned' => (clone $query)->where('status', 'returned')->count(),
-                'return_in_progress' => (clone $query)->where('status', 'return_in_progress')->count(),
+                'overdue'               => (clone $query)->where('status', 'overdue')->count(),
+                'in_progress'           => (clone $query)->where('status', 'in_progress')->count(),
+                'returned'              => (clone $query)->where('status', 'returned')->count(),
+                'return_in_progress'    => (clone $query)->where('status', 'return_in_progress')->count(),
             ];
         }
     }
@@ -203,6 +203,16 @@ class LoanResource extends Resource
     private static function getTableColumns(): array
     {
         $commonColumns = [
+
+
+            // ajoute une colonne qui compte le nombre de jour de retard
+            Tables\Columns\TextColumn::make('delay')
+                ->label('Retard')
+                ->state(function ($record): string {
+                    return $record->getDelay();
+                })
+                ->sortable(),
+
             Tables\Columns\TextColumn::make('status')
                 ->label('Statut')
                 ->badge()

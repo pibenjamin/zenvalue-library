@@ -46,6 +46,19 @@ class Loan extends Model
         self::STATUS_RETURN_IN_PROGRESS => 'Retour en cours',
     ];
 
+    public function getDelay()
+    {
+        if($this->status == self::STATUS_OVERDUE) {
+        $delay = $this->to_be_returned_at->diffInDays(now());
+
+            if($delay > 0) {
+                return round($delay) . ' ' . __('jours');
+            }
+        }
+
+        return '';
+    }
+
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);

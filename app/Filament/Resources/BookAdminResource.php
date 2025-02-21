@@ -273,7 +273,7 @@ class BookAdminResource extends Resource
                         ->action(fn (Book $record) => $record)   
                         ->modalContent(fn (Book $record): View => view(
                             'filament.modals.view.qrcode',
-                            ['record' => $record, 'qrCode' => app(QrCodeService::class)->generateQrCode($record)],
+                            ['record' => $record, 'qrCode' => app(QrCodeService::class)->generateQrCode($record, 300)],
                         ))
                         ->modalSubmitAction(false),
 
