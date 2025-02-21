@@ -116,4 +116,11 @@ class Book extends Model
         return self::DIFFICULTY_COLORS[$this->difficulty_level] ?? 'secondary';
     }
 
+    public function isBorrowedByUser(User $user): int
+    {
+
+
+        return $this->loans->whereIn('status',['in_progress', 'returned_in_progress'])->count();
+    }
+
 } 

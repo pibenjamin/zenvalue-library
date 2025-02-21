@@ -1,17 +1,21 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Rappel : Retour de prêt en retard ⏰')
+@section('title', '⏰ Rappel : Retour de prêt en retard ⏰')
 
 @section('content')
     <p>Bonjour {{ $loan->borrower->name }},</p>
 
     <p class="alert">
-        Nous vous rappelons que le livre suivant devait être retourné il y a {{ $daysOverdue }} jours :
+        @if($daysOverdue === 0)
+            Nous vous rappelons que le livre suivant devait être retourné aujourd'hui :
+        @else
+            Nous vous rappelons que le livre suivant devait être retourné il y a {{ $daysOverdue }} jours :
+        @endif
     </p>
 
     <div class="book-info">
         <h2>{{ $loan->book->title }}</h2>
-        <p>par 
+        <p>Par 
             @foreach($loan->book->authors as $key => $author)
                 {{ $author->name }}@if(!$loop->last){{ $loop->iteration === $loop->count - 1 ? ' et ' : ', ' }}@endif
             @endforeach

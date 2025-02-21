@@ -4,17 +4,15 @@ namespace App\Filament\Resources;
 
 // Filament Resource Core
 use Filament\Resources\Resource;
-use App\Filament\Resources\BookResource\Pages;
-use App\Filament\Resources\BookResource\RelationManagers;
+use App\Filament\Resources\BookAdminResource\Pages;
+use App\Filament\Resources\BookAdminResource\RelationManagers;
 
 // Models
 use App\Models\Book;
+use App\Models\BookAdmin;
 use App\Models\Author;
-use App\Models\Loan;
-use App\Models\Tag;
 use App\Models\User;
-use App\Models\Support;
-use App\Models\Notification;
+use App\Models\Tag;
 
 // Services
 use App\Services\LoanService;
@@ -23,51 +21,38 @@ use App\Services\QrCodeService;
 // Filament Forms
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\FileUpload;
-
 
 // Filament Tables
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TextInputFilter;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TextInputFilter;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
 
-// Filament Other
-use Filament\Infolists\Infolist;
-use Filament\Support\Enums\ActionSize;
-use Filament\Actions\ImportAction;
-
 // Laravel
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
-// Third Party
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
-use Faker\Provider\ar_EG\Text;
-use Livewire\WithFileUploads;
-use Filament\Tables\Columns\ImageColumn;
- 
-
-class BookResource extends Resource
+class BookAdminResource extends Resource
 {
     protected static ?string $model             = Book::class;
-    protected static ?string $modelLabel        = 'Livre';
-    protected static ?string $pluralModelLabel  = 'Livres';
+    protected static ?string $modelLabel        = 'Livre (admin)';
+    protected static ?string $pluralModelLabel  = 'Livres (admin)';
     protected static ?string $navigationGroup   = 'Gestion des livres';
-    
     protected static ?string $navigationIcon    = 'heroicon-o-book-open';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasAnyRole(['admin', 'super_admin']);    
+    }
+
 
     public static function form(Form $form): Form
     {
@@ -178,6 +163,10 @@ class BookResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable(),
+
                 TextColumn::make('title')
                     ->label('Titre')
                     ->sortable()
@@ -207,7 +196,23 @@ class BookResource extends Resource
                     ->sortable()
                     ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
                     ->height(75),
-                
+
+                TextColumn::make('missing')
+                    ->label('Perdu')
+                    ->state(function ($record): string {
+                        return $record->missing ? 'oui' : 'non';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'oui' => 'danger',
+                        'non' => 'success',
+                    })
+                    ->sortable(),
+
+                TextColumn::make('isbn')
+                    ->label('ISBN')
+                    ->sortable(),
+
                 TextColumn::make('is_borrowed')
                     ->label('Disponibilité')
                     ->state(function ($record): string {
@@ -256,22 +261,46 @@ class BookResource extends Resource
                     ->searchable(),
             ])
             ->actions([
-                Tables\Actions\Action::make('borrow')
-                    ->label(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous empruntez ce livre' : 'Emprunter')
-                    ->color('success')
-                    ->icon('heroicon-s-hand-raised')
-                    ->requiresConfirmation()
-                    ->modalHeading('Emprunter ce livre')
-                    ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
-                    ->action(function (Book $book) {
-                        app(LoanService::class)->borrowBook($book);
-                    })
-                    ->button()
-                    ->visible(fn (Book $book) => !$book->is_borrowed),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->requiresConfirmation(false),
+                    Action::make('qrcode')
+                        ->label('QR Code')
+                        ->icon('heroicon-o-qr-code')
+                        ->action(fn (Book $record) => $record)   
+                        ->modalContent(fn (Book $record): View => view(
+                            'filament.modals.view.qrcode',
+                            ['record' => $record, 'qrCode' => app(QrCodeService::class)->generateQrCode($record)],
+                        ))
+                        ->modalSubmitAction(false),
+                    Tables\Actions\Action::make('open_library')
+                        ->label('O.L. API')
+                        ->icon('heroicon-o-globe-alt')
+                        ->modalContent(fn (Book $record): View => view(
+                            'books.open-library-modal',
+                            [
+                                'record' => $record,
+                                'bookData' => Http::get("https://openlibrary.org/isbn/{$record->isbn}.json")->json(),
+                            ]
+                        ))
+                        ->modalSubmitAction(false)
+                        ->modalCancelAction(false)
+                        ->visible(fn (Book $record) => $record->isbn !== null),
+                ])
             ])
-            ->defaultPaginationPageOption(50)
-            ->paginationPageOptions([25, 50, 100])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultPaginationPageOption(200)
+            ->paginationPageOptions([200, 500, 1000])
             ->filters([
+                Tables\Filters\SelectFilter::make('id')
+                    ->label('ID')
+                    ->options(Book::all()->pluck('id', 'id')),
+
                 Tables\Filters\SelectFilter::make('is_borrowed')
                     ->label('Emprunté')
                     ->options([
@@ -310,12 +339,19 @@ class BookResource extends Resource
             ->actionsPosition(ActionsPosition::BeforeColumns);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBooks::route('/'),
-            'create' => Pages\CreateBook::route('/create'),
-            'edit' => Pages\EditBook::route('/{record}/edit'),
+            'index' => Pages\ListBookAdmins::route('/'),
+            'create' => Pages\CreateBookAdmin::route('/create'),
+            'edit' => Pages\EditBookAdmin::route('/{record}/edit'),
         ];
     }
 }

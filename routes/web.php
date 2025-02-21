@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\LoanController;
 use App\Models\Role;
-
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 Route::get('/test-email', function () {
 
     Mail::raw('Test de l\'envoi d\'un e-mail dans les logs.', function ($message) {
@@ -39,6 +39,28 @@ Route::get('/', function () {
 });
 
 
+
+
+Route::get('/qr-code', function () {
+    $qrCode = QrCode::format('png')
+        ->size(300)
+        ->errorCorrection('H')
+        ->generate('https://www.google.com');
+    
+    $path = storage_path('app/public/qr-codes/');
+    
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
+    }
+    
+    $filename = 'qr-' . time() . '.png';
+    file_put_contents($path . $filename, $qrCode);
+
+    return view('qr-code', [
+        'qrCode' => '<img src="' . asset('storage/qr-codes/' . $filename) . '" alt="QR Code">',
+        'filename' => $filename
+    ]);
+});
 
 
 Route::get('/emprunter/{book_id}', function () {

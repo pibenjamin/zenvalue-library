@@ -9,6 +9,10 @@ use Illuminate\Validation\Rules\Password;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 
+use App\Models\Book;
+use App\Policies\AdminBookPolicy;
+use Illuminate\Support\Facades\Gate;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -28,6 +32,6 @@ class AppServiceProvider extends ServiceProvider
             'expert' => Color::Purple,
         ]);        
 
-        
+        //Gate::policy(Book::class, AdminBookPolicy::class);
     }
 }
