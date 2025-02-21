@@ -58,7 +58,6 @@ use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Faker\Provider\ar_EG\Text;
 use Livewire\WithFileUploads;
 use Filament\Tables\Columns\ImageColumn;
- 
 
 class BookResource extends Resource
 {

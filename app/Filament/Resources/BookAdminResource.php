@@ -53,7 +53,6 @@ class BookAdminResource extends Resource
         return auth()->user()->hasAnyRole(['admin', 'super_admin']);    
     }
 
-
     public static function form(Form $form): Form
     {
         return $form
@@ -86,6 +85,7 @@ class BookAdminResource extends Resource
                             ->label('Nom')
                             ->required(),
                     ]),
+
                 Forms\Components\Select::make('tags')
                     ->label('Tags')
                     ->multiple()
@@ -263,8 +263,10 @@ class BookAdminResource extends Resource
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make(),
+
                     Tables\Actions\DeleteAction::make()
                         ->requiresConfirmation(false),
+
                     Action::make('qrcode')
                         ->label('QR Code')
                         ->icon('heroicon-o-qr-code')
@@ -274,6 +276,7 @@ class BookAdminResource extends Resource
                             ['record' => $record, 'qrCode' => app(QrCodeService::class)->generateQrCode($record)],
                         ))
                         ->modalSubmitAction(false),
+
                     Tables\Actions\Action::make('open_library')
                         ->label('O.L. API')
                         ->icon('heroicon-o-globe-alt')
@@ -337,13 +340,6 @@ class BookAdminResource extends Resource
                     ]),
             ])
             ->actionsPosition(ActionsPosition::BeforeColumns);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
