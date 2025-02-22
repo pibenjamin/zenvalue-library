@@ -17,17 +17,7 @@ class WhoBorowedMyBooks extends BaseWidget
 
     public static function canView(): bool
     {
-
-        // If I feed the library with my books, I can't see the list of people who borrowed my books
-
-        $bookOwner = auth()->user()->books()->first();
-
-        if (!$bookOwner) {
-            return false;
-        }
-
         return auth()->user()->hasRole('user');
-
     }
 
     public function table(Table $table): Table
