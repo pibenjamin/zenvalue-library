@@ -202,7 +202,6 @@ class BookResource extends Resource
                 
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
-                    ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/cover/book-placeholder.jpeg'))
                     ->sortable()
                     ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
                     ->height(75),

@@ -75,28 +75,29 @@ class UserResource extends Resource
                     ->offColor('danger'),
 
                 Forms\Components\Select::make('roles')
-                ->label('Rôles')
-                ->multiple()
-                ->relationship('roles', 'name')
-                ->preload(),
+                    ->label('Rôles')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload(),
 
                 Forms\Components\FileUpload::make('avatar')
-                ->label('Avatar')
-                ->image()
-                ->imageEditor()
-                ->directory('/users/avatars')
-                ->disk('public')
-                ->maxSize(1024),
+                    ->label('Avatar')
+                    ->imageEditor()
+                    ->directory('avatars')
+                    ->disk('public')
+                    ->maxSize(5120),
+
                 Forms\Components\DatePicker::make('updated_at')
-                ->label('Modifié le')
-                ->displayFormat('d/m/Y')
-                ->locale('fr')
-                ->native(false)
-                ->required(),
+                    ->label('Modifié le')
+                    ->displayFormat('d/m/Y')
+                    ->locale('fr')
+                    ->native(false)
+                    ->required(),
+
                 Forms\Components\DatePicker::make('created_at')
-                ->label('Créé le')
-                ->displayFormat('d/m/Y')
-                ->required(),
+                    ->label('Créé le')
+                    ->displayFormat('d/m/Y')
+                    ->required(),
             ]);
     }
 
@@ -110,6 +111,13 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->label('Avatar')
+                    ->circular()
+                    ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                    ->height(50),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Modifié le')
                     ->dateTime('d/m/Y H:i')
