@@ -39,6 +39,8 @@ use App\Livewire\Auth\CustomRegister;
 
 use App\Filament\Pages\CustomLogin;
 
+use Filament\Navigation\MenuItem;
+
 
 class AdminPanelProvider extends PanelProvider
 {

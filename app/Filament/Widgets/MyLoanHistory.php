@@ -29,6 +29,7 @@ class MyLoanHistory extends BaseWidget
                     ->where('borrower_id', auth()->id())
                     ->whereIn('status', ['returned'])
                     ->latest('borrowed_at')
+                    ->limit(3)
             )
             ->heading('Mon historique de prêts 📚')
             ->description('Cette liste affiche les livres que vous avez empruntés, si le prêt est terminé.')
@@ -46,7 +47,8 @@ class MyLoanHistory extends BaseWidget
                 Tables\Columns\TextColumn::make('returned_at')
                     ->label('Retourné le')
                     ->dateTime('d/m/Y'),
-            ]);
+            ])
+            ->paginated([3, 'all']);
     }
 
 

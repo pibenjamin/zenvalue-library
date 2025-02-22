@@ -35,8 +35,6 @@ class AuthorResource extends Resource
                     ->directory('authors')
                     ->maxSize(5120) // 5MB
                     ->columnSpanFull(),
-
-
             ]);
     }
 
@@ -90,13 +88,6 @@ class AuthorResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

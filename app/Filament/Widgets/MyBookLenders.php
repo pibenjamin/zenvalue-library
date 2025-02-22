@@ -31,6 +31,7 @@ class MyBookLenders extends BaseWidget
                 ->join('users as lenders', 'books.owner_id', '=', 'lenders.id')
                 ->selectRaw('lenders.id, lenders.name, COUNT(*) as total_books')
                 ->groupBy('lenders.id', 'lenders.name')
+                ->limit(3)
         )
         ->heading('A qui ai-je emprunté ? 👤')
         ->description('Cette liste affiche les personnes à qui vous avez emprunté des livres, si le prêt est terminé.')
@@ -43,7 +44,8 @@ class MyBookLenders extends BaseWidget
             Tables\Columns\TextColumn::make('total_books')
                 ->label('Nombre de livres empruntés')
                 ->sortable(),
-        ]);    
+        ])
+        ->paginated([3, 'all']);
     }
 
 

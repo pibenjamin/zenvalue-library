@@ -29,6 +29,7 @@ class WhoBorowedMyBooks extends BaseWidget
                         $query->where('owner_id', auth()->id());
                     })
                     ->latest('borrowed_at')
+                    ->limit(3)
             )
             ->heading('Qui a emprunté mes livres ? 📚')
             ->columns([
@@ -51,6 +52,7 @@ class WhoBorowedMyBooks extends BaseWidget
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge(),
-            ]);
+            ])
+            ->paginated([3, 'all']);
     }
 } 

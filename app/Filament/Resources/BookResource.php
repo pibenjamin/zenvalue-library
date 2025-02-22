@@ -226,13 +226,13 @@ class BookResource extends Resource
                     ->label('Année')
                     ->sortable(),
 
-                TextColumn::make('owner.name')
+                Tables\Columns\ImageColumn::make('owner.avatar')
                     ->label('Propriétaire')
-                    ->badge()
-                    ->color('gray')
-                    ->sortable()
-                    ->searchable()
-                    ->wrap(),
+                    ->circular()
+                    ->tooltip(fn (Book $record): string => $record->owner->name)
+                    ->url(fn (Book $record): string => $record->owner->avatar ? $record->owner->avatar : url('/users/photo/author-placeholder.jpeg'))
+                    ->height(50),
+
 
                 TextColumn::make('difficulty_level')
                     ->label('Difficulté')
