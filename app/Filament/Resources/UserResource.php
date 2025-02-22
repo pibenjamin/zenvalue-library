@@ -115,7 +115,7 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('avatar')
                     ->label('Avatar')
                     ->circular()
-                    ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                    ->defaultImageUrl(url('/storage/avatars/default-avatar.png'))
                     ->height(50),
 
                 Tables\Columns\TextColumn::make('updated_at')
