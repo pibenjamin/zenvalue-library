@@ -82,9 +82,11 @@ class AquisitionRequestResource extends Resource
                                     ->label('Auteur')
                                     ->relationship('author', 'name')
                                     ->preload()
+                                    ->searchable()
                                     ->createOptionForm([
                                         Forms\Components\TextInput::make('name')
                                             ->label('Nom')
+                                            ->unique()
                                             ->required(),
                                     ]),
 
