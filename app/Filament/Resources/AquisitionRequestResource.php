@@ -20,17 +20,15 @@ class AquisitionRequestResource extends Resource
 {
     protected static ?string $model = AquisitionRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Demande d\'acquisition';
+    protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel       = 'Demande d\'acquisition';
     protected static ?string $pluralNavigationLabel = 'Demandes d\'acquisition';
-    protected static ?string $navigationGroup = 'Gestion des livres';
+    protected static ?string $navigationGroup       = 'Gestion des livres';
 
-    protected static ?string $modelLabel        = 'une demande d\'acquisition';
-    protected static ?string $pluralModelLabel  = 'Demandes d\'acquisition';
+    protected static ?string $modelLabel            = 'une demande d\'acquisition';
+    protected static ?string $pluralModelLabel      = 'Demandes d\'acquisition';
 
     
-
-
     public static function form(Form $form): Form
     {
         return $form
@@ -68,7 +66,6 @@ class AquisitionRequestResource extends Resource
                                     ->prefix('€')
                                     ->numeric()
                                     ->maxLength(255),
-
                             ]),
 
 
@@ -127,7 +124,11 @@ class AquisitionRequestResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->visible(fn (AquisitionRequest $record) => 
+                    auth()->user()?->hasRole('super_admin') && 
+                    $record->status === 'pending'
+                )
                 ]),
             ]);
     }
