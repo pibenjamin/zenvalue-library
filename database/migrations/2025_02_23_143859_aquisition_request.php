@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->text('description')->nullable();
             $table->string('status')->default('pending');
-            $table->string('author')->nullable();
+            $table->foreignId('author_id')->constrained('authors');
             $table->string('title')->nullable();
             $table->string('isbn')->nullable();
             $table->string('link_to_book')->nullable();

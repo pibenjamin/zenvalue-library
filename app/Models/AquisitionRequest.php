@@ -10,7 +10,7 @@ class AquisitionRequest extends Model
         'user_id',
         'description',
         'status',
-        'author',
+        'author_id',
         'title',
         'isbn',
         'image',

@@ -81,7 +81,7 @@ class AquisitionRequestResource extends Resource
                                     ->maxLength(255)
                                     ->columnSpan(1),
 
-                                Forms\Components\Select::make('author')
+                                Forms\Components\Select::make('user')
                                     ->label('Auteur')
                                     ->relationship('author', 'name')
                                     ->preload()
