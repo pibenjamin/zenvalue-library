@@ -31,11 +31,19 @@ class SendLoanReminders extends Command
 
     protected function sendFirstReminders()
     {
+        $this->info(" Start sendFirstReminders");
+
         $loans = $this->reminderService->getLoansDueForFirstReminder();
-        $this->info("Sending first reminders for " . $loans->count() . " loans");
+
+        if($loans->count() === 0) {
+            $this->info("No loans due for first reminder");
+            return;
+        }
+
+        $this->info("Sending first notification for " . $loans->count() . " loans");
         
         foreach ($loans as $loan) {
-            $daysUntilDue = round(now()->diffInDays($loan->to_be_returned_at));
+            $daysUntilDue = (int) floor(now()->diffInDays($loan->to_be_returned_at));
             $loan->borrower->notify(new LoanDueReminder($loan, $daysUntilDue));
             
             // Update the reminder sent timestamp
@@ -61,10 +69,17 @@ class SendLoanReminders extends Command
 
     protected function sendRecurringReminders()
     {
+        $this->info(" Start sendRecurringReminders");
+
         $loans = $this->reminderService->getLoansNeedingRecurringReminder();
+
+        if($loans->count() === 0) {
+            $this->info("No loans due for recurring reminder");
+            return;
+        }
         
         foreach ($loans as $loan) {
-            $daysOverdue = round($loan->to_be_returned_at->diffInDays(now()));
+            $daysOverdue = (int) floor($loan->to_be_returned_at->diffInDays(now()));
             $loan->borrower->notify(new LoanOverdueReminder($loan, $daysOverdue));
 
             // Update the recurring_reminder_sent_at timestamp
@@ -85,7 +100,15 @@ class SendLoanReminders extends Command
 
     protected function sendUrgentNotifications()
     {
+        $this->info(" Start sendUrgentNotifications");
+
         $loans      = $this->reminderService->getLoansOverdueByMonth();
+
+        if($loans->count() === 0) {
+            $this->info("No loans due for urgent notification");
+            return;
+        }
+
         $librarians = User::whereIn('role_id', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN])->get();
         
         foreach ($loans as $loan) {

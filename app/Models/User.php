@@ -118,6 +118,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->role->name === 'user';
     }
+
+    public function books(): HasMany
+    {
+        return $this->hasMany(Book::class, 'owner_id');
+    }
     
 
 }
