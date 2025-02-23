@@ -127,12 +127,11 @@ class AquisitionRequestResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                    ->visible(fn (AquisitionRequest $record) => 
-                    auth()->user()?->hasRole('super_admin') && 
-                    $record->status === 'pending'
-                )
-                ]),
-            ]);
+                        ->visible(fn (AquisitionRequest $record) => 
+                            auth()->user()?->hasRole('super_admin')
+                        )
+                    ]),
+                ]);
     }
 
     public static function getRelations(): array
