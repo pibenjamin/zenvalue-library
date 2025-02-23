@@ -39,6 +39,21 @@ class AquisitionRequestResource extends Resource
                         Forms\Components\Section::make('Motivation de la demande')
                             ->columnSpan(1)
                             ->schema([
+
+                                Forms\Components\Radio::make('status')
+                                    ->label('Etat de la demande')
+                                    ->options([
+                                        'pending' => 'En attente',
+                                        'validated' => 'Validée',
+                                        'rejected' => 'Rejetée',
+                                    ])
+                                    ->inline()
+                                    ->default('pending')
+                                    ->visible(fn (AquisitionRequest $record) => 
+                                        auth()->user()?->hasRole('super_admin')
+                                    ),
+
+
                                 Forms\Components\Textarea::make('description')
                                     ->placeholder('Selon vous en quoi ce livre serait utile à vous-même mais également à la communauté des citizens. Exemple : nous donnons des formations sur le sujet Y mais nous n\'avons aucune référence à ce sujet ; ce sujet n\'est pas répérensé dans notre bibliothèque.')
                                     ->required()

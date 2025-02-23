@@ -6,6 +6,7 @@ use App\Models\AquisitionRequest;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Auth;
 
 class AquisitionRequestPolicy
 {
@@ -41,7 +42,7 @@ class AquisitionRequestPolicy
      */
     public function update(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return false;
+        return auth()->user()?->hasRole('super_admin');
     }
 
     /**
