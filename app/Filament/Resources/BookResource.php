@@ -268,7 +268,7 @@ class BookResource extends Resource
                     ->button()
                     ->visible(fn (Book $book) => !$book->is_borrowed),
 
-                    Tables\Actions\Action::make('borrow')
+                Tables\Actions\Action::make('borrow')
                     ->label(fn (Book $book) => 'Retour le ' . \Carbon\Carbon::parse($book->getLastLoan()->to_be_returned_at)->format('d/m/Y'))
                     ->disabled(fn (Book $book) => $book->is_borrowed)
                     ->visible(fn (Book $book) => $book->is_borrowed),
