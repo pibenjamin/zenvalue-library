@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Actions\Action;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Placeholder;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 
 class AquisitionRequestResource extends Resource
 {
@@ -42,22 +44,27 @@ class AquisitionRequestResource extends Resource
 
                                 Forms\Components\Radio::make('status')
                                     ->label('Etat de la demande')
-                                    ->options([
-                                        'pending' => 'En attente',
-                                        'validated' => 'Validée',
-                                        'rejected' => 'Rejetée',
-                                    ])
+                                    ->options(AquisitionRequest::getStatusLabelsForAdmin())
                                     ->inline()
                                     ->default('pending')
-                                    ->visible(fn (AquisitionRequest $record) => 
-                                        auth()->user()?->hasRole('super_admin')
+                                    ->visible(fn () => 
+                                        auth()->user()->hasRole('super_admin')
                                     ),
-
 
                                 Forms\Components\Textarea::make('description')
                                     ->placeholder('Selon vous en quoi ce livre serait utile à vous-même mais également à la communauté des citizens. Exemple : nous donnons des formations sur le sujet Y mais nous n\'avons aucune référence à ce sujet ; ce sujet n\'est pas répérensé dans notre bibliothèque.')
                                     ->required()
                                     ->rows(9),
+
+
+                                Forms\Components\Textarea::make('reject_reason')
+                                    ->label('Motif de rejet')
+                                    ->placeholder('Veuillez nous indiquer le motif de rejet de la demande.')
+                                    ->rows(9)
+                                        ->visible(function (?AquisitionRequest $record = null): bool {
+                                            if (!$record) return false;
+                                            return $record->status === 'rejected' || auth()->user()->hasRole('super_admin');
+                                        }),
                             ]),
 
                         Forms\Components\Section::make('Informations essentielles')
@@ -106,7 +113,7 @@ class AquisitionRequestResource extends Resource
                                     ]),
 
                                 Forms\Components\TextInput::make('isbn')
-                                    ->helperText('L\'ISBN est l\'identifiant unique d\'un livre, il se compose de 13 chiffres parfois incluant un tier en 3eme position :  9782226254764  ou  978-2226254764 ')
+                                    ->helperText('L\'ISBN est l\'identifiant unique d\'un livre, il se compose de 13 chiffres parfois incluant un tiret en 3eme position :  9782226254764  ou  978-2226254764 ')
                                     ->label('ISBN')
                                     ->maxLength(14),
 
@@ -121,12 +128,23 @@ class AquisitionRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\TextColumn::make('title')
+                ->label('Titre')
+                ->sortable()
+                ->wrap()
+                ->searchable(),
+
                 Tables\Columns\TextColumn::make('user.name')
                 ->label('Demandeur')
+                ->color('gray')
+                ->state(fn (AquisitionRequest $record): string => $record->user->id == auth()->id() ? 'Moi même' : $record->user->name)
                 ->badge(),
+                
                 Tables\Columns\TextColumn::make('status')
-                ->badge(),
+                ->badge()
+                ->color(fn (AquisitionRequest $record): string => $record->getStatusColor())
+                ->state(fn (AquisitionRequest $record): string => $record->getStatusLabel()),
+
                 Tables\Columns\TextColumn::make('created_at')
                 ->label('Date de demande')
                 ->dateTime('d/m/Y')
@@ -137,7 +155,10 @@ class AquisitionRequestResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                ->icon('heroicon-o-eye'),
+                Tables\Actions\EditAction::make()
+                ->icon('heroicon-o-pencil')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -156,10 +177,25 @@ class AquisitionRequestResource extends Resource
         ];
     }
 
+    /*
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\TextEntry::make('title'),
+                Infolists\Components\TextEntry::make('user.name'),
+                Infolists\Components\TextEntry::make('status'),
+                Infolists\Components\TextEntry::make('created_at')
+                    ->dateTime('d/m/Y'),
+            ]);
+    }
+    */
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListAquisitionRequests::route('/'),
+            //'view' => Pages\ViewAquisitionRequest::route('/{record}'),
             'create' => Pages\CreateAquisitionRequest::route('/create'),
             'edit' => Pages\EditAquisitionRequest::route('/{record}/edit'),
         ];

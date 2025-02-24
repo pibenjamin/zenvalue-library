@@ -18,6 +18,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 
 use App\Filament\Actions\SaveAndNotifyActivation;
 
@@ -155,8 +157,8 @@ class UserResource extends Resource
             ->filters([
             ])
             ->actions([
-//                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -170,17 +172,41 @@ class UserResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
 
+    /*
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\TextEntry::make('name'),
+                Infolists\Components\TextEntry::make('email')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('roles.name')
+                    ->label('Rôles')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('is_activated')
+                    ->label('Activé')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('updated_at')
+                    ->label('Modifié le')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('created_at')
+                    ->label('Créé le')
+                    ->columnSpanFull(),
+                Infolists\Components\ImageEntry::make('avatar')
+                    ->label('Avatar')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('status')
+                    ->label('Statut')
+                    ->columnSpanFull(),  
+            ]);
+    }
+*/
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListUsers::route('/'),
+            'view' => Pages\ViewUser::route('/{record}'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];

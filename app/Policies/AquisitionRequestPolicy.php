@@ -26,7 +26,7 @@ class AquisitionRequestPolicy
      */
     public function view(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return false;
+        return auth()->user()?->hasAnyRole(['super_admin', 'admin', 'user']);
     }
 
     /**

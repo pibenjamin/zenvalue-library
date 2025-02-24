@@ -203,8 +203,6 @@ class LoanResource extends Resource
     private static function getTableColumns(): array
     {
         $commonColumns = [
-
-
             // ajoute une colonne qui compte le nombre de jour de retard
             Tables\Columns\TextColumn::make('delay')
                 ->label('Retard')
