@@ -71,6 +71,11 @@ class Book extends Model
         return $this->belongsToMany(Tag::class, 'tag_books');
     }
 
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
@@ -118,9 +123,22 @@ class Book extends Model
 
     public function isBorrowedByUser(User $user): int
     {
-
-
         return $this->loans->whereIn('status',['in_progress', 'returned_in_progress'])->count();
+    }
+
+    public function getAverageRating(): float
+    {
+
+        if($this->ratings()->count() === 0) {
+            return 0;
+        }
+
+        return round($this->ratings()->avg('rate'), 1);
+    }
+
+    public function getAverageRoundedRating(): int
+    {
+        return round($this->getAverageRating());
     }
 
 } 

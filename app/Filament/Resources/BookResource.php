@@ -15,6 +15,9 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Support;
 use App\Models\Notification;
+use App\Models\Rating;
+
+use Illuminate\Support\Str;
 
 // Services
 use App\Services\LoanService;
@@ -29,7 +32,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\FileUpload;
-
 
 // Filament Tables
 use Filament\Tables;
@@ -58,6 +60,9 @@ use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Faker\Provider\ar_EG\Text;
 use Livewire\WithFileUploads;
 use Filament\Tables\Columns\ImageColumn;
+use NunoMaduro\Collision\Adapters\Phpunit\State;
+
+// Filament Plugins
 
 class BookResource extends Resource
 {
@@ -78,6 +83,37 @@ class BookResource extends Resource
                     ->helperText('Le titre de l\'ouvrage est obligatoire')
                     ->required()
                     ->maxLength(255),
+
+
+
+//                Rating::make('book_ratings')
+//                    ->label('Note')
+//                    ->stars(5)
+//                    ->allowZero(),
+                    
+
+//                Forms\Components\Select::make('theme')
+//                    ->label('Thème')
+//                    ->relationship('theme', 'name')
+//                    ->preload()
+//                    ->createOptionForm([
+//                        Forms\Components\TextInput::make('name')
+//                            ->label('Nom')
+//                            ->required(),
+//                    ]),
+
+
+
+                Forms\Components\Select::make('authors')
+                    ->label('Auteurs')
+                    ->multiple()
+                    ->relationship('authors', 'name')
+                    ->preload()
+                    ->createOptionForm([
+                    Forms\Components\TextInput::make('name')
+                        ->label('Nom')
+                        ->required(),
+                ]),
 
                 Forms\Components\Toggle::make('missing')
                     ->label('Manquant')
@@ -100,6 +136,9 @@ class BookResource extends Resource
                             ->label('Nom')
                             ->required(),
                     ]),
+
+
+
                 Forms\Components\Select::make('tags')
                     ->label('Tags')
                     ->multiple()
@@ -176,12 +215,28 @@ class BookResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->withCount('ratings')
+                    ->selectSub(function ($query) {
+                        $query->from('ratings')
+                            ->selectRaw('AVG(rate)')
+                            ->whereColumn('book_id', 'books.id');
+                    }, 'users_rating');
+            })
             ->columns([
                 TextColumn::make('title')
                     ->label('Titre')
                     ->sortable()
                     ->wrap()
                     ->searchable(),
+                    
+                Tables\Columns\ViewColumn::make('rating_avg_rate')
+                    ->label('Note moyenne')
+                    ->view('filament.tables.columns.rating_avg_rate'),
+                
+                Tables\Columns\ViewColumn::make('users_rating')
+                    ->label('Ma note')
+                    ->view('filament.tables.columns.rating'),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')

@@ -41,7 +41,6 @@ use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Filters\SelectFilter;
 
-
 class LoanResource extends Resource
 {
     protected static ?string $model             = Loan::class;
