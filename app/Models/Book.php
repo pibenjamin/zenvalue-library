@@ -141,4 +141,17 @@ class Book extends Model
         return round($this->getAverageRating());
     }
 
+    public function getUserRating(User $user): ?int
+    {
+        if($this->ratings()->where('user_id', $user->id)->exists()) {
+            return $this->ratings()->where('user_id', $user->id)->first()->rate;
+        }
+        return null;
+    }
+
+    public function hasBeenLoanedToUser(User $user): bool
+    {
+        return $this->loans()->where('user_id', $user->id)->exists();
+    }
+
 } 

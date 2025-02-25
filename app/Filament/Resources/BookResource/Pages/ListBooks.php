@@ -8,7 +8,7 @@ use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
-
+use Filament\Forms\Components\Checkbox;
 use App\Models\Rating;
 use Mokhosh\FilamentRating\Components\Rating as RatingComponent;
 
@@ -19,12 +19,19 @@ class ListBooks extends ListRecords
     public function leaveRatingAction(): Action
     {
         return Action::make('leaveRatingAction')
+            ->label('Noter ce livre')
             ->link()
+            ->modalDescription('Pour noter ce livre, nous vous demandons de nous confirmer sur vous l\'avez déjà lu 🙂')
             ->icon('heroicon-o-hand-thumb-up')
             ->form([
                 RatingComponent::make('rate')
-                    ->default(5)
-                    ->required()
+                    ->label('')
+                    ->allowZero()
+                    ->default(0)
+                    ->required(),
+                Checkbox::make('Je confirme avoir lu ce livre')
+                    ->label('J\'ai lu ce livre')
+                    ->default(false),
             ])
             ->action(function (array $data, array $arguments) {
                 Rating::create([

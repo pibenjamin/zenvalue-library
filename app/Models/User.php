@@ -134,4 +134,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->ratings()->where('book_id', $book->id)->exists();
     }
 
+
+
 }

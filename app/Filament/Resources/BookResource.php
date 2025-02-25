@@ -18,7 +18,7 @@ use App\Models\Notification;
 use App\Models\Rating;
 
 use Illuminate\Support\Str;
-
+use Illuminate\Support\HtmlString;
 // Services
 use App\Services\LoanService;
 use App\Services\QrCodeService;
@@ -219,8 +219,9 @@ class BookResource extends Resource
                 return $query->withCount('ratings')
                     ->selectSub(function ($query) {
                         $query->from('ratings')
-                            ->selectRaw('AVG(rate)')
-                            ->whereColumn('book_id', 'books.id');
+                            ->selectRaw('ROUND(AVG(rate))')
+                            ->whereColumn('book_id', 'books.id')
+                            ->where('user_id', auth()->id());
                     }, 'users_rating');
             })
             ->columns([
@@ -231,12 +232,12 @@ class BookResource extends Resource
                     ->searchable(),
                     
                 Tables\Columns\ViewColumn::make('rating_avg_rate')
-                    ->label('Note moyenne')
+                    ->label(new HtmlString('Note <br> moyenne'))
                     ->view('filament.tables.columns.rating_avg_rate'),
                 
                 Tables\Columns\ViewColumn::make('users_rating')
                     ->label('Ma note')
-                    ->view('filament.tables.columns.rating'),
+                    ->view('filament.tables.columns.my_rate'),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')
@@ -286,7 +287,6 @@ class BookResource extends Resource
                     ->tooltip(fn (Book $record): string => $record->owner->name)
                     ->url(fn (Book $record): string => $record->owner->avatar ? $record->owner->avatar : url('/users/photo/author-placeholder.jpeg'))
                     ->height(50),
-
 
                 TextColumn::make('difficulty_level')
                     ->label('Difficulté')

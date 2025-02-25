@@ -1,5 +1,5 @@
 @php
-    $averageRating = floor($getRecord()->getAverageRating());
+    $averageRating = $getRecord()->getAverageRoundedRating();
 @endphp
 
 @if($averageRating > 0 && $averageRating <= 1)   

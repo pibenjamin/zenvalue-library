@@ -33,19 +33,19 @@ class CustomRegister extends BaseRegister
 
                 TextInput::make('password')
                     ->label('Mot de passe')
-                    ->helperText('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un caractère spécial')
+                    ->helperText('Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule, une minuscule et un caractère spécial')
                     ->password()
                     ->required()
-                    ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
+                    ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z0-9!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
                     ->maxLength(255),
 
                 TextInput::make('password_confirmation')
                     ->label('Confirmation du mot de passe')
-                    ->helperText('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un caractère spécial')
+                    ->helperText('Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule, une minuscule et un caractère spécial')
                     ->password()
                     ->required()
-                    ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
+                    ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z0-9!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
                     ->maxLength(255),
             ]);
