@@ -6,7 +6,7 @@ namespace App\Filament\Resources;
 use Filament\Resources\Resource;
 use App\Filament\Resources\BookResource\Pages;
 use App\Filament\Resources\BookResource\RelationManagers;
-
+use Filament\Support\Enums\Alignment;
 // Models
 use App\Models\Book;
 use App\Models\Author;
@@ -233,8 +233,9 @@ class BookResource extends Resource
                     
                 Tables\Columns\ViewColumn::make('rating_avg_rate')
                     ->label(new HtmlString('Note <br> moyenne'))
-                    ->view('filament.tables.columns.rating_avg_rate'),
-                
+                    ->view('filament.tables.columns.rating_avg_rate')
+                    ->alignment(Alignment::Center),
+
                 Tables\Columns\ViewColumn::make('users_rating')
                     ->label('Ma note')
                     ->view('filament.tables.columns.my_rate'),
@@ -260,7 +261,8 @@ class BookResource extends Resource
                     ->label('Couverture')
                     ->sortable()
                     ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
-                    ->height(75),
+                    ->height(75)
+                    ->alignment(Alignment::Center),
                 
                 TextColumn::make('is_borrowed')
                     ->label('Disponibilité')
@@ -284,8 +286,8 @@ class BookResource extends Resource
                 Tables\Columns\ImageColumn::make('owner.avatar')
                     ->label('Propriétaire')
                     ->circular()
+                    ->defaultImageUrl(url('/avatar/default-avatar.png'))
                     ->tooltip(fn (Book $record): string => $record->owner->name)
-                    ->url(fn (Book $record): string => $record->owner->avatar ? $record->owner->avatar : url('/users/photo/author-placeholder.jpeg'))
                     ->height(50),
 
                 TextColumn::make('difficulty_level')
@@ -332,6 +334,9 @@ class BookResource extends Resource
             ->defaultPaginationPageOption(50)
             ->paginationPageOptions([25, 50, 100])
             ->filters([
+                Tables\Filters\SelectFilter::make('id')
+                    ->label('ID')
+                    ->options(Book::all()->pluck('id', 'id')),                    
                 Tables\Filters\SelectFilter::make('is_borrowed')
                     ->label('Emprunté')
                     ->options([
