@@ -234,11 +234,14 @@ class BookResource extends Resource
                 Tables\Columns\ViewColumn::make('rating_avg_rate')
                     ->label(new HtmlString('Note <br> moyenne'))
                     ->view('filament.tables.columns.rating_avg_rate')
+                    ->tooltip("Moyenne des notes des utilisateurs")
                     ->alignment(Alignment::Center),
 
                 Tables\Columns\ViewColumn::make('users_rating')
                     ->label('Ma note')
-                    ->view('filament.tables.columns.my_rate'),
+                    ->view('filament.tables.columns.my_rate')
+                    ->tooltip("Ma note personnelle")
+                    ->alignment(Alignment::Center),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')

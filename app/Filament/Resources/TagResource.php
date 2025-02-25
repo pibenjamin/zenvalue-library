@@ -45,7 +45,6 @@ class TagResource extends Resource
                     ->sortable()
                     ->visible(fn () => auth()->user()->hasRole('super_admin')),
 
-
                 Tables\Columns\TextColumn::make('title')
                     ->label('Nom')
                     ->wrap()
@@ -78,9 +77,7 @@ class TagResource extends Resource
                 ->label('Livres')
                 ->relationship('books', 'title')
                 ->options(Book::all()->pluck('title', 'id')),
-
-
-                ])
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
