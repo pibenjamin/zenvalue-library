@@ -16,8 +16,9 @@
                     'text-primary-500' => $state >= $i,
                 ])
             >
-                <x-heroicon-o-star class="w-6 h-6 pointer-events-none" />
+                <x-heroicon-s-star class="w-6 h-6 pointer-events-none" />
             </div>
         @endfor
     @endif  
 </div>
+
