@@ -46,6 +46,7 @@ class Book extends Model
         'quantity',
         'support_id',
         'is_borrowed',
+        'description',
         'missing',
         'difficulty_level',
         'amazon_content_page'
