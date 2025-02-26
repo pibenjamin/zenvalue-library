@@ -5,7 +5,8 @@ namespace App\Filament\Pages\Auth;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
- 
+use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 
 use Filament\Forms\Components\Component;
  
@@ -17,12 +18,14 @@ class EditProfile extends BaseEditProfile
     {
         return $form
             ->schema([
-                TextInput::make('username')
-                    ->required()
-                    ->maxLength(255),
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),
                 $this->getPasswordFormComponent(),
+                Forms\Components\FileUpload::make('avatar')
+                ->avatar()
+                ->directory('avatars'),
+            
+
                 $this->getPasswordConfirmationFormComponent(),
             ]);
     }
@@ -32,6 +35,6 @@ class EditProfile extends BaseEditProfile
     {
         return parent::getNameFormComponent()
             ->required()
-            ->maxLength(5);
+            ->maxLength(25);
     }
 }

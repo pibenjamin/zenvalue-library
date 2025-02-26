@@ -154,7 +154,7 @@ return [
     'starts_with' => 'Le champs :attribute doit commencer par l\'un des éléments suivants: :values.',
     'string' => 'Le champs :attribute doit être une chaîne.',
     'timezone' => 'Le champs :attribute doit être une timezone valide.',
-    'unique' => 'Le champs :attribute a déjà été pris.',
+    'unique' => 'Le champs :attribute existe déjà.',
     'uploaded' => 'The :attribute failed to upload.',
     'uppercase' => 'The :attribute field must be uppercase.',
     'url' => 'Le champs :attribute doit être une URL valide.',

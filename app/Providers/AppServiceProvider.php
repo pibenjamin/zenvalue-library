@@ -9,6 +9,10 @@ use Illuminate\Validation\Rules\Password;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 
+use App\Models\Book;
+use App\Policies\AdminBookPolicy;
+use Illuminate\Support\Facades\Gate;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -24,21 +28,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
         FilamentColor::register([
             'expert' => Color::Purple,
         ]);        
 
-        Password::defaults(function () {
-            $rule = Password::min(8)
-            ->letters()
-            ->mixedCase()
-            ->numbers();
-
-            return $this->app->isProduction()
-                        ? $rule->mixedCase()->uncompromised()
-                        : $rule;
-        });
-
+        //Gate::policy(Book::class, AdminBookPolicy::class);
     }
 }

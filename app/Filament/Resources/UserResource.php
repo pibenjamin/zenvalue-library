@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\Tag;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,6 +17,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
+
+use App\Filament\Actions\SaveAndNotifyActivation;
+
+use Filament\Forms\Components\Actions\Action;
+
 
 class UserResource extends Resource
 {
@@ -29,6 +38,22 @@ class UserResource extends Resource
         return auth()->user()->hasRole(['admin', 'super_admin']);
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $counts = User::where('is_activated', false)->count();
+        
+        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+    
+            return $counts;
+        }
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+            return 'Nombre d\'utilisateurs non activés';
+        }
+    }
 
     public static function form(Form $form): Form
     {
@@ -38,33 +63,43 @@ class UserResource extends Resource
                     ->label('Nom')
                     ->required()
                     ->maxLength(255),
+
                 Forms\Components\TextInput::make('email')
                     ->label('Email')
                     ->email()
                     ->required()
                     ->maxLength(255),
+
+                Toggle::make('is_activated')
+                    ->label('Activé')
+                    ->default(false)
+                    ->onColor('success')
+                    ->offColor('danger'),
+
                 Forms\Components\Select::make('roles')
-                ->label('Rôles')
-                ->multiple()
-                ->relationship('roles', 'name')
-                ->preload(),
+                    ->label('Rôles')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload(),
+
                 Forms\Components\FileUpload::make('avatar')
-                ->label('Avatar')
-                ->image()
-                ->imageEditor()
-                ->directory('/users/avatars')
-                ->disk('public')
-                ->maxSize(1024),
+                    ->label('Avatar')
+                    ->imageEditor()
+                    ->directory('avatars')
+                    ->disk('public')
+                    ->maxSize(5120),
+
                 Forms\Components\DatePicker::make('updated_at')
-                ->label('Modifié le')
-                ->displayFormat('d/m/Y')
-                ->locale('fr')
-                ->native(false)
-                ->required(),
+                    ->label('Modifié le')
+                    ->displayFormat('d/m/Y')
+                    ->locale('fr')
+                    ->native(false)
+                    ->required(),
+
                 Forms\Components\DatePicker::make('created_at')
-                ->label('Créé le')
-                ->displayFormat('d/m/Y')
-                ->required(),
+                    ->label('Créé le')
+                    ->displayFormat('d/m/Y')
+                    ->required(),
             ]);
     }
 
@@ -78,6 +113,13 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->label('Avatar')
+                    ->circular()
+                    ->defaultImageUrl(url('/storage/avatars/default-avatar.png'))
+                    ->height(50),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Modifié le')
                     ->dateTime('d/m/Y H:i')
@@ -97,14 +139,26 @@ class UserResource extends Resource
                         'NON' => 'danger',
                     }),
 
+                Tables\Columns\TextColumn::make('is_activated')
+                    ->label('Activé')
+                    ->badge()
+                    ->state(function ($record): string {
+                        return $record->is_activated ? 'OUI' : 'NON';
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'OUI' => 'success',
+                        'NON' => 'danger',
+                    }),
+
+
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
             ->filters([
             ])
             ->actions([
-//                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -118,17 +172,41 @@ class UserResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
 
+    /*
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\TextEntry::make('name'),
+                Infolists\Components\TextEntry::make('email')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('roles.name')
+                    ->label('Rôles')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('is_activated')
+                    ->label('Activé')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('updated_at')
+                    ->label('Modifié le')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('created_at')
+                    ->label('Créé le')
+                    ->columnSpanFull(),
+                Infolists\Components\ImageEntry::make('avatar')
+                    ->label('Avatar')
+                    ->columnSpanFull(),
+                Infolists\Components\TextEntry::make('status')
+                    ->label('Statut')
+                    ->columnSpanFull(),  
+            ]);
+    }
+*/
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListUsers::route('/'),
+            'view' => Pages\ViewUser::route('/{record}'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TagResource\Pages;
 use App\Filament\Resources\TagResource\RelationManagers;
 use App\Models\Tag;
+use App\Models\Book;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -26,9 +27,10 @@ class TagResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->label('Nom')
-                    ->placeholder('Nom du tag')
-                    ->helperText('Le nom du tag est obligatoire')
+                    ->placeholder('Nom du mot-clé')
+                    ->helperText('Le nom du mot-clé est obligatoire')
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
             ]);
     }
@@ -37,20 +39,44 @@ class TagResource extends Resource
     {
         return $table
             ->columns([
+
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
+
                 Tables\Columns\TextColumn::make('title')
                     ->label('Nom')
                     ->wrap()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->wrap()
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
 
                 Tables\Columns\TextColumn::make('books_count')
                     ->label('Nombre de livres')
                     ->counts('books')
                     ->sortable(),
 
-
+                Tables\Columns\TextColumn::make('books.title')
+                    ->label('Livres')
+                    ->tooltip(fn (Tag $record) => $record->books->pluck('title')->implode(' - '))
+                    ->url(fn (Tag $record) => url('/admin/books?tableFilters[tags][title][values][0]=' . $record->id))
+                    ->openUrlInNewTab()
+                    ->listWithLineBreaks()
+                    ->badge()
+                    ->color('gray')
+                    ->wrap()
+                    ->searchable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('books.title')
+                ->label('Livres')
+                ->relationship('books', 'title')
+                ->options(Book::all()->pluck('title', 'id')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

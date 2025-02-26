@@ -26,12 +26,14 @@ class AdminWidgets extends BaseWidget
 
     protected function getCards(): array
     {
-        $activatedUsers         = User::whereDate('updated_at', '>=', env('APP_RELEASE_DATE'))->count();
-//        $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
+        $activatedUsers         = User::where('password', 'NOT LIKE', '%zenvalue.fr%')->count();
+        $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
         $booksWithoutCover      = Book::where('cover_url', null)->count();
         $booksWithoutISBN       = Book::where('isbn', null)->count();
 
+
         return [
+
 //            Stat::make('', Book::count() . ' livres')
 //                ->description('Total des livres répertoriés')
 //                ->descriptionIcon('heroicon-m-book-open', IconPosition::Before)
@@ -43,7 +45,7 @@ class AdminWidgets extends BaseWidget
 
 //            Stat::make('# de tags', Tag::count()),
             Stat::make('# d\'utilisateurs activés / utilisateurs', $activatedUsers . ' / ' . User::count()),
-//            Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks),
+            Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks . ' citizens'),
             Stat::make('# de livres sans couverture', $booksWithoutCover . ' soit ' . round($booksWithoutCover / Book::count() * 100) . '%'),
             Stat::make('# de livres sans ISBN', $booksWithoutISBN . ' soit ' . round($booksWithoutISBN / Book::count() * 100) . '%'),
         ];

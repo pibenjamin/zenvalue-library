@@ -39,6 +39,7 @@ use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
 
 // Filament Components
 use Filament\Infolists\Components\Tabs;
+use Filament\Tables\Filters\SelectFilter;
 
 class LoanResource extends Resource
 {
@@ -65,9 +66,10 @@ class LoanResource extends Resource
 
         if(auth()->user()?->hasRole(['admin', 'super_admin'])){
             return [
-                'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
-                'pending' => (clone $query)->where('status', 'pending')->count(),
-                'returned' => (clone $query)->where('status', 'returned')->count(),
+                'overdue'               => (clone $query)->where('status', 'overdue')->count(),
+                'in_progress'           => (clone $query)->where('status', 'in_progress')->count(),
+                'returned'              => (clone $query)->where('status', 'returned')->count(),
+                'return_in_progress'    => (clone $query)->where('status', 'return_in_progress')->count(),
             ];
         }
     }
@@ -86,7 +88,6 @@ class LoanResource extends Resource
     
             return $counts['in_progress'];
         }
-
     }
 
     public static function getNavigationBadgeTooltip(): ?string
@@ -103,11 +104,18 @@ class LoanResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('borrower_id')
+                    ->label('Emprunteur')
                     ->relationship('borrower', 'name')
                     ->required(),
                 
                 Forms\Components\Select::make('book_id')
+                    ->label('Ouvrage')
                     ->relationship('book', 'title')
+                    ->required(),
+
+                Forms\Components\Select::make('status')
+                    ->label('Statut')
+                    ->options(Loan::getStatusLabelsForAdmin())
                     ->required(),
                 
                 Forms\Components\DatePicker::make('borrowed_at')
@@ -158,13 +166,22 @@ class LoanResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => 
-                auth()->user()?->hasRole('user')
-                    ? $query->where('borrower_id', auth()->id())
-                    : $query
+                $query->when(
+                    auth()->user()?->hasRole('user'),
+                    fn (Builder $query) => 
+                    $query->where('borrower_id', auth()->id())
+                )->orderByRaw("FIELD(status, 'overdue', 'return_in_progress', 'in_progress', 'returned') ASC")
+                ->orderBy('to_be_returned_at', 'asc')
             )
             ->columns(self::getTableColumns())
             ->filters([
-                self::getStatusFilter(),
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Statut')
+                    ->options(Loan::getStatusLabelsForAdmin()),
+
+                Tables\Filters\SelectFilter::make('borrower_id')
+                    ->label('Emprunteur')
+                    ->options(User::all()->pluck('name', 'id'))
             ])
             ->actions([
                 self::getTableActions(),
@@ -173,7 +190,11 @@ class LoanResource extends Resource
                 self::getTableBulkActions(),
             ])
             ->groups([
-                self::getStatusGroup(),
+                Group::make('status')
+                ->label('Statut')
+                ->getTitleFromRecordUsing(fn (Loan $record): string => 
+                    $record->getStatusLabel()
+                )
             ])
             ->defaultGroup('status');
     }
@@ -181,40 +202,45 @@ class LoanResource extends Resource
     private static function getTableColumns(): array
     {
         $commonColumns = [
-            Tables\Columns\TextColumn::make('borrower.email')
-                ->label('Emprunteur')
+            // ajoute une colonne qui compte le nombre de jour de retard
+            Tables\Columns\TextColumn::make('delay')
+                ->label('Retard')
+                ->state(function ($record): string {
+                    return $record->getDelay();
+                })
                 ->sortable(),
-            Tables\Columns\TextColumn::make('book.title')
-                ->label('Ouvrage')
-                ->sortable(),
+
             Tables\Columns\TextColumn::make('to_be_returned_at')
                 ->label('Date de retour')
                 ->date('d/m/Y')
-                ->sortable(),
+                ->sortable(),                
+
             Tables\Columns\TextColumn::make('status')
                 ->label('Statut')
                 ->badge()
                 ->color(fn (Loan $record): string => $record->getStatusColor())
                 ->state(fn (Loan $record): string => $record->getStatusLabel())
                 ->sortable(),
+
+            Tables\Columns\TextColumn::make('borrower.email')
+                ->label('Emprunteur')
+                ->sortable()
+                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin')),
+
+            Tables\Columns\ImageColumn::make('book.cover_url')
+                ->label('Couverture')
+                ->sortable()
+                ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                ->height(75),
+
+            Tables\Columns\TextColumn::make('book.title')
+                ->label('Ouvrage')
+                ->sortable()
+                ->wrap()
+                ->width('15%'),
         ];
 
-        if (auth()->user()?->hasAnyRole(['super_admin', 'admin'])) {
-            $commonColumns[] = Tables\Columns\TextColumn::make('return_confirmation_token')
-                ->label('Token');
-        }
-
         return $commonColumns;
-    }
-
-    private static function getStatusFilter(): Tables\Filters\SelectFilter
-    {
-        return Tables\Filters\SelectFilter::make('status')
-            ->options([
-                'pending' => 'En attente',
-                'confirmed' => 'Confirmé',
-                'returned' => 'Retourné',
-            ]);
     }
 
     private static function getTableActions(): ActionGroup
@@ -265,17 +291,9 @@ class LoanResource extends Resource
     private static function getTableBulkActions(): Tables\Actions\BulkActionGroup
     {
         return Tables\Actions\BulkActionGroup::make([
-            Tables\Actions\DeleteBulkAction::make(),
+            Tables\Actions\DeleteBulkAction::make()
+                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin')),
         ]);
-    }
-
-    private static function getStatusGroup(): Group
-    {
-        return Group::make('status')
-            ->label('Statut')
-            ->getTitleFromRecordUsing(fn (Loan $record): string => 
-                $record->getStatusLabel()
-            );
     }
 
     public static function getPages(): array

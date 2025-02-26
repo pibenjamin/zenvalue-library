@@ -35,12 +35,15 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 use App\Filament\Resources\RoleResource;
 use App\Filament\Pages\Auth\EditProfile;
+use App\Livewire\Auth\CustomRegister;
+
+use App\Filament\Pages\CustomLogin;
+
+use Filament\Navigation\MenuItem;
+
 
 class AdminPanelProvider extends PanelProvider
 {
-
-
-    
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -48,10 +51,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()                    // Définit ce panel comme le panel par défaut
             ->id('admin')                  // Identifiant unique du panel
             ->path('admin')                // URL d'accès : example.com/admin
-
             // Configuration de l'authentification
-            ->login()                      // Active la page de connexion
-            ->registration(Register::class) // Active l'inscription utilisateur
+            ->login(CustomLogin::class)                      // Active la page de connexion
+            ->registration(CustomRegister::class) // Active l'inscription utilisateur
             ->emailVerification()          // Active la vérification d'email
             ->passwordReset()              // Active la réinitialisation de mot de passe
             ->profile(EditProfile::class)                    // Active la page de profil utilisateur
@@ -74,7 +76,6 @@ class AdminPanelProvider extends PanelProvider
                 LatestBooksAdded::class,
                 LatestBooksPublished::class,
             ])
-
             // Middleware de sécurité et fonctionnalités
             ->middleware([
                 EncryptCookies::class,                        // Chiffrement des cookies
@@ -94,8 +95,5 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,                          // Vérifie que l'utilisateur est connecté
             ]);
-
-            
     }
-    
 }

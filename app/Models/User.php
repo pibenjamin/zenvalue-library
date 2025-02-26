@@ -32,6 +32,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'name',
         'email',
         'password',
+        'is_activated',
+        'avatar',
     ];
 
     /**
@@ -116,6 +118,22 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->role->name === 'user';
     }
+
+    public function books(): HasMany
+    {
+        return $this->hasMany(Book::class, 'owner_id');
+    }
     
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function hasRated(Book $book): bool
+    {
+        return $this->ratings()->where('book_id', $book->id)->exists();
+    }
+
+
 
 }

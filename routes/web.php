@@ -4,17 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\LoanController;
 use App\Models\Role;
-
-Route::get('/test-email', function () {
-
-    Mail::raw('Test de l\'envoi d\'un e-mail dans les logs.', function ($message) {
-        $message->to('bpiscart@zenvalue.fr')->to('benjaminpiscart@gmail.com')
-                ->subject('Test Mail Log tadda');
-    });
-
-    return 'E-mail envoyé et logué';
-});
-
+use App\Http\Controllers\BookController;
+use App\Models\Book;
 
 Route::get('/loans/late', [LoanController::class],'late')->name('loans.late');
 Route::get('/my-loans', [LoanController::class],'myLoans')->name('my_loans');
@@ -38,8 +29,9 @@ Route::get('/', function () {
 //    return view('welcome');
 });
 
-
-
+Route::middleware(['web'])->group(function () {
+    Route::get('/print-qr-codes', [BookController::class, 'printQrCodes'])->name('print-qr-codes');
+});
 
 Route::get('/emprunter/{book_id}', function () {
 
@@ -52,6 +44,10 @@ Route::get('/emprunter/{book_id}', function () {
 //    return view('welcome');
 });
 
+
+Route::get('/acquisition-request', function () {
+    return view('filament.mockups.acquisition-request');
+});
 
 
 Route::post('/process-image', [LoanController::class, 'processImage'])->name('process-image');

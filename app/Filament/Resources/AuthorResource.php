@@ -14,7 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\User;
-
+use Filament\Forms\Components\FileUpload;
 class AuthorResource extends Resource
 {
     protected static ?string $model             = Author::class;
@@ -29,6 +29,12 @@ class AuthorResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
+                Forms\Components\FileUpload::make('photo_url')
+                    ->label('Photo')
+                    ->directory('authors')
+                    ->maxSize(5120) // 5MB
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -44,15 +50,27 @@ class AuthorResource extends Resource
                     ->label('Nom')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\ImageColumn::make('photo_url')
+                    ->label('Photo')
+                    ->circular()
+                    ->url(fn (Author $record): string => $record->photo_url ? $record->photo_url : url('/authors/photo/author-placeholder.jpeg'))
+                    ->height(50),
+
                 Tables\Columns\TextColumn::make('books_count')
-                    ->label('Nombre de livres')
+                    ->label('# livres')
                     ->counts('books')
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('books.title')
                     ->label('Livres')
                     ->badge()
+                    ->openUrlInNewTab()
+                    ->wrap()
                     ->tooltip(fn (Author $record) => $record->books->pluck('title')->implode(' - '))
-
+                    ->url(fn (Author $record) => url('/admin/books?tableSearch=&tableFilters[authors][name][value]=' . $record->id))
+                    ->openUrlInNewTab()
+                    ->listWithLineBreaks()
                     ->limit(20)
                     ->sortable(),
             ])
@@ -70,13 +88,6 @@ class AuthorResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

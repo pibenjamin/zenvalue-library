@@ -126,7 +126,7 @@ return [
 
     'max_loans' => env('MAX_LOANS', 10),
 
-    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+    'admin_email' => env('ADMIN_EMAIL', 'benjaminpiscart@gmail.com'),
 
     'recurring_late_loan_reminder_days' => env('RECURRING_LATE_LOAN_REMINDER_DAYS', 5),
 
