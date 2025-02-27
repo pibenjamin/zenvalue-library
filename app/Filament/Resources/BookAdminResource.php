@@ -34,11 +34,19 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
 
+
 // Laravel
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Support\Str;
+use Closure;    
+use Filament\Icons\Icon;
+
 
 class BookAdminResource extends Resource
 {
@@ -64,12 +72,16 @@ class BookAdminResource extends Resource
                             ->placeholder('Titre de l\'ouvrage')
                             ->required()
                             ->maxLength(255)
-                            ->columnSpan(3),
+                            ->reactive()
+                            ->afterStateUpdated(function (Forms\Set $set, $state) {
+                                $set('slug', Str::slugify($state));
+                            })
+                            ->columnSpan(4),
 
                         Forms\Components\TextInput::make('slug')
                             ->visibleOn(['edit', 'create'])
                             ->maxLength(255)
-                            ->columnSpan(3),
+                            ->columnSpan(4),
 
                         Forms\Components\Select::make('authors')
                             ->label('Auteurs')
@@ -105,11 +117,19 @@ class BookAdminResource extends Resource
                             ->numeric()
                             ->default(null),
 
+                        Forms\Components\TextInput::make('ol_key')
+                            ->label('Open Library Key')
+                            ->maxLength(255)
+                            ->default(null),
+
+                        Forms\Components\TextInput::make('lang')
+                            ->label('Langue'),
+
                         Forms\Components\FileUpload::make('cover_url')
                             ->label('Couverture')
                             ->maxSize(5120) // 5MB
                             ->columnSpanFull()
-                            ->columnSpan(3),
+                            ->columnSpan(4),
 
                     ])
                     ->columns(3)
@@ -123,7 +143,7 @@ class BookAdminResource extends Resource
                             ->helperText('La description de l\'ouvrage est optionnelle')
                             ->rows(5)
                             ->columnSpanFull()
-                            ->columnSpan(3),
+                            ->columnSpan(4),
 
 
                         Forms\Components\Select::make('tags')
@@ -158,7 +178,7 @@ class BookAdminResource extends Resource
                             ->default(null)
                             ->columnSpan(1),
                     ])
-                    ->columns(3)
+                    ->columns(4)
                     ->collapsible(),
 
 
@@ -175,14 +195,8 @@ class BookAdminResource extends Resource
                             ->helperText(fn(Book $record): string => $record->is_borrowed ? "jusqu'au " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') : 'Ce livre est actuellement disponible')
                             ->required(),
                     ])
-                    ->columns(3)
+                    ->columns(4)
                     ->collapsible(),
-
-
-
-
-
-
             ]);
     }
 
@@ -322,7 +336,9 @@ class BookAdminResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    //Pages\ListBookAdmins::bulkAddTagsAction(),
                 ]),
+
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
@@ -337,6 +353,33 @@ class BookAdminResource extends Resource
                         'true' => 'Oui',
                         'false' => 'Non',
                     ]),
+
+                Filter::make('isbn')
+                    ->form([
+                        Forms\Components\TextInput::make('isbn')
+                            ->label('ISBN')
+                            
+                            ->placeholder('Rechercher par ISBN'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['isbn'],
+                            fn (Builder $query, $isbn): Builder => $query->where('isbn', 'like', "%{$isbn}%")
+                                ->orWhereNull('isbn')
+                        );
+                    }),
+
+                Filter::make('isbn_null')
+                    ->form([
+                        Forms\Components\Checkbox::make('isbn_null')
+                            ->label('ISBN vide'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['isbn_null'],
+                            fn (Builder $query): Builder => $query->whereNull('isbn')
+                        );
+                    }),
 
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
@@ -373,6 +416,7 @@ class BookAdminResource extends Resource
     {
         return [
             'index' => Pages\ListBookAdmins::route('/'),
+
             'create' => Pages\CreateBookAdmin::route('/create'),
             'edit' => Pages\EditBookAdmin::route('/{record}/edit'),
         ];

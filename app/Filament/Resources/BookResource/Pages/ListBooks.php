@@ -16,6 +16,8 @@ class ListBooks extends ListRecords
 {
     protected static string $resource = BookResource::class;
 
+
+
     public function leaveRatingAction(): Action
     {
         return Action::make('leaveRatingAction')

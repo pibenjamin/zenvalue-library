@@ -48,11 +48,13 @@ class Book extends Model
         'is_borrowed',
         'missing',
         'difficulty_level',
-        'amazon_content_page'
+        'amazon_content_page',
+        'tags',
+        'ol_key',
+        'lang'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',
-        'open_library_parsed' => 'boolean',
         'year_of_publication' => 'integer',
         'quantity' => 'integer',
         'pages' => 'integer',
@@ -152,6 +154,11 @@ class Book extends Model
     public function hasBeenLoanedToUser(User $user): bool
     {
         return $this->loans()->where('user_id', $user->id)->exists();
+    }
+
+    public function addTags(array $tags): void
+    {
+        $this->tags()->attach($tags);
     }
 
 } 

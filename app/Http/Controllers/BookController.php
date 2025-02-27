@@ -18,6 +18,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\FileUpload;
 use Illuminate\Support\Facades\Form;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Storage;
+use DOMDocument;
+use DOMXPath;
 
 
 
@@ -25,7 +28,10 @@ use Illuminate\Support\Facades\View;
 class BookController extends Controller
 {
 
+    public function extractBookInfo(Request $request)
+    {
 
+    }
 
     public function printQrCodes(Request $request)
     {
