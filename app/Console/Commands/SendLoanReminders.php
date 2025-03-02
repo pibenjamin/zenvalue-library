@@ -8,7 +8,7 @@ use App\Notifications\LoanOverdueReminder;
 use App\Notifications\UrgentOverdueNotification;
 use Illuminate\Console\Command;
 use App\Models\User;
-
+use App\Models\Loan;
 class SendLoanReminders extends Command
 {
     protected $signature = 'loans:send-reminders';
@@ -84,6 +84,7 @@ class SendLoanReminders extends Command
 
             // Update the recurring_reminder_sent_at timestamp
             $loan->last_recurring_reminder_sent_at = now();
+            $loan->status = Loan::STATUS_OVERDUE;
             $loan->save();
             
             $this->info(sprintf(

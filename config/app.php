@@ -130,4 +130,6 @@ return [
 
     'recurring_late_loan_reminder_days' => env('RECURRING_LATE_LOAN_REMINDER_DAYS', 5),
 
+    'extend_loan_months' => env('EXTEND_LOAN_MONTHS', 1),
+
 ];

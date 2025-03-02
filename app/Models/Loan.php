@@ -26,37 +26,49 @@ class Loan extends Model
     ];
 
     protected $casts = [
-        'borrowed_at' => 'datetime',
-        'returned_at' => 'datetime',
-        'to_be_returned_at' => 'datetime',
-        'return_signaled_at' => 'datetime'
+        'borrowed_at'           => 'datetime',
+        'returned_at'           => 'datetime',
+        'to_be_returned_at'     => 'datetime',
+        'return_signaled_at'    => 'datetime'
     ];
 
     private const STATUS_COLORS = [
-        self::STATUS_IN_PROGRESS => 'primary',
-        self::STATUS_RETURNED => 'success',
+        self::STATUS_IN_PROGRESS        => 'primary',
+        self::STATUS_RETURNED           => 'success',
         self::STATUS_RETURN_IN_PROGRESS => 'warning',
-        self::STATUS_OVERDUE => 'danger',
+        self::STATUS_OVERDUE            => 'danger',
     ];
 
     private const STATUS_LABELS = [
-        self::STATUS_IN_PROGRESS => 'En cours',
-        self::STATUS_RETURNED => 'Retourné',
-        self::STATUS_OVERDUE => 'En retard',
+        self::STATUS_IN_PROGRESS        => 'En cours',
+        self::STATUS_RETURNED           => 'Retourné',
+        self::STATUS_OVERDUE            => 'En retard',
         self::STATUS_RETURN_IN_PROGRESS => 'Retour en cours',
     ];
 
     public function getDelay()
     {
-        if($this->status == self::STATUS_OVERDUE) {
-        $delay = $this->to_be_returned_at->diffInDays(now());
+        return floor($this->to_be_returned_at->diffInDays(now()));
+    }
 
-            if($delay > 0) {
-                return round($delay) . ' ' . __('jours');
-            }
+    public function getDelayMessage(): string
+    {
+        if(in_array($this->status, [self::STATUS_RETURNED, self::STATUS_OVERDUE])) {
+            return '';
         }
 
-        return '';
+        $delay = $this->getDelay();
+
+        if($delay == 1) {
+            return __('A retourner demain');
+        }
+
+        if($delay > 0) {
+            return __('En retard de') . ' ' . $delay . ' ' . __('jours');
+        }
+        if($delay < 0) {
+            return __('A retourner dans') . ' ' . abs($delay) . ' ' . __('jours');
+        }        
     }
 
     public function book(): BelongsTo

@@ -18,6 +18,13 @@ use App\Mail\AdminConfirmReturn;
 
 class LoanService
 {
+    public function extendLoan(Loan $loan, int $months = 1): void
+    {
+        $loan->to_be_returned_at = $loan->to_be_returned_at->addMonths(1);
+        $loan->extended_for = $months;
+        $loan->save();
+    }
+
     public function borrowBook(Book $book): void
     {
         if ($book->is_borrowed) 

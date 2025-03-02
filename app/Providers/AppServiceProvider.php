@@ -32,26 +32,36 @@ class AppServiceProvider extends ServiceProvider
             'expert' => Color::Purple,
         ]);
 
-
-
         Str::macro('slugify', function ($string) {
+            $replacements = [
+                // Voyelles accentuées
+                'é|è|ê|ë' => 'e',
+                'à|â|ä' => 'a',
+                'ù|û|ü' => 'u',
+                'î|ï' => 'i',
+                'ô|ö' => 'o',
+                
+                // Consonnes spéciales
+                'ç' => 'c',
+                'ñ' => 'n',
+                
+                // Ligatures
+                'œ|æ' => 'oe',
+                'Œ|Æ' => 'OE',
+                
+                // Caractères spéciaux
+                '«|»|„|"|"|\'|\'' => '',
+                '\s+' => '-',
+            ];
 
-            // replace french special characters by their ascii equivalent
-            $string = str_replace('é', 'e', $string);
-            $string = str_replace('è', 'e', $string);
-            $string = str_replace('ê', 'e', $string);
-            $string = str_replace('à', 'a', $string);
-            $string = str_replace('ù', 'u', $string);
-            $string = str_replace('ç', 'c', $string);
-            $string = str_replace('î', 'i', $string);
-            $string = str_replace('ô', 'o', $string);
-            $string = str_replace('û', 'u', $string);
-            $string = str_replace('œ', 'oe', $string);
-            $string = str_replace('ï', 'i', $string);
+            // Application des remplacements avec expression régulière
+            $string = preg_replace(
+                array_map(fn($pattern) => "/$pattern/u", array_keys($replacements)),
+                array_values($replacements),
+                $string
+            );
             
-            
-            return Str::slug(preg_replace('/[^\w\d]+/', '-', $string), '-', 'fr');    
-    
+            return Str::slug(preg_replace('/[^\w\d]+/', '-', $string), '-', 'fr');
         });
 
         //Gate::policy(Book::class, AdminBookPolicy::class);

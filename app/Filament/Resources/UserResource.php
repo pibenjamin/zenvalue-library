@@ -166,42 +166,9 @@ class UserResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ])
-
-
-
             ]);
     }
 
-
-    /*
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Infolists\Components\TextEntry::make('name'),
-                Infolists\Components\TextEntry::make('email')
-                    ->columnSpanFull(),
-                Infolists\Components\TextEntry::make('roles.name')
-                    ->label('Rôles')
-                    ->columnSpanFull(),
-                Infolists\Components\TextEntry::make('is_activated')
-                    ->label('Activé')
-                    ->columnSpanFull(),
-                Infolists\Components\TextEntry::make('updated_at')
-                    ->label('Modifié le')
-                    ->columnSpanFull(),
-                Infolists\Components\TextEntry::make('created_at')
-                    ->label('Créé le')
-                    ->columnSpanFull(),
-                Infolists\Components\ImageEntry::make('avatar')
-                    ->label('Avatar')
-                    ->columnSpanFull(),
-                Infolists\Components\TextEntry::make('status')
-                    ->label('Statut')
-                    ->columnSpanFull(),  
-            ]);
-    }
-*/
     public static function getPages(): array
     {
         return [

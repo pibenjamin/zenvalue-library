@@ -183,9 +183,9 @@ class LoanResource extends Resource
                     ->label('Emprunteur')
                     ->options(User::all()->pluck('name', 'id'))
             ])
-            ->actions([
+            ->actions(
                 self::getTableActions(),
-            ])
+            )
             ->bulkActions([
                 self::getTableBulkActions(),
             ])
@@ -204,15 +204,17 @@ class LoanResource extends Resource
         $commonColumns = [
             // ajoute une colonne qui compte le nombre de jour de retard
             Tables\Columns\TextColumn::make('delay')
-                ->label('Retard')
-                ->state(function ($record): string {
-                    return $record->getDelay();
+                ->label('Délai')
+                ->width('15%')
+                ->state(function (Loan $record): string {
+                    return $record->getDelayMessage();
                 })
                 ->sortable(),
 
             Tables\Columns\TextColumn::make('to_be_returned_at')
                 ->label('Date de retour')
                 ->date('d/m/Y')
+                ->width('15%')
                 ->sortable(),                
 
             Tables\Columns\TextColumn::make('status')
@@ -243,13 +245,26 @@ class LoanResource extends Resource
         return $commonColumns;
     }
 
-    private static function getTableActions(): ActionGroup
+    private static function getTableActions(): array
     {
-        return ActionGroup::make([
+        return [
             Tables\Actions\EditAction::make(),
+            Tables\Actions\Action::make('extend_loan')
+                ->label('Prolonger le prêt')
+                ->icon('heroicon-s-plus-circle')
+                ->requiresConfirmation()
+                ->modalDescription('Voulez-vous vraiment prolonger le prêt de ' . config('app.extend_loan_months') . ' mois ?')
+                ->button()
+                ->visible(fn (Loan $record) => 
+                    $record->status === 'in_progress' && $record->extended_for === null
+                )
+                ->action(fn (Loan $record) => 
+                    app(LoanService::class)->extendLoan($record)
+                ),
             self::getValidateReturnAction(),
             self::getReturnAction(),
-        ]);
+        ];
+       
     }
 
     private static function getValidateReturnAction(): Tables\Actions\Action
@@ -273,6 +288,7 @@ class LoanResource extends Resource
             ->label('Rendre ce livre')
             ->icon('heroicon-s-arrow-up-on-square')
             ->color('success')
+            ->button()
             ->requiresConfirmation()
             ->modalHeading('Rendre ce livre')
             ->modalDescription(fn (Loan $record) => 
