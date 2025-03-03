@@ -25,7 +25,7 @@ Route::get('/admin/books/custom-filter/{filter}', function ($filter) {
 //oute::get('/book/borrow/{id}', [VoyagerLibraryController::class],'borrow')->name('borrow');
 //Route::post('/books/mass-update-theme', [VoyagerBookController::class],'massUpdateTheme')->name('books.mass-update-theme');
 Route::get('/', function () {
-    return redirect()->to('admin/admin-dashboard');
+    return redirect()->to('admin/');
 //    return view('welcome');
 });
 

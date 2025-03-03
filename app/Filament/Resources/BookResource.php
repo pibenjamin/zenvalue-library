@@ -290,7 +290,12 @@ class BookResource extends Resource
                 Tables\Columns\ImageColumn::make('owner.avatar')
                     ->label('Propriétaire')
                     ->circular()
-                    ->defaultImageUrl(url('/avatar/default-avatar.png'))
+                    ->defaultImageUrl(fn (Book $record): string => $record->owner->name 
+                        ? url('https://ui-avatars.com/api/?name=' . 
+                            implode('', array_map(fn($word) => strtoupper(substr($word, 0, 1)), 
+                            explode(' ', $record->owner->name))) . 
+                            '&color=FFFFFF&background=09090b') 
+                        : url('/avatar/default-avatar.png'))
                     ->tooltip(fn (Book $record): string => $record->owner->name)
                     ->height(50),
 
