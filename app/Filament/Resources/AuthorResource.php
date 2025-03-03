@@ -20,8 +20,10 @@ class AuthorResource extends Resource
     protected static ?string $model             = Author::class;
     protected static ?string $modelLabel        = 'Auteur';
     protected static ?string $pluralModelLabel  = 'Auteurs';
-    
+    protected static ?string $navigationGroup   = 'Gestion du catalogue';
+    protected static ?int $navigationSort       = 3;
     protected static ?string $navigationIcon    = 'heroicon-o-user-group';
+
     public static function form(Form $form): Form
     {
         return $form

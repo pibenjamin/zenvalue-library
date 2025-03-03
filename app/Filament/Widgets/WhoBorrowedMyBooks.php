@@ -9,16 +9,24 @@ use App\Models\Book;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class WhoBorrowedMyBooks extends BaseWidget
 {
-    protected int | string | array $columnSpan = 'full';
+    use HasWidgetShield;
+
+    protected int | string | array $columnSpan = '1';
 
     protected static ?int $sort = 2;
 
+    protected function getHeading(): ?string
+    {
+        return 'Qui est intéressé par mes livres ?';
+    }
+
+    
     public static function canView(): bool
     {
-
         // if current user is a book owner
         // and the book has been borrowed at least once
         // then return true
@@ -31,9 +39,7 @@ class WhoBorrowedMyBooks extends BaseWidget
 
             if($loans->count() > 0) {
                 return true;
-            }
-
-
+            }   
         }
 
         return false;
@@ -72,6 +78,7 @@ class WhoBorrowedMyBooks extends BaseWidget
                         'in_progress' => 'En cours',
                         'returned' => 'Terminé',
                     ])
+                    ->default('in_progress')
             ]);
     }
 } 

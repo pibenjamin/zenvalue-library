@@ -28,10 +28,11 @@ use Filament\Forms\Components\Actions\Action;
 
 class UserResource extends Resource
 {
-    protected static ?string $model = User::class;
-    protected static ?string $modelLabel = 'Utilisateur';
-    protected static ?string $pluralModelLabel = 'Utilisateurs';    
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $model             = User::class;
+    protected static ?string $modelLabel        = 'Utilisateur';
+    protected static ?string $pluralModelLabel  = 'Utilisateurs';    
+    protected static ?string $navigationGroup   = 'Gestion des utilisateurs';
+    protected static ?string $navigationIcon    = 'heroicon-o-user-group';
 
     public static function shouldRegisterNavigation(): bool
     {

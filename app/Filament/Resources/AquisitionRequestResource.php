@@ -22,15 +22,24 @@ class AquisitionRequestResource extends Resource
 {
     protected static ?string $model = AquisitionRequest::class;
 
-    protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel       = 'Demande d\'acquisition';
     protected static ?string $pluralNavigationLabel = 'Demandes d\'acquisition';
-    protected static ?string $navigationGroup       = 'Gestion des livres';
+    protected static ?string $navigationGroup       = 'Gestion du catalogue';
 
     protected static ?string $modelLabel            = 'une demande d\'acquisition';
     protected static ?string $pluralModelLabel      = 'Demandes d\'acquisition';
+    protected static ?int $navigationSort           = 2;
 
-    
+    protected static ?string $navigationIcon        = 'heroicon-o-plus';
+
+
+
+    public static function getNavigationBadge(): ?string
+    {
+        return AquisitionRequest::where('status', 'pending')->count();
+    }
+
+
     public static function form(Form $form): Form
     {
         return $form

@@ -8,9 +8,14 @@ use App\Models\Book;
 use App\Models\User;
 use App\Models\Author;
 use App\Models\Tag;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Support\Enums\IconPosition;
+
 
 class UserStatsWidgets extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 1; // Position après le FilamentInfoWidget
 
     protected function getHeading(): ?string
@@ -21,14 +26,19 @@ class UserStatsWidgets extends BaseWidget
     protected function getCards(): array
     {
         return [
-            Stat::make('', Book::count() . ' livres'),
-            Stat::make('', Author::count() . ' auteurs'),
-            Stat::make('', Tag::count() . ' mots-clés'),
+            Stat::make('', Book::count() . ' livres')
+                ->description('Total des livres répertoriés')
+                ->color('primary')
+                ->descriptionIcon('heroicon-m-book-open', IconPosition::Before),
+            Stat::make('', Author::count() . ' auteurs')
+                ->description('Total des auteurs répertoriés')
+                ->color('primary')
+                ->descriptionIcon('heroicon-m-user-group', IconPosition::Before),
+            Stat::make('', Tag::count() . ' mots-clés')
+                ->description('Total des mots-clés répertoriés')
+                ->color('primary')
+                ->descriptionIcon('heroicon-m-tag', IconPosition::Before),
         ];
     }
 
-    public static function canView(): bool
-    {
-        return auth()->user()->hasRole('user');
-    }
 }

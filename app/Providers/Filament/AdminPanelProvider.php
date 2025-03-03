@@ -36,10 +36,20 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Resources\RoleResource;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Livewire\Auth\CustomRegister;
-
+use Filament\Navigation\NavigationGroup;
 use App\Filament\Pages\CustomLogin;
-
+use App\Filament\Pages\OkrPage;
 use Filament\Navigation\MenuItem;
+
+use App\Filament\Widgets\AdminWidgets;
+use App\Filament\Widgets\MyLoanHistory;
+use App\Filament\Widgets\BookTagCloud;
+use App\Filament\Widgets\MyBookLenders;
+use App\Filament\Widgets\WhoBorrowedMyBooks;
+use App\Filament\Widgets\UserStatsWidgets;
+use App\Filament\Widgets\LatestBooksAddedWidgets;
+
+use Filament\Navigation\NavigationBuilder;
 
 
 class AdminPanelProvider extends PanelProvider
@@ -63,18 +73,38 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber, // Couleur principale du thème
             ])
 
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Gestion du catalogue'),
+                NavigationGroup::make()
+                    ->label('Gestion des prêts'),
+                NavigationGroup::make()
+                    ->label('Gestion des utilisateurs'),
+                NavigationGroup::make()
+                    ->label('Gestion des rôles'),
+                NavigationGroup::make()
+                    ->label('Support & Ressources'),
+                    // Ici seront rangés : work, aide et contact
+            ])
+
             // Auto-découverte des composants Filament
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')  // Ressources (CRUD)
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')             // Pages personnalisées
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')       // Widgets du dashboard
+            //->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')       // Widgets du dashboard
 
             // Configuration des pages et widgets par défaut
             ->pages([
                 Pages\Dashboard::class,    // Page dashboard par défaut
             ])
             ->widgets([
-                LatestBooksAdded::class,
+                LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
+                MyLoanHistory::class,
+                MyBookLenders::class,
+                AdminWidgets::class,
+                UserStatsWidgets::class,
+                BookTagCloud::class,
+                WhoBorrowedMyBooks::class,                
             ])
             // Middleware de sécurité et fonctionnalités
             ->middleware([

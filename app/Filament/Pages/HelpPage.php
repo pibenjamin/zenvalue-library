@@ -7,12 +7,13 @@ use Filament\Support\Facades\FilamentIcon;
 
 class HelpPage extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
-    protected static ?string $navigationLabel = 'Aide';
-    protected static ?string $title = 'Centre d\'aide';
-    protected static ?string $navigationGroup = 'Support';
-    protected static ?int $navigationSort = 100;
+    protected static ?string $navigationLabel   = 'Aide';
+    protected static ?string $title             = 'Centre d\'aide';
+    protected static ?string $navigationGroup   = 'Support & Ressources';
+    protected static ?int $navigationSort       = 1;
+    protected static ?string $navigationIcon    = 'heroicon-o-question-mark-circle';
 
+    
     protected static string $view = 'filament.pages.help';
 
     public static function shouldRegister(): bool

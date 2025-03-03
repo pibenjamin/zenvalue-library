@@ -1,7 +1,17 @@
 <x-filament-widgets::widget>
-    <x-filament::section>
+    <x-filament::section
+    collapsible
+    collapsed
+    persist-collapsed
+    id="book-tag-cloud"
+    icon="heroicon-o-tag"
+    icon-color="primary"
+    >
+        <x-slot name="heading">
+            Nuage de mots-clés
+        </x-slot>
         <div class="p-4">
-            <span class="fi-wi-stats-overview-stat-label text-sm font-medium text-gray-500 dark:text-gray-400 block mb-4">Nuage de mots-clés (sujets les plus fréquents dans les titres)</span>
+            <span class="fi-wi-stats-overview-stat-label text-sm font-medium text-gray-500 dark:text-gray-400 block mb-4">Sujets les plus fréquents dans les titres</span>
             <div class="flex flex-wrap gap-2">
                 @foreach($words as $word)
                     @php

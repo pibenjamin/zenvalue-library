@@ -8,18 +8,20 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class MyLoanHistory extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 2; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
 
-
-    public static function canView(): bool
+    protected function getHeading(): ?string
     {
-        return auth()->user()->hasRole('user');
+        return 'Mon historique de prêts';
     }
-
+    
 
     public function table(Table $table): Table
     {

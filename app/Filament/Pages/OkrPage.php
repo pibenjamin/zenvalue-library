@@ -14,11 +14,12 @@ use App\Filament\Widgets\AdminWidgets;
 
 class OkrPage extends Page
 {
-    protected static ?string $navigationIcon    = 'heroicon-o-presentation-chart-bar';
     protected static ?string $navigationLabel   = 'OKR';
     protected static string $view               = 'filament.pages.okr';
-    protected static ?string $title               = '';
-
+    protected static ?string $navigationGroup   = 'Support & Ressources';
+    protected static ?int $navigationSort       = 2;
+    protected static ?string $navigationIcon    = 'heroicon-o-chart-bar';
+    protected static ?string $title             = 'Objectifs et résultats clés';
 
     protected function getHeaderWidgets(): array
     {

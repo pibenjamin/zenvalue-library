@@ -66,12 +66,13 @@ use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 class BookResource extends Resource
 {
-    protected static ?string $model             = Book::class;
-    protected static ?string $modelLabel        = 'Livre';
-    protected static ?string $pluralModelLabel  = 'Livres';
-    protected static ?string $navigationGroup   = 'Gestion des livres';
-    
-    protected static ?string $navigationIcon    = 'heroicon-o-book-open';
+    protected static ?string $model                 = Book::class;
+    protected static ?string $modelLabel            = 'Catalogue';
+    protected static ?string $pluralModelLabel      = 'Catalogue';
+    protected static ?string $navigationGroup       = 'Gestion du catalogue';
+    protected static ?int $navigationSort           = 1;
+    protected static ?string $navigationIcon        = 'heroicon-o-book-open';
+
 
     public static function form(Form $form): Form
     {

@@ -5,11 +5,23 @@ namespace App\Filament\Widgets;
 use App\Models\Book;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Str;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class BookTagCloud extends Widget
 {
+    use HasWidgetShield;
+
     protected static string $view = 'filament.widgets.book-tag-cloud';
     protected int|string|array $columnSpan = 'full';
+
+
+    protected function getHeading(): ?string
+    {
+        return 'Nuage de mots-clés';
+    }
+
+
+    
 
     public function getViewData(): array
     {

@@ -50,11 +50,11 @@ use Filament\Icons\Icon;
 
 class BookAdminResource extends Resource
 {
-    protected static ?string $model             = Book::class;
-    protected static ?string $modelLabel        = 'Livre (admin)';
-    protected static ?string $pluralModelLabel  = 'Livres (admin)';
-    protected static ?string $navigationGroup   = 'Gestion des livres';
-    protected static ?string $navigationIcon    = 'heroicon-o-book-open';
+    protected static ?string $model                 = Book::class;
+    protected static ?string $modelLabel            = 'Catalogue (admin)';
+    protected static ?string $pluralModelLabel      = 'Catalogue (admin)';
+    protected static ?string $navigationGroup       = 'Gestion du catalogue';
+    protected static ?string $navigationIcon        = 'heroicon-o-book-open';
 
     public static function canAccess(): bool
     {

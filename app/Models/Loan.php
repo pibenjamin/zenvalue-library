@@ -63,12 +63,19 @@ class Loan extends Model
             return __('A retourner demain');
         }
 
+        if($delay == 0) {
+            return __('A retourner aujourd\'hui');
+        }        
+
         if($delay > 0) {
             return __('En retard de') . ' ' . $delay . ' ' . __('jours');
         }
         if($delay < 0) {
             return __('A retourner dans') . ' ' . abs($delay) . ' ' . __('jours');
         }        
+
+        return '';
+
     }
 
     public function book(): BelongsTo

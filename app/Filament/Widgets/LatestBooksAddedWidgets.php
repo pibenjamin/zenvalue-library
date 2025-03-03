@@ -6,15 +6,18 @@ use App\Models\Book;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
-class LatestBooksAdded extends BaseWidget
+class LatestBooksAddedWidgets extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 4; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
 
-    public static function canView(): bool
+    protected function getHeading(): ?string
     {
-        return auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin');
+        return 'Derniers livres ajoutés';
     }
 
     public function table(Table $table): Table

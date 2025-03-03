@@ -9,14 +9,19 @@ use App\Models\Tag;
 
 use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class AdminWidgets extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 1; // Position après le FilamentInfoWidget
+
+
 
     protected function getHeading(): ?string
     {
-        return 'Statistiques';
+        return 'Statistiques (admin)';
     }
      
     protected function getDescription(): ?string
@@ -30,7 +35,6 @@ class AdminWidgets extends BaseWidget
         $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
         $booksWithoutCover      = Book::where('cover_url', null)->count();
         $booksWithoutISBN       = Book::where('isbn', null)->count();
-
 
         return [
 
@@ -49,10 +53,5 @@ class AdminWidgets extends BaseWidget
             Stat::make('# de livres sans couverture', $booksWithoutCover . ' soit ' . round($booksWithoutCover / Book::count() * 100) . '%'),
             Stat::make('# de livres sans ISBN', $booksWithoutISBN . ' soit ' . round($booksWithoutISBN / Book::count() * 100) . '%'),
         ];
-    }
-
-    public static function canView(): bool
-    {
-        return auth()->user()->hasRole('admin') || auth()->user()->hasRole('super_admin');
     }
 }

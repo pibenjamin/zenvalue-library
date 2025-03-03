@@ -8,15 +8,18 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class MyBookLenders extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 3; 
     protected static ?int $defaultTableRecordsPerPage = 5;
 
-    public static function canView(): bool
+    protected function getHeading(): ?string
     {
-        return auth()->user()->hasRole('user');
+        return 'A qui ai-je emprunté ?';
     }
 
     public function table(Table $table): Table

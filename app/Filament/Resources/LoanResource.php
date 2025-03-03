@@ -46,8 +46,8 @@ class LoanResource extends Resource
     protected static ?string $model             = Loan::class;
     protected static ?string $modelLabel        = 'Prêt';
     protected static ?string $pluralModelLabel  = 'Prêts';
-    protected static ?string $navigationIcon    = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup   = 'Gestion des prêts';
+    protected static ?string $navigationIcon    = 'heroicon-o-shopping-bag';
 
     public static function getNavigationLabel(): string
     {
