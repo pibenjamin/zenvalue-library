@@ -37,6 +37,7 @@ use App\Filament\Resources\RoleResource;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Livewire\Auth\CustomRegister;
 use Filament\Navigation\NavigationGroup;
+use App\Livewire\Auth\CustomResetPassword;
 use App\Filament\Pages\CustomLogin;
 use App\Filament\Pages\OkrPage;
 use Filament\Navigation\MenuItem;
@@ -65,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(CustomLogin::class)                      // Active la page de connexion
             ->registration(CustomRegister::class) // Active l'inscription utilisateur
             ->emailVerification()          // Active la vérification d'email
-            ->passwordReset()              // Active la réinitialisation de mot de passe
+            ->passwordReset(RequestPasswordReset::class, CustomResetPassword::class)              // Active la réinitialisation de mot de passe
             ->profile(EditProfile::class)                    // Active la page de profil utilisateur
             
             // Personnalisation du thème
