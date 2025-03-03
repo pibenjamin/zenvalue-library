@@ -300,7 +300,7 @@ class LoanResource extends Resource
             })
             ->visible(fn (Loan $record) => 
                 auth()->user()?->can('return', $record) && 
-                $record->status === 'in_progress'
+                $record->status === Loan::STATUS_IN_PROGRESS || $record->status === Loan::STATUS_OVERDUE
             );
     }
 
