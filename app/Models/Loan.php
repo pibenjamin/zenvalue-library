@@ -53,7 +53,7 @@ class Loan extends Model
 
     public function getDelayMessage(): string
     {
-        if(in_array($this->status, [self::STATUS_RETURNED, self::STATUS_OVERDUE])) {
+        if(in_array($this->status, [self::STATUS_RETURNED])) {
             return '';
         }
 
