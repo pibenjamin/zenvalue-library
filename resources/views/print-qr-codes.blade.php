@@ -36,7 +36,8 @@
             margin-bottom: 10px;
         }
 
-        .book-title {
+        .book-title,
+        .book-owner {
             font-size: 12px;
             margin-bottom: 5px;
         }
@@ -71,6 +72,7 @@
                 </div>
                 <div class="book-title">{{ $qrCode['title'] }}</div>
                 <div class="book-isbn">{{ $qrCode['isbn'] }}</div>
+                <div class="book-owner">{{ $qrCode['owner'] }}</div>
             </div>
         @endforeach
     </div>

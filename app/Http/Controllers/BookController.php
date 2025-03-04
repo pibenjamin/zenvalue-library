@@ -48,9 +48,10 @@ class BookController extends Controller
         foreach ($books as $book) {
 
             $qrCodes[] = [
-                'qrCode' => $qrCodeService->generateAndSaveAsFile($book, 300, $regenerate),
-                'title' => $book->title,
-                'isbn' => $book->isbn,
+                'qrCode'    => $qrCodeService->generateAndSaveAsFile($book, 300, $regenerate),
+                'title'     => $book->title,
+                'isbn'      => str_replace('-', '', $book->isbn),
+                'owner'     => $book->owner->name == 'Admin' ? 'Zen Value, Propriétaire : ' : 'Zen Value, Propriétaire : ' . $book->owner->name,
             ];
 
             $i++;
