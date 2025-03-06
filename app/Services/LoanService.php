@@ -11,7 +11,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Log;
 use App\Mail\AdminConfirmReturn;
 
 
@@ -69,6 +69,8 @@ class LoanService
                 ->success()
                 ->send();
         } catch (\Exception $e) {
+
+            Log::error('Erreur lors de l\'emprunt : ' . $e->getMessage());
             Notification::make()
                 ->title("Erreur lors de l'emprunt du livre")
                 ->danger()
