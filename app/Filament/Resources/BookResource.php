@@ -323,7 +323,7 @@ class BookResource extends Resource
                 Tables\Actions\Action::make('borrow')
                     ->label(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous empruntez ce livre' : 'Emprunter')
                     ->color('success')
-                    ->icon('heroicon-s-hand-raised')
+                    ->icon('heroicon-s-shopping-bag')
                     ->requiresConfirmation()
                     ->modalHeading('Emprunter ce livre')
                     ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")

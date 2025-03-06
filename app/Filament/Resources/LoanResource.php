@@ -40,20 +40,22 @@ use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
 // Filament Components
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Enums\ActionsPosition;
+use Filament\Support\Enums\ActionSize;
 
 class LoanResource extends Resource
 {
     protected static ?string $model             = Loan::class;
-    protected static ?string $modelLabel        = 'Prêt';
-    protected static ?string $pluralModelLabel  = 'Prêts';
+    protected static ?string $modelLabel        = 'Emprunt';
+    protected static ?string $pluralModelLabel  = 'Emprunts';
     protected static ?string $navigationGroup   = 'Gestion des prêts';
     protected static ?string $navigationIcon    = 'heroicon-o-shopping-bag';
 
     public static function getNavigationLabel(): string
     {
         return auth()->user()?->hasAnyRole(['admin', 'super_admin']) 
-            ? 'Prêts' 
-            : 'Mes prêts';
+            ? 'Emprunts' 
+            : 'Mes emprunts';
     }
 
     private static function getLoanCountsByStatus(?int $borrowerId = null): array
@@ -184,8 +186,16 @@ class LoanResource extends Resource
                     ->options(User::all()->pluck('name', 'id'))
             ])
             ->actions(
-                self::getTableActions(),
+                ActionGroup::make(
+                    self::getTableActions(),
+                )
+                ->label('Prolonger / Rendre')
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size(ActionSize::Small)
+                ->color('primary')
+                ->button()
             )
+            
             ->bulkActions([
                 self::getTableBulkActions(),
             ])
@@ -196,6 +206,7 @@ class LoanResource extends Resource
                     $record->getStatusLabel()
                 )
             ])
+            ->actionsPosition(ActionsPosition::BeforeColumns)
             ->defaultGroup('status');
     }
 
