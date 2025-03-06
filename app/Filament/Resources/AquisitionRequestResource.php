@@ -28,7 +28,7 @@ class AquisitionRequestResource extends Resource
 
     protected static ?string $modelLabel            = 'une demande d\'acquisition';
     protected static ?string $pluralModelLabel      = 'Demandes d\'acquisition';
-    protected static ?int $navigationSort           = 2;
+    protected static ?int $navigationSort           = 4;
 
     protected static ?string $navigationIcon        = 'heroicon-o-plus';
 
@@ -38,7 +38,11 @@ class AquisitionRequestResource extends Resource
     {
         return AquisitionRequest::where('status', 'pending')->count();
     }
-
+    
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Nombre de demandes d\'acquisition en attente';
+    }
 
     public static function form(Form $form): Form
     {

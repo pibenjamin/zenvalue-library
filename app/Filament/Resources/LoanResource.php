@@ -262,10 +262,10 @@ class LoanResource extends Resource
             Tables\Actions\EditAction::make(),
             Tables\Actions\Action::make('extend_loan')
                 ->label('Prolonger le prêt')
+                ->color('success')
                 ->icon('heroicon-s-plus-circle')
                 ->requiresConfirmation()
                 ->modalDescription('Voulez-vous vraiment prolonger le prêt de ' . config('app.extend_loan_months') . ' mois ?')
-                ->button()
                 ->visible(fn (Loan $record) => 
                     $record->status === 'in_progress' && $record->extended_for === null
                 )
@@ -299,7 +299,6 @@ class LoanResource extends Resource
             ->label('Rendre ce livre')
             ->icon('heroicon-s-arrow-up-on-square')
             ->color('success')
-            ->button()
             ->requiresConfirmation()
             ->modalHeading('Rendre ce livre')
             ->modalDescription(fn (Loan $record) => 

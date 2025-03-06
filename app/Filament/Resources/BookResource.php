@@ -45,6 +45,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
 
 // Filament Other
+use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Support\Enums\ActionSize;
 use Filament\Actions\ImportAction;
@@ -63,6 +64,8 @@ use Filament\Tables\Columns\ImageColumn;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 // Filament Plugins
+
+
 
 class BookResource extends Resource
 {
@@ -84,26 +87,6 @@ class BookResource extends Resource
                     ->helperText('Le titre de l\'ouvrage est obligatoire')
                     ->required()
                     ->maxLength(255),
-
-
-
-//                Rating::make('book_ratings')
-//                    ->label('Note')
-//                    ->stars(5)
-//                    ->allowZero(),
-                    
-
-//                Forms\Components\Select::make('theme')
-//                    ->label('Thème')
-//                    ->relationship('theme', 'name')
-//                    ->preload()
-//                    ->createOptionForm([
-//                        Forms\Components\TextInput::make('name')
-//                            ->label('Nom')
-//                            ->required(),
-//                    ]),
-
-
 
                 Forms\Components\Select::make('authors')
                     ->label('Auteurs')
@@ -137,8 +120,6 @@ class BookResource extends Resource
                             ->label('Nom')
                             ->required(),
                     ]),
-
-
 
                 Forms\Components\Select::make('tags')
                     ->label('Tags')
@@ -209,7 +190,6 @@ class BookResource extends Resource
                     ->visibleOn(['edit', 'create'])
                     ->maxLength(255)
                     ->default(null),
-
             ]);
     }
 
@@ -232,17 +212,16 @@ class BookResource extends Resource
                     ->wrap()
                     ->searchable(),
                     
-                Tables\Columns\ViewColumn::make('rating_avg_rate')
-                    ->label(new HtmlString('Note <br> moyenne'))
-                    ->view('filament.tables.columns.rating_avg_rate')
-                    ->tooltip("Moyenne des notes des utilisateurs")
+                ImageColumn::make('cover_url')
+                    ->label('Couverture')
+                    ->sortable()
+                    ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                    ->height(75)
                     ->alignment(Alignment::Center),
-
-                Tables\Columns\ViewColumn::make('users_rating')
-                    ->label('Ma note')
-                    ->view('filament.tables.columns.my_rate')
-                    ->tooltip("Ma note personnelle")
-                    ->alignment(Alignment::Center),
+                
+                TextColumn::make('year_of_publication')
+                    ->label('Année')
+                    ->sortable(),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')
@@ -260,32 +239,6 @@ class BookResource extends Resource
                     ->listWithLineBreaks()
                     ->verticallyAlignStart()
                     ->searchable(),
-                
-                ImageColumn::make('cover_url')
-                    ->label('Couverture')
-                    ->sortable()
-                    ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
-                    ->height(75)
-                    ->alignment(Alignment::Center),
-                
-                TextColumn::make('is_borrowed')
-                    ->label('Disponibilité')
-                    ->state(function ($record): string {
-                        return $record->is_borrowed ? 'Emprunté' : 'Disponible';
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Emprunté' => 'danger',
-                        'Disponible' => 'success',
-                    })
-                    ->tooltip(fn (Book $record) => $record->is_borrowed 
-                        ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
-                        : "Ce livre est actuellement disponible"
-                    ),
-
-                TextColumn::make('year_of_publication')
-                    ->label('Année')
-                    ->sortable(),
 
                 Tables\Columns\ImageColumn::make('owner.avatar')
                     ->label('Propriétaire')
@@ -318,6 +271,34 @@ class BookResource extends Resource
                     ->color('gray')
                     ->wrap()
                     ->searchable(),
+
+                Tables\Columns\ViewColumn::make('rating_avg_rate')
+                    ->label(new HtmlString('Note <br> moyenne'))
+                    ->view('filament.tables.columns.rating_avg_rate')
+                    ->tooltip("Moyenne des notes des utilisateurs")
+                    ->alignment(Alignment::Center),
+
+                Tables\Columns\ViewColumn::make('users_rating')
+                    ->label('Ma note')
+                    ->view('filament.tables.columns.my_rate')
+                    ->tooltip("Ma note personnelle")
+                    ->alignment(Alignment::Center),
+
+                TextColumn::make('is_borrowed')
+                    ->label('Disponibilité')
+                    ->state(function (Book $record): string {
+                        return $record->is_borrowed ? 'Emprunté' : 'Disponible';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Emprunté' => 'danger',
+                        'Disponible' => 'success',
+                    })
+                    ->tooltip(fn (Book $record) => $record->is_borrowed 
+                        ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
+                        : "Ce livre est actuellement disponible"
+                    ),
+
             ])
             ->actions([
                 Tables\Actions\Action::make('borrow')
@@ -338,6 +319,13 @@ class BookResource extends Resource
                      ->label(fn (Book $book) => 'Retour le ' . \Carbon\Carbon::parse($book->getLastLoan()->to_be_returned_at)->format('d/m/Y'))
                      ->disabled(fn (Book $book) => $book->is_borrowed)
                      ->visible(fn (Book $book) => $book->is_borrowed),
+
+                Tables\Actions\ViewAction::make()
+                    ->label('Voir')
+                    ->disableLabel()
+                    ->button()
+                    ->color('stone')
+                    ->tooltip('Voir les détails'),
 
             ])
             ->defaultPaginationPageOption(50)
@@ -384,6 +372,104 @@ class BookResource extends Resource
             ->actionsPosition(ActionsPosition::BeforeColumns);
     }
 
+
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('book_resource_infolist_menu')
+                            ->view('filament.infolists.book_resource_menu'),
+                    ])
+                    ->columnSpanFull(),
+
+                // Section Disponibilité
+                Infolists\Components\Section::make('Disponibilités')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('is_borrowed')
+                            ->label('Disponibilité')
+                            ->state(function (Book $record): string {
+                                return $record->is_borrowed ? 'Emprunté' : 'Disponible';
+                            }),
+                        Infolists\Components\TextEntry::make('is_borrowed')
+                            ->label('Retour prévu le')
+                            ->state(function (Book $record): string {
+                                return \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y');
+                            })                            
+                    ])
+                    ->columns(2)
+                    ->id('disponibilites')
+                    ->collapsible()
+                    ->icon('heroicon-o-bookmark')
+                    ->iconColor('primary'),
+
+                // Section Informations principales
+                Infolists\Components\Section::make('Informations')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('title')
+                            ->label('Titre'),
+                        Infolists\Components\ImageEntry::make('cover_url')
+                            ->label('Couverture'),
+                        Infolists\Components\TextEntry::make('authors.name')
+                            ->label('Auteurs')
+                            ->badge(),
+                        Infolists\Components\TextEntry::make('year_of_publication')
+                            ->label('Année de publication'),
+                        Infolists\Components\TextEntry::make('publisher')
+                            ->label('Editeur'),
+                    ])
+                    ->id('informations')
+                    ->icon('heroicon-o-information-circle')
+                    ->iconColor('primary')
+                    ->collapsible()
+                    ->columns(2),
+
+                // Section Informations supplémentaires
+                Infolists\Components\Section::make('Informations supplémentaires')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('description')
+                            ->label('Description')
+                            ->columnSpanFull(),
+                        Infolists\Components\TextEntry::make('tags.title')
+                            ->label('Mots-clés')
+                            ->badge(),
+                    ])
+                    ->id('informations-supplementaires')
+                    ->icon('heroicon-o-plus-circle')
+                    ->iconColor('primary')
+                    ->collapsible()
+                    ->columns(2),
+
+                // Section Apports des citizens
+                Infolists\Components\Section::make('Apports des citizens')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('owner.name')
+                            ->label('Propriétaire')
+                            ->badge(),
+                        Infolists\Components\TextEntry::make('difficulty_level')
+                            ->label('Difficulté')
+                            ->state(function (Book $record): string {
+                                return $record->getDifficultyLabel() == null ? 'Non renseigné' : $record->getDifficultyLabel();
+                            })
+                            ->badge(),
+                        Infolists\Components\TextEntry::make('ratings.rate')
+                            ->state(function (Book $record): string {
+                                return $record->ratings->count() == 0 ? 'Non renseigné' : $record->ratings->avg('rate');
+                            })
+                            ->label('Note')
+                            ->badge(),
+                    ])
+                    ->id('apports-citizens')
+                    ->icon('heroicon-o-sparkles')
+                    ->iconColor('primary')
+                    ->collapsible()
+                    ->columns(2),
+            ])
+            ->columns(2);
+    }
+
     public static function getPages(): array
     {
         return [
@@ -392,4 +478,8 @@ class BookResource extends Resource
             'edit' => Pages\EditBook::route('/{record}/edit'),
         ];
     }
+
+
+
+
 }

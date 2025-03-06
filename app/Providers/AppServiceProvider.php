@@ -30,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     {
         FilamentColor::register([
             'expert' => Color::Purple,
+            'stone' => Color::Stone,
         ]);
 
         Str::macro('slugify', function ($string) {
