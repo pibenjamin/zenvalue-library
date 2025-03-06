@@ -327,17 +327,17 @@ class BookResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading('Emprunter ce livre')
                     ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
-                    ->action(function (Book $book) {
+                     ->action(function (Book $book) {
                         app(LoanService::class)->borrowBook($book);
                     })
                     ->tooltip(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous avez déjà emprunté ce livre' : 'Emprunter')
                     ->button()
                     ->visible(fn (Book $book) => !$book->is_borrowed),
 
-                Tables\Actions\Action::make('borrow')
-                    ->label(fn (Book $book) => 'Retour le ' . \Carbon\Carbon::parse($book->getLastLoan()->to_be_returned_at)->format('d/m/Y'))
-                    ->disabled(fn (Book $book) => $book->is_borrowed)
-                    ->visible(fn (Book $book) => $book->is_borrowed),
+                 Tables\Actions\Action::make('already_borrowed')
+                     ->label(fn (Book $book) => 'Retour le ' . \Carbon\Carbon::parse($book->getLastLoan()->to_be_returned_at)->format('d/m/Y'))
+                     ->disabled(fn (Book $book) => $book->is_borrowed)
+                     ->visible(fn (Book $book) => $book->is_borrowed),
 
             ])
             ->defaultPaginationPageOption(50)

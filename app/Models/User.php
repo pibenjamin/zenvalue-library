@@ -93,8 +93,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function canBorrow(): bool
     {
-        $currentLoans = $this->loans()->where('returned_at', null)->count();
-        $maxLoans = config('app.max_loans');
+        $currentLoans   = $this->loans()->where('returned_at', null)->count();
+        $maxLoans       = config('app.max_loans');
+
         
         return $currentLoans < $maxLoans;
     }
