@@ -37,6 +37,7 @@ class CustomResetPassword extends ResetPassword
                     ->helperText('Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule, une minuscule et un caractère spécial')
                     ->password()
                     ->required()
+                    ->revealable()
                     ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z0-9!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
                     ->maxLength(255),
@@ -45,6 +46,7 @@ class CustomResetPassword extends ResetPassword
                     ->label('Confirmation du mot de passe')
                     ->helperText('Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule, une minuscule et un caractère spécial')
                     ->password()
+                    ->revealable()
                     ->required()
                     ->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?])[a-zA-Z0-9!@#$%^&*()\-_+=\[\]{};:\"\'\\,.<>\/?]{8,}$/')
                     ->minLength(8)
