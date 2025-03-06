@@ -11,5 +11,5 @@ echo Connexion SSH et exécution des commandes...
 ssh %SSH_USER%@%SSH_HOST% ^
     "cd %SSH_PATH% && git pull origin preprod && php artisan filament:optimize-clear && php artisan filament:optimize"
 
-echo Déploiement terminé.
+echo Deployment to preprod done.
 pause
