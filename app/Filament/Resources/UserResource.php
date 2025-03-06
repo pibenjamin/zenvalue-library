@@ -116,6 +116,7 @@ class UserResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\ImageColumn::make('avatar')
+                    ->sortable()
                     ->label('Avatar')
                     ->circular()
                     ->defaultImageUrl(url('/storage/avatars/default-avatar.png'))
