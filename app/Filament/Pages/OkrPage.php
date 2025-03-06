@@ -14,7 +14,7 @@ use App\Filament\Widgets\AdminWidgets;
 
 class OkrPage extends Page
 {
-    protected static ?string $navigationLabel   = 'OKR';
+    protected static ?string $navigationLabel   = 'OKRssss';
     protected static string $view               = 'filament.pages.okr';
     protected static ?string $navigationGroup   = 'Support & Ressources';
     protected static ?int $navigationSort       = 2;
