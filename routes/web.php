@@ -57,12 +57,3 @@ Route::post('/extract-isbn', [LoanController::class, 'extractISBNFromImage'])->n
 Route::get('/extract-book-info/{slug}', [BookController::class, 'extractBookInfo'])->name('extract-book-info');    
 
 
-// call the open library api with the book title
-
-Route::get('/open-library', function () {
-    $title = request()->title;
-    $response = Http::get("https://openlibrary.org/search.json?title={$title}");
-    return $response->json();
-});
-
-
