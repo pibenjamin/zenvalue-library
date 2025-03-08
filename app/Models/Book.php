@@ -104,7 +104,7 @@ class Book extends Model
         return $this->hasMany(Loan::class);
     }
 
-    public function getLastLoan(): Loan
+    public function getLastLoan()
     {
         return $this->loans()->latest()->first();
     }

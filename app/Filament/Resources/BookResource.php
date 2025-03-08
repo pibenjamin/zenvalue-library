@@ -324,8 +324,24 @@ class BookResource extends Resource
                     ->label('Voir')
                     ->disableLabel()
                     ->button()
+                    ->iconSize('sm')
                     ->color('stone')
                     ->tooltip('Voir les détails'),
+/*
+                Tables\Actions\Action::make('share')
+                    ->label('Recommander')
+                    ->disableLabel()
+                    ->button()
+                    ->iconSize('sm')
+                    ->icon('heroicon-o-share')
+                    ->color('primary')
+                    ->tooltip('Partager')
+                    ->modalHeading('Partager ce livre')
+                    ->modalDescription(fn (Book $record) => "Choisissez comment partager \"{$record->title}\"")
+                    ->modalContent(fn (Book $record) => view('filament.actions.share-options', ['record' => $record]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Fermer'),
+*/                    
 
             ])
             ->defaultPaginationPageOption(50)
@@ -396,7 +412,10 @@ class BookResource extends Resource
                         Infolists\Components\TextEntry::make('is_borrowed')
                             ->label('Retour prévu le')
                             ->state(function (Book $record): string {
-                                return \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y');
+                                if ($record->getLastLoan()) {
+                                    return \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y');
+                                }
+                                return 'Non renseigné';
                             })                            
                     ])
                     ->columns(2)

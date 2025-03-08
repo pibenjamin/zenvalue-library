@@ -126,6 +126,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,                          // Vérifie que l'utilisateur est connecté
-            ]);
+            ])
+            ->renderHook(
+                'panels::head.end',
+                fn () => '<script async defer src="https://teams.microsoft.com/share/launcher.js"></script>'
+            );
     }
 }

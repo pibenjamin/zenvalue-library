@@ -71,7 +71,7 @@ class AquisitionRequestResource extends Resource
 
 
                                 Forms\Components\Textarea::make('reject_reason')
-                                    ->label('Motif de rejet')
+                                    ->label('Motif du rejet')
                                     ->placeholder('Veuillez nous indiquer le motif de rejet de la demande.')
                                     ->rows(9)
                                         ->visible(function (?AquisitionRequest $record = null): bool {
@@ -84,7 +84,7 @@ class AquisitionRequestResource extends Resource
                             ->columnSpan(1)
                             ->schema([
                                 Placeholder::make('link_example')
-                                ->label('Merci de nous fournir un lien vers le livre que vous proposez à l\'acquisition.')
+                                ->label('Merci de nous fournir un lien vers le livre que vous nous proposez d\'acquérir.')
                                 ->content(new HtmlString(' Nous privilégions les librairies indépendantes comme <a href="https://www.lalibrairie.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.lalibrairie.com</a> mais vous pouvez tout de même nous fournir un lien à partir d\'<a href="https://www.amazon.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">amazon.com</a>'))
                                 ->columnSpanFull(),
 
