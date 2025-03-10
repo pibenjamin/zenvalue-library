@@ -136,6 +136,7 @@ class BookResource extends Resource
 
                 Forms\Components\FileUpload::make('cover_url')
                     ->label('Couverture')
+                    ->directory('books/covers')
                     ->maxSize(5120) // 5MB
                     ->columnSpanFull(),
 
@@ -306,7 +307,7 @@ class BookResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('borrow')
-                    ->label(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous empruntez ce livre' : 'Emprunter')
+                    ->label('Emprunter')
                     ->color('success')
                     ->icon('heroicon-s-shopping-bag')
                     ->requiresConfirmation()

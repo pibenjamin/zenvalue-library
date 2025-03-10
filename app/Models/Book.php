@@ -126,7 +126,14 @@ class Book extends Model
 
     public function isBorrowedByUser(User $user): int
     {
-        return $this->loans->whereIn('status',['in_progress', 'returned_in_progress'])->count();
+        return $this->loans
+                ->whereIn('status',['in_progress', 'returned_in_progress'])->count();
+    }
+
+    public function isBorrowed()
+    {
+        return $this->loans
+                ->whereIn('status',['in_progress', 'returned_in_progress'])->count();
     }
 
     public function getAverageRating(): float

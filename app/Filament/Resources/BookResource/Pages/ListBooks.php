@@ -33,6 +33,7 @@ class ListBooks extends ListRecords
                     ->required(),
                 Checkbox::make('Je confirme avoir lu ce livre')
                     ->label('J\'ai lu ce livre')
+                    ->required()
                     ->default(false),
             ])
             ->action(function (array $data, array $arguments) {

@@ -127,6 +127,7 @@ class BookAdminResource extends Resource
 
                         Forms\Components\FileUpload::make('cover_url')
                             ->label('Couverture')
+                            ->directory('books/covers')
                             ->maxSize(5120) // 5MB
                             ->columnSpanFull()
                             ->columnSpan(4),
