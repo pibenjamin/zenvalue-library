@@ -6,9 +6,14 @@ use App\Filament\Resources\BookAdminResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use App\Models\Book;
+use App\Models\Author;
 use App\Services\OpenLibraryService;    
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Notification;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 class EditBookAdmin extends EditRecord
 {
@@ -23,8 +28,22 @@ class EditBookAdmin extends EditRecord
                 ->icon('heroicon-o-check-circle')
                 ->modalContent(fn (Book $record): View => view(
                     'filament.modals.view.compare_with_ol',
-                    ['record' => $record, 'ol_data' => app(OpenLibraryService::class)->extractBookData($record->slug)],
+                    ['record' => $record,
+                     'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
                 ))
+                ->modalSubmitActionLabel('Valider et ajouter au catalogue')
+                ->action(function (Book $record) {
+
+
+
+                    $record->status = Book::STATUS_CONTRIBUTION_QUALIFIED;
+                    $record->save();
+
+                    Notification::make()
+                        ->title('Données mises à jour')
+                        ->success()
+                        ->send();
+                }),
         ];
     }
 
@@ -34,6 +53,64 @@ class EditBookAdmin extends EditRecord
         $record->$field = $value;
         $record->save();
         
-        $this->dispatch('close-modal', id: 'compare_with_ol');
+        if($field == 'author') {
+
+            if(preg_match('/,/', $value)) {
+                $authors = explode(', ', $value);
+            } else {
+                $authors = [$value];
+            }
+
+            foreach($authors as $author) {
+                $authorId = Author::createOrFirst([
+                    'name' => $author,
+                ])->id;
+    
+                $record->authors()->attach($authorId);
+            }
+        }
+
+       $this->dispatch('close-modal', id: 'compare_with_ol');
+    }
+
+    public function saveCoverUrl(string $field, string $coverUrl): void
+    {
+        $record = $this->getRecord();
+        
+        // Ajouter le protocole si nécessaire
+
+            $url = 'https://covers.openlibrary.org/b/OCLC/'.$record->ol_key.'-L.jpg'; 
+        
+        // Télécharger l'image avec HTTP Client de Laravel
+        $response = Http::withOptions([
+            'verify' => false,
+        ])->get($url);
+
+        if (!$response->successful()) {
+            throw new \Exception('Failed to download image');
+        }
+
+        $image = $response->body();
+
+        // Générer un nom de fichier unique
+        $filename = (string) Str::uuid() . '.jpg';
+            
+
+            
+            // Sauvegarder dans le storage
+            Storage::disk('public')->put(
+                '/' . $filename,
+                $image
+            );
+            
+            // Mettre à jour le record
+            $record->cover_url = $filename;
+            $record->save();
+            
+            Notification::make()
+                ->title('Image de couverture mise à jour')
+                ->success()
+                ->send();
+
     }
 }

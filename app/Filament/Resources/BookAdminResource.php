@@ -17,7 +17,7 @@ use App\Models\Support;
 // Services
 use App\Services\LoanService;
 use App\Services\QrCodeService;
-
+use App\Services\OpenLibraryService;
 // Filament Forms
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -61,6 +61,20 @@ class BookAdminResource extends Resource
         return auth()->user()->hasAnyRole(['admin', 'super_admin']);    
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $booksToQualify = Book::where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)->count();
+        if($booksToQualify > 0){
+            return $booksToQualify;
+        }
+        return null;
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Nombre de livres à qualifier';
+    }    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -70,7 +84,6 @@ class BookAdminResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->label('Titre')
                             ->placeholder('Titre de l\'ouvrage')
-                            ->required()
                             ->maxLength(255)
                             ->reactive()
                             ->afterStateUpdated(function (Forms\Set $set, $state) {
@@ -203,9 +216,10 @@ class BookAdminResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
+
+        ->columns([
+            TextColumn::make('id')
+                ->label('ID')
                     ->sortable(),
 
                 TextColumn::make('title')
@@ -325,7 +339,7 @@ class BookAdminResource extends Resource
                             'books.open-library-modal',
                             [
                                 'record' => $record,
-                                'bookData' => Http::get("https://openlibrary.org/isbn/{$record->isbn}.json")->json(),
+                                'bookData' => app(OpenLibraryService::class)->getBookPage($record->ol_key)->json()
                             ]
                         ))
                         ->modalSubmitAction(false)
@@ -340,8 +354,8 @@ class BookAdminResource extends Resource
                 ]),
 
             ])
-            ->defaultPaginationPageOption(200)
-            ->paginationPageOptions([200, 500, 1000])
+            ->defaultPaginationPageOption(50)
+            ->paginationPageOptions([50, 100, 200])
             ->filters([
                 Tables\Filters\SelectFilter::make('id')
                     ->label('ID')

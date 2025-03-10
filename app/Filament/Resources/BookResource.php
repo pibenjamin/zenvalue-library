@@ -198,6 +198,7 @@ class BookResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
+                ->where('status',Book::STATUS_ON_SHELF)
                     ->selectSub(function ($query) {
                         $query->from('ratings')
                             ->selectRaw('ROUND(AVG(rate))')
@@ -438,6 +439,8 @@ class BookResource extends Resource
                             ->label('Année de publication'),
                         Infolists\Components\TextEntry::make('publisher')
                             ->label('Editeur'),
+                        Infolists\Components\TextEntry::make('isbn')
+                            ->label('ISBN'),
                     ])
                     ->id('informations')
                     ->icon('heroicon-o-information-circle')

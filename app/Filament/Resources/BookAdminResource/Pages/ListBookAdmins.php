@@ -12,7 +12,9 @@ use Filament\Actions\Action;
 use Illuminate\Support\Collection;
 use App\Models\Tag;
 use Illuminate\Support\Str;
-
+use Filament\Resources\Components\Tab;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\Book;
 
 class ListBookAdmins extends ListRecords
 
@@ -109,6 +111,17 @@ class ListBookAdmins extends ListRecords
                 //                dd($data, $arguments, $livewire->getFormData());
             });
     }
+
+    public function getTabs(): array
+    {
+        return [
+            __('Livres sur étagère') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF)),
+            __('Livres à qualifier') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)),
+        ];
+    }
+
 
 
 }

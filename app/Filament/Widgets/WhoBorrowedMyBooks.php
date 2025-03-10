@@ -70,14 +70,12 @@ class WhoBorrowedMyBooks extends BaseWidget
                 Tables\Columns\TextColumn::make('total_books')
                     ->label('Nombre de livres empruntés')
                     ->sortable(),
+                    
             ])
             ->recordUrl(null)
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'in_progress' => 'En cours',
-                        'returned' => 'Terminé',
-                    ])
+                Tables\Filters\SelectFilter::make('loans.status')
+                    ->options(Book::getStatusLabels())
                     ->default('in_progress')
             ]);
     }
