@@ -227,6 +227,7 @@ class BookResource extends Resource
                     ->label('Portraits')
                     ->circular()
                     ->stacked()
+                    ->toggleable()
                     ->tooltip(fn (Book $record): string => $record->authors->pluck('name')->implode(', '))
                     ->height(50),
 
@@ -250,6 +251,7 @@ class BookResource extends Resource
                             '&color=FFFFFF&background=09090b') 
                         : url('/avatar/default-avatar.png'))
                     ->tooltip(fn (Book $record): string => $record->owner->name)
+                    ->toggleable()
                     ->height(50),
 
                 TextColumn::make('difficulty_level')
@@ -259,6 +261,7 @@ class BookResource extends Resource
                     ->state(function ($record): string {
                         return $record->getDifficultyLabel();
                     })
+                    ->toggleable()
                     ->color(fn (Book $record): string => $record->getDifficultyColor()),
 
                 TextColumn::make('tags.title')
@@ -270,6 +273,7 @@ class BookResource extends Resource
                     ->badge()
                     ->color('gray')
                     ->wrap()
+                    ->toggleable()
                     ->searchable(),
 
                 Tables\Columns\ViewColumn::make('rating_avg_rate')
