@@ -216,7 +216,7 @@ class BookResource extends Resource
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
                     ->sortable()
-                    ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                    ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
                     ->height(75)
                     ->alignment(Alignment::Center),
                 
