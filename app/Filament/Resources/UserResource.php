@@ -20,7 +20,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
-
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Actions\SaveAndNotifyActivation;
 
 use Filament\Forms\Components\Actions\Action;
@@ -136,6 +136,7 @@ class UserResource extends Resource
                         return $record->password == $record->email.'598625' ? 'NON' : 'OUI';
                     })
                     ->badge()
+                    ->sortable()
                     ->color(fn (string $state): string => match ($state) {
                         'OUI' => 'success',
                         'NON' => 'danger',
@@ -152,6 +153,9 @@ class UserResource extends Resource
                         'NON' => 'danger',
                     }),
 
+                Tables\Columns\TextColumn::make('password')
+                    ->label('Mot de passe'),
+
 
             ])
             ->defaultPaginationPageOption(200)
@@ -162,6 +166,8 @@ class UserResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
+            ->actionsPosition(ActionsPosition::BeforeColumns)
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
