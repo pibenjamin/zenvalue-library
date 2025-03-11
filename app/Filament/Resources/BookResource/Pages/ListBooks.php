@@ -95,7 +95,7 @@ class ListBooks extends ListRecords
 
             __('Mes livres') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('owner_id', auth()->id()))
-                ->badge(fn () => Book::where('owner_id', auth()->id())->count()),
+                ->badge(fn () => Book::where('owner_id', auth()->id())->where('status', Book::STATUS_ON_SHELF)->count()),
         ];
     }
 }
