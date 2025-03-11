@@ -2,18 +2,17 @@
 
 namespace App\Notifications;
 
-use App\Models\Loan;
+use App\Models\Book;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class LoanDueReminder extends Notification
+class BookAddedToCatalogue extends Notification
 {
     use Queueable;
 
     public function __construct(
-        public Loan $loan,
-        public int $daysUntilDue
+        public Book $book
     ) {}
 
     public function via($notifiable): array
@@ -24,10 +23,10 @@ class LoanDueReminder extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("['".config('app.name')."] Rappel : Retour de livre dans {$this->daysUntilDue} jours")
-            ->view('emails.loans.due-reminder', [
-                'loan' => $this->loan,
-                'daysUntilDue' => $this->daysUntilDue
+            ->subject("['".config('app.name')."] 📚 Votre livre a été ajouté au catalogue")
+            ->view('emails.books.added-to-catalogue', [
+                'book' => $this->book,
+                'user' => $this->book->owner
             ]);
     }
 } 

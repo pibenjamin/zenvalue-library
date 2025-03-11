@@ -35,7 +35,7 @@ class UserActivated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('[Bibliothèque Zen Value] Votre compte a été activé')
+                    ->subject('['.config('app.name').'] Votre compte a été activé')
                     ->line('Bienvenue '.$this->user->name.'.')
                     ->line('Votre compte a été activé avec succès.')
                     ->line('Vous pouvez désormais accéder à la bibliothèque en vous connectant à votre compte.')

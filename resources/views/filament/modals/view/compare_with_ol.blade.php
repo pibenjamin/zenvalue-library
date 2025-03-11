@@ -28,20 +28,23 @@
                                 @foreach ([
                                     'title' => 'Titre',
                                     'author' => 'Auteur',
+                                    'isbn' => 'ISBN',
                                     'year_of_publication' => 'Date de publication',
                                     'publisher' => 'Éditeur',
                                     'pages' => 'Nombre de pages',
                                     'lang' => 'Langue',
                                     'cover_url' => 'Image',
                                 ] as $field => $label)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                                    <tr>
                                         <td class="fi-ta-cell whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400">
                                             {{ $label }}
                                         </td>
                                         <td class="fi-ta-cell whitespace-nowrap px-3 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                            @if($field === 'cover_url')
+
+
+                                        @if($field === 'cover_url')
                                                 @if($record->cover_url)
-                                                    <img src="{{ $record->cover_url }}" alt="Cover" class="w-20 h-auto object-cover rounded-lg shadow-sm">
+                                                    <img src="{{ asset('storage/' . $record->cover_url) }}" alt="Cover" class="w-20 h-auto object-cover rounded-lg shadow-sm">
                                                 @else
                                                     <span class="text-gray-400">Pas d'image</span>
                                                 @endif
@@ -62,6 +65,7 @@
                                             @endif
                                         </td>
                                         <td class="fi-ta-cell px-3 py-4 text-sm">
+
                                             @if((($ol_data[$field] ?? '') != $record->$field || empty($record->$field)) && isset($ol_data[$field]))
                                                 <div class="inline-flex items-center space-x-1 rtl:space-x-reverse">
                                                     <x-heroicon-m-exclamation-triangle class="h-5 w-5 text-warning-500" />
@@ -81,12 +85,16 @@
                                             @if((($ol_data[$field] ?? '') != $record->$field || empty($record->$field)) && isset($ol_data[$field]))
                                                 <button
                                                     type="button"
+                                                    
                                                     x-data
                                                     wire:click="{{ $field === 'cover_url' ? 'saveCoverUrl' : 'updateField' }}('{{ $field }}', '{{ $ol_data[$field] }}')"
                                                     class="fi-btn fi-btn-size-sm relative inline-flex items-center justify-center rounded-lg bg-primary-600 px-3 py-1 text-sm font-semibold text-white outline-none transition duration-75 hover:bg-primary-500 focus:ring-2 focus:ring-primary-500/50 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus:ring-primary-400/50"
                                                 >
+                                                @if($field === 'cover_url')
+                                                    <x-heroicon-m-arrow-down-tray class="h-4 w-4 mr-1" />
+                                                @else
                                                     <x-heroicon-m-arrow-path class="h-4 w-4 mr-1" />
-                                                    {{ $field === 'cover_url' ? 'Télécharger' : 'Mettre à jour' }}
+                                                @endif
                                                 </button>
                                             @endif
                                         </td>

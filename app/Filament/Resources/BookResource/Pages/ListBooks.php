@@ -19,8 +19,6 @@ class ListBooks extends ListRecords
 {
     protected static string $resource = BookResource::class;
 
-
-
     public function leaveRatingAction(): Action
     {
         return Action::make('leaveRatingAction')
@@ -57,7 +55,7 @@ class ListBooks extends ListRecords
                 ->color('primary')
                 ->tooltip('Ajouter un de mes livres au catalogue')
                 ->modalHeading('Ajouter un livre')
-                ->modalDescription('Merci de renseigner le numéro ISBN de votre livre, il se trouve généralement au dos du livre en dessous du code barre.')
+                ->modalDescription('Merci de renseigner le numéro ISBN de votre livre, il se trouve généralement au dos du livre en dessous du code barre.<br> Merci de déposer le livre dans la zone de la bibliothèque "Retour et nouveautés"')
                 ->form([
                     TextInput::make('isbn')
                         ->label('ISBN')
@@ -91,9 +89,12 @@ class ListBooks extends ListRecords
     public function getTabs(): array
     {
         return [
-            __('Tous les livres') => Tab::make(),
+            __('Tous les livres') => Tab::make()
+            ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->count()),
+
             __('Mes livres') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('owner_id', auth()->user()->id)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('owner_id', auth()->id()))
+                ->badge(fn () => Book::where('owner_id', auth()->id())->count()),
         ];
     }
 }

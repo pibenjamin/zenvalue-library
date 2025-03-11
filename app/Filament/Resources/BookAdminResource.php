@@ -14,10 +14,17 @@ use App\Models\Author;
 use App\Models\User;
 use App\Models\Tag;
 use App\Models\Support;
+
+
+use Livewire\Component;
+
+
 // Services
 use App\Services\LoanService;
 use App\Services\QrCodeService;
 use App\Services\OpenLibraryService;
+use App\Notifications\BookAddedToCatalogue;
+
 // Filament Forms
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -37,15 +44,17 @@ use Filament\Tables\Enums\ActionsPosition;
 
 // Laravel
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\SoftDeletingScope; 
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
+
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Support\Str;
 use Closure;    
 use Filament\Icons\Icon;
+use Filament\Notifications\Notification;
 
 
 class BookAdminResource extends Resource
@@ -105,6 +114,11 @@ class BookAdminResource extends Resource
                                 Forms\Components\TextInput::make('name')
                                     ->label('Nom')
                                     ->required(),
+                                Forms\Components\FileUpload::make('photo_url')
+                                    ->label('Photo')
+                                    ->directory('authors')
+                                    ->maxSize(5120) // 5MB
+                                    ->columnSpanFull(),
                             ])
                             ->columnSpan(1),
 
@@ -268,6 +282,15 @@ class BookAdminResource extends Resource
                     ->label('ISBN')
                     ->sortable(),
 
+                TextColumn::make('status')
+                    ->label('Statut')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->getStatusLabel();
+                    })
+                    ->color(fn (Book $record): string => $record->getStatusColor()),
+
                 TextColumn::make('is_borrowed')
                     ->label('Disponibilité')
                     ->state(function ($record): string {
@@ -332,17 +355,23 @@ class BookAdminResource extends Resource
                         ))
                         ->modalSubmitAction(false),
 
-                    Tables\Actions\Action::make('open_library')
-                        ->label('O.L. API')
-                        ->icon('heroicon-o-globe-alt')
-                        ->modalContent(fn (Book $record): View => view(
-                            'books.open-library-modal',
-                            [
-                                'record' => $record,
-                                'bookData' => app(OpenLibraryService::class)->getBookPage($record->ol_key)->json()
-                            ]
-                        ))
-                        ->modalSubmitAction(false)
+                    Tables\Actions\Action::make('put_on_shelf')
+                        ->label('Mettre sur étagère')
+                        ->icon('heroicon-o-check-circle')
+                        ->action(function (Book $record) {
+
+                            $record->status = Book::STATUS_ON_SHELF;
+                            $record->save();
+
+                            $record->owner->notify(new BookAddedToCatalogue($record));
+
+                            Notification::make()
+                                ->title('Livre ajouté au catalogue')
+                                ->success()
+                                ->send();
+                        })
+                        
+                        ->modalSubmitAction(true)
                         ->modalCancelAction(false)
                         ->visible(fn (Book $record) => $record->isbn !== null),
                 ])

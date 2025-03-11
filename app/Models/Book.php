@@ -31,6 +31,15 @@ class Book extends Model
         self::STATUS_MISSING                 => 'Manquant',
     ];
 
+    private const STATUS_COLORS = [
+        self::STATUS_CONTRIBUTION_TO_QUALIFY => 'warning',
+        self::STATUS_CONTRIBUTION_QUALIFIED  => 'blue',
+        self::STATUS_CONTRIBUTION_REJECTED   => 'danger',
+        self::STATUS_ON_SHELF                => 'success',
+        self::STATUS_BORROWED                => 'danger',
+        self::STATUS_MISSING                 => 'danger',
+    ];
+
     private const DIFFICULTY_LABELS = [
         self::DIFFICULTY_LEVEL_EASY     => 'Facile',
         self::DIFFICULTY_LEVEL_MEDIUM   => 'Moyen',
@@ -134,6 +143,21 @@ class Book extends Model
     public static function getStatusLabels(): array
     {
         return self::STATUS_LABELS;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return self::STATUS_LABELS[$this->status] ?? 'Non défini';
+    }
+
+    public static function getStatusColors(): array
+    {
+        return self::STATUS_COLORS;
+    }
+
+    public function getStatusColor(): string
+    {
+        return self::STATUS_COLORS[$this->status] ?? 'secondary';
     }
 
     public function getDifficultyLabel(): string

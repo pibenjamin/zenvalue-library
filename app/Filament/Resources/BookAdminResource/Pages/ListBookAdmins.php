@@ -116,9 +116,17 @@ class ListBookAdmins extends ListRecords
     {
         return [
             __('Livres sur étagère') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF))
+                ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->count()),
             __('Livres à qualifier') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY))
+                ->badge(fn () => Book::where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)->count()),
+            __('Livres qualifiés') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_QUALIFIED))
+                ->badge(fn () => Book::where('status', Book::STATUS_CONTRIBUTION_QUALIFIED)->count()),
+            __('Livres rejetés') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_REJECTED))
+                ->badge(fn () => Book::where('status', Book::STATUS_CONTRIBUTION_REJECTED)->count()),
         ];
     }
 

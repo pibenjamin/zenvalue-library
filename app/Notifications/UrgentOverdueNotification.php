@@ -26,7 +26,7 @@ class UrgentOverdueNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('⚠️ URGENT : Livre très en retard ⚠️')
+            ->subject('['.config('app.name').'] ⚠️ URGENT : Livre très en retard ⚠️')
             ->view('emails.loans.urgent-overdue', [
                 'loan' => $this->loan,
                 'notifiable' => $notifiable

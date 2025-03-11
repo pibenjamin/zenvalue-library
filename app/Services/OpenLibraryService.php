@@ -61,7 +61,18 @@ class OpenLibraryService
         // Joindre les auteurs avec des virgules
         $author = implode(', ', array_unique($authors));
 
-        $cleanTitle = trim(preg_replace('/\s+/', ' ', $title . ' ' . $subtileTitle));
+        $cleanTitle = trim(
+            htmlspecialchars(
+                preg_replace(
+                    ['/\s+/', '/[^\p{L}\p{N}\s\-\']/u'], 
+                    [' ', ''], 
+                    $title . ' ' . $subtileTitle
+                ),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
+        
 
 
         if($language == 'English') {

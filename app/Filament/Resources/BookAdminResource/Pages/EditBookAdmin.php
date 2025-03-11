@@ -26,15 +26,15 @@ class EditBookAdmin extends EditRecord
             Actions\Action::make('CheckOpenLibrary')
                 ->label('Vérifier les données d\'Open Library')
                 ->icon('heroicon-o-check-circle')
+                
                 ->modalContent(fn (Book $record): View => view(
                     'filament.modals.view.compare_with_ol',
                     ['record' => $record,
                      'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
                 ))
                 ->modalSubmitActionLabel('Valider et ajouter au catalogue')
+                ->modalCancelActionLabel('Fermer')
                 ->action(function (Book $record) {
-
-
 
                     $record->status = Book::STATUS_CONTRIBUTION_QUALIFIED;
                     $record->save();
@@ -76,11 +76,8 @@ class EditBookAdmin extends EditRecord
     public function saveCoverUrl(string $field, string $coverUrl): void
     {
         $record = $this->getRecord();
-        
         // Ajouter le protocole si nécessaire
-
-            $url = 'https://covers.openlibrary.org/b/OCLC/'.$record->ol_key.'-L.jpg'; 
-        
+        $url = 'https://covers.openlibrary.org/b/isbn/'.$record->isbn.'-L.jpg';         
         // Télécharger l'image avec HTTP Client de Laravel
         $response = Http::withOptions([
             'verify' => false,
@@ -93,10 +90,8 @@ class EditBookAdmin extends EditRecord
         $image = $response->body();
 
         // Générer un nom de fichier unique
-        $filename = (string) Str::uuid() . '.jpg';
-            
+        $filename = 'books/covers/' . (string) Str::uuid() . '.jpg';
 
-            
             // Sauvegarder dans le storage
             Storage::disk('public')->put(
                 '/' . $filename,
