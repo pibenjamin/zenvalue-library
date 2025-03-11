@@ -14,9 +14,16 @@ use App\Models\Author;
 use App\Models\User;
 use App\Models\Tag;
 use App\Models\Support;
+
+
+use Livewire\Component;
+
+
 // Services
 use App\Services\LoanService;
 use App\Services\QrCodeService;
+use App\Services\OpenLibraryService;
+use App\Notifications\BookAddedToCatalogue;
 
 // Filament Forms
 use Filament\Forms;
@@ -37,15 +44,17 @@ use Filament\Tables\Enums\ActionsPosition;
 
 // Laravel
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\SoftDeletingScope; 
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
+
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Support\Str;
 use Closure;    
 use Filament\Icons\Icon;
+use Filament\Notifications\Notification;
 
 
 class BookAdminResource extends Resource
@@ -61,6 +70,20 @@ class BookAdminResource extends Resource
         return auth()->user()->hasAnyRole(['admin', 'super_admin']);    
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $booksToQualify = Book::where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)->count();
+        if($booksToQualify > 0){
+            return $booksToQualify;
+        }
+        return null;
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Nombre de livres à qualifier';
+    }    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -70,7 +93,6 @@ class BookAdminResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->label('Titre')
                             ->placeholder('Titre de l\'ouvrage')
-                            ->required()
                             ->maxLength(255)
                             ->reactive()
                             ->afterStateUpdated(function (Forms\Set $set, $state) {
@@ -92,6 +114,11 @@ class BookAdminResource extends Resource
                                 Forms\Components\TextInput::make('name')
                                     ->label('Nom')
                                     ->required(),
+                                Forms\Components\FileUpload::make('photo_url')
+                                    ->label('Photo')
+                                    ->directory('authors')
+                                    ->maxSize(5120) // 5MB
+                                    ->columnSpanFull(),
                             ])
                             ->columnSpan(1),
 
@@ -203,9 +230,10 @@ class BookAdminResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
+
+        ->columns([
+            TextColumn::make('id')
+                ->label('ID')
                     ->sortable(),
 
                 TextColumn::make('title')
@@ -253,6 +281,15 @@ class BookAdminResource extends Resource
                 TextColumn::make('isbn')
                     ->label('ISBN')
                     ->sortable(),
+
+                TextColumn::make('status')
+                    ->label('Statut')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->getStatusLabel();
+                    })
+                    ->color(fn (Book $record): string => $record->getStatusColor()),
 
                 TextColumn::make('is_borrowed')
                     ->label('Disponibilité')
@@ -318,17 +355,23 @@ class BookAdminResource extends Resource
                         ))
                         ->modalSubmitAction(false),
 
-                    Tables\Actions\Action::make('open_library')
-                        ->label('O.L. API')
-                        ->icon('heroicon-o-globe-alt')
-                        ->modalContent(fn (Book $record): View => view(
-                            'books.open-library-modal',
-                            [
-                                'record' => $record,
-                                'bookData' => Http::get("https://openlibrary.org/isbn/{$record->isbn}.json")->json(),
-                            ]
-                        ))
-                        ->modalSubmitAction(false)
+                    Tables\Actions\Action::make('put_on_shelf')
+                        ->label('Mettre sur étagère')
+                        ->icon('heroicon-o-check-circle')
+                        ->action(function (Book $record) {
+
+                            $record->status = Book::STATUS_ON_SHELF;
+                            $record->save();
+
+                            $record->owner->notify(new BookAddedToCatalogue($record));
+
+                            Notification::make()
+                                ->title('Livre ajouté au catalogue')
+                                ->success()
+                                ->send();
+                        })
+                        
+                        ->modalSubmitAction(true)
                         ->modalCancelAction(false)
                         ->visible(fn (Book $record) => $record->isbn !== null),
                 ])
@@ -340,8 +383,8 @@ class BookAdminResource extends Resource
                 ]),
 
             ])
-            ->defaultPaginationPageOption(200)
-            ->paginationPageOptions([200, 500, 1000])
+            ->defaultPaginationPageOption(50)
+            ->paginationPageOptions([50, 100, 200])
             ->filters([
                 Tables\Filters\SelectFilter::make('id')
                     ->label('ID')

@@ -11,7 +11,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
-class WhoBorrowedMyBooks extends BaseWidget
+class WhoIBorrowedFrom extends BaseWidget
 {
     use HasWidgetShield;
 
@@ -21,25 +21,16 @@ class WhoBorrowedMyBooks extends BaseWidget
 
     protected function getHeading(): ?string
     {
-        return 'Qui est intéressé par mes livres ?';
+        return 'Qui a emprunté mes livres ?';
     }
 
     
     public static function canView(): bool
     {
-        // if current user is a book owner
-        // and the book has been borrowed at least once
-        // then return true
+        $loans = Loan::where('borrower_id', auth()->id())->get();
 
-        $ownerOfBooks = Book::where('owner_id', auth()->id())->get();
-
-        foreach ($ownerOfBooks as $book) {
-
-            $loans = Loan::where('book_id', $book->id)->get();
-
-            if($loans->count() > 0) {
-                return true;
-            }   
+        if($loans->count() > 0) {
+            return true;
         }
 
         return false;
@@ -52,30 +43,32 @@ class WhoBorrowedMyBooks extends BaseWidget
             ->query(
                 Loan::query()
                     ->join('books', 'loans.book_id', '=', 'books.id')
-                    ->join('users as borrowers', 'loans.borrower_id', '=', 'borrowers.id')
-                    ->where('books.owner_id', auth()->id())
+                    ->join('users as owners', 'books.owner_id', '=', 'owners.id')
+                    ->where('loans.borrower_id', auth()->id())
                     //->whereIn('status', ['returned'])
                     ->latest('borrowed_at')
-                    ->selectRaw('borrowers.id, borrowers.name, COUNT(*) as total_books')
-                    ->groupBy('borrowers.id', 'borrowers.name')
+                    ->selectRaw('owners.id, owners.name, COUNT(*) as total_books')
+                    ->groupBy('owners.id', 'owners.name')
             )
-            ->heading('Qui est intéressé par mes livres ? 👥')
-            ->description('Cette liste affiche les personnes qui empruntent ou ont emprunté vos livres.')
+            ->heading('Qui a emprunté mes livres ? 👥')
+            ->description('Cette liste affiche les personnes qui ont emprunté vos livres.')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Emprunteur')
+                    ->label('Emprunteurs')
                     ->wrap()
                     ->sortable(),
                     
                 Tables\Columns\TextColumn::make('total_books')
                     ->label('Nombre de livres empruntés')
                     ->sortable(),
-                    
             ])
             ->recordUrl(null)
             ->filters([
-                Tables\Filters\SelectFilter::make('loans.status')
-                    ->options(Book::getStatusLabels())
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'in_progress' => 'En cours',
+                        'returned' => 'Terminé',
+                    ])
                     ->default('in_progress')
             ]);
     }

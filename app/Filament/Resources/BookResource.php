@@ -198,6 +198,7 @@ class BookResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
+                ->where('status',Book::STATUS_ON_SHELF)
                     ->selectSub(function ($query) {
                         $query->from('ratings')
                             ->selectRaw('ROUND(AVG(rate))')
@@ -324,8 +325,24 @@ class BookResource extends Resource
                     ->label('Voir')
                     ->disableLabel()
                     ->button()
+                    ->iconSize('sm')
                     ->color('stone')
                     ->tooltip('Voir les détails'),
+/*
+                Tables\Actions\Action::make('share')
+                    ->label('Recommander')
+                    ->disableLabel()
+                    ->button()
+                    ->iconSize('sm')
+                    ->icon('heroicon-o-share')
+                    ->color('primary')
+                    ->tooltip('Partager')
+                    ->modalHeading('Partager ce livre')
+                    ->modalDescription(fn (Book $record) => "Choisissez comment partager \"{$record->title}\"")
+                    ->modalContent(fn (Book $record) => view('filament.actions.share-options', ['record' => $record]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Fermer'),
+*/                    
 
             ])
             ->defaultPaginationPageOption(50)
@@ -396,7 +413,10 @@ class BookResource extends Resource
                         Infolists\Components\TextEntry::make('is_borrowed')
                             ->label('Retour prévu le')
                             ->state(function (Book $record): string {
-                                return \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y');
+                                if ($record->getLastLoan()) {
+                                    return \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y');
+                                }
+                                return 'Non renseigné';
                             })                            
                     ])
                     ->columns(2)
@@ -419,6 +439,8 @@ class BookResource extends Resource
                             ->label('Année de publication'),
                         Infolists\Components\TextEntry::make('publisher')
                             ->label('Editeur'),
+                        Infolists\Components\TextEntry::make('isbn')
+                            ->label('ISBN'),
                     ])
                     ->id('informations')
                     ->icon('heroicon-o-information-circle')

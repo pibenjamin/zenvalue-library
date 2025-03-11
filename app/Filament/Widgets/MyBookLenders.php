@@ -28,9 +28,9 @@ class MyBookLenders extends BaseWidget
         ->query(
             Loan::query()
                 ->where('borrower_id', auth()->id())
-                ->whereIn('status', ['returned'])
+                ->whereIn('loans.status', ['returned'])
                 ->latest('borrowed_at')
-                ->join('books', 'loans.book_id', '=', 'books.id')
+                ->join('books as books', 'loans.book_id', '=', 'books.id')
                 ->join('users as lenders', 'books.owner_id', '=', 'lenders.id')
                 ->selectRaw('lenders.id, lenders.name, COUNT(*) as total_books')
                 ->groupBy('lenders.id', 'lenders.name')
@@ -47,7 +47,7 @@ class MyBookLenders extends BaseWidget
             Tables\Columns\TextColumn::make('total_books')
                 ->label('Nombre de livres empruntés')
                 ->sortable(),
-        ])
+            ])
         ->paginated([3, 'all']);
     }
 

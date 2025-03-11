@@ -9,11 +9,20 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use DOMDocument;
 use DOMXPath;
+use App\Services\OpenLibraryService;
 
 class SearchOL extends Command
 {
     protected $signature = 'book:search-ol {title}';
     protected $description = 'Recherche un livre par titre sur OpenLibrary';
+
+    protected $openLibraryService;
+
+    public function __construct(OpenLibraryService $openLibraryService)
+    {
+        parent::__construct();
+        $this->openLibraryService = $openLibraryService;
+    }
 
     public function handle()
     {
@@ -46,17 +55,7 @@ class SearchOL extends Command
 
                     $this->info('recherche avec la clé: '.$doc['key']);
 
-                    $pageContent =  file_get_contents("https://openlibrary.org{$doc['key']}");
-
-
-                    $dom = new DOMDocument();
-                    libxml_use_internal_errors(true);
-                    $dom->loadHTML($pageContent);
-                    libxml_clear_errors();
-
-
-                    
-                    $htmlString = $dom->saveHTML();
+                    $htmlString = $this->openLibraryService->getBookPage($doc['key']);
 
                     $slugTitle = Str::slugify($doc['title']);
                     // enregistrer le contenu de la page dans un fichier html
