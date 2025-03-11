@@ -51,6 +51,9 @@ use App\Filament\Widgets\UserStatsWidgets;
 use App\Filament\Widgets\LatestBooksAddedWidgets;
 use App\Filament\Widgets\WhoIBorrowedFrom;
 use Filament\Navigation\NavigationBuilder;
+use App\Filament\Widgets\Borrowers;
+
+use Illuminate\Support\Facades\App;
 
 
 class AdminPanelProvider extends PanelProvider
@@ -106,6 +109,7 @@ class AdminPanelProvider extends PanelProvider
                 UserStatsWidgets::class,
                 BookTagCloud::class,
                 WhoBorrowedMyBooks::class,
+                Borrowers::class,
                 //WhoIBorrowedFrom::class,
             ])
             // Middleware de sécurité et fonctionnalités

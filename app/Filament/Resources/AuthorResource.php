@@ -48,6 +48,7 @@ class AuthorResource extends Resource
                     ->label('ID')
                     ->sortable()
                     ->visible(fn (User $user) => auth()->user()->hasAnyRole(['super_admin', 'admin'])),
+                    
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nom')
                     ->searchable()

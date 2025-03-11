@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\AdminConfirmReturn;
 
 
-
 class LoanService
 {
     public function extendLoan(Loan $loan, int $months = 1): void
