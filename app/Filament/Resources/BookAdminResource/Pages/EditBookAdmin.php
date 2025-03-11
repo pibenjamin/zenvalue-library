@@ -32,7 +32,6 @@ class EditBookAdmin extends EditRecord
                     ['record' => $record,
                      'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
                 ))
-                ->modalSubmitActionLabel('Valider et ajouter au catalogue')
                 ->modalCancelActionLabel('Fermer')
                 ->action(function (Book $record) {
 
