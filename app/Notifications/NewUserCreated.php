@@ -35,7 +35,7 @@ class NewUserCreated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('[Bibliothèque Zen Value] Nouveau compte créé')
+                    ->subject('['.config('app.name').'] Nouveau compte créé')
                     ->line('Un nouveau compte a été créé.')
                     ->line('Email: '.$this->user->email)
                     ->action('Activer le compte', url('/admin/users/'.$this->user->id.'/edit'));

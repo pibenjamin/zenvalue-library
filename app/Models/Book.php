@@ -10,10 +10,35 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Book extends Model
 {
 
+    const STATUS_CONTRIBUTION_TO_QUALIFY          = 'contribution_to_qualify';
+    const STATUS_CONTRIBUTION_QUALIFIED           = 'contribution_qualified';
+    const STATUS_CONTRIBUTION_REJECTED            = 'contribution_rejected';
+    const STATUS_ON_SHELF                         = 'on_shelf';
+    const STATUS_BORROWED                         = 'borrowed';
+    const STATUS_MISSING                          = 'missing';
+
     const DIFFICULTY_LEVEL_EASY         = 'easy';
     const DIFFICULTY_LEVEL_MEDIUM       = 'medium';
     const DIFFICULTY_LEVEL_HARD         = 'hard';
     const DIFFICULTY_LEVEL_EXPERT       = 'expert';
+
+    private const STATUS_LABELS = [
+        self::STATUS_CONTRIBUTION_TO_QUALIFY => 'Contribution à qualifier',
+        self::STATUS_CONTRIBUTION_QUALIFIED  => 'Contribution qualifiée',
+        self::STATUS_CONTRIBUTION_REJECTED   => 'Contribution rejetée',
+        self::STATUS_ON_SHELF                => 'Sur étagère',
+        self::STATUS_BORROWED                => 'Emprunté',
+        self::STATUS_MISSING                 => 'Manquant',
+    ];
+
+    private const STATUS_COLORS = [
+        self::STATUS_CONTRIBUTION_TO_QUALIFY => 'warning',
+        self::STATUS_CONTRIBUTION_QUALIFIED  => 'blue',
+        self::STATUS_CONTRIBUTION_REJECTED   => 'danger',
+        self::STATUS_ON_SHELF                => 'success',
+        self::STATUS_BORROWED                => 'danger',
+        self::STATUS_MISSING                 => 'danger',
+    ];
 
     private const DIFFICULTY_LABELS = [
         self::DIFFICULTY_LEVEL_EASY     => 'Facile',
@@ -52,7 +77,8 @@ class Book extends Model
         'amazon_content_page',
         'tags',
         'ol_key',
-        'lang'
+        'lang',
+        'status'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',
@@ -112,6 +138,26 @@ class Book extends Model
     public static function getDifficulties(): array
     {
         return self::DIFFICULTY_LABELS;
+    }
+
+    public static function getStatusLabels(): array
+    {
+        return self::STATUS_LABELS;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return self::STATUS_LABELS[$this->status] ?? 'Non défini';
+    }
+
+    public static function getStatusColors(): array
+    {
+        return self::STATUS_COLORS;
+    }
+
+    public function getStatusColor(): string
+    {
+        return self::STATUS_COLORS[$this->status] ?? 'secondary';
     }
 
     public function getDifficultyLabel(): string

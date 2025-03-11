@@ -9,6 +9,7 @@ use App\Notifications\UrgentOverdueNotification;
 use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\Loan;
+
 class SendLoanReminders extends Command
 {
     protected $signature = 'loans:send-reminders';
