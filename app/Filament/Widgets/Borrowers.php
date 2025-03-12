@@ -13,13 +13,16 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
+
 class Borrowers extends BaseWidget
 {
     use HasWidgetShield;
 
     protected int|string|array $columnSpan = 'full';
-    protected static ?string $title = 'Ils empruntent ou ont emprunté vos livres';
     protected static ?bool $collapsible = true;
+
+    protected static ?int $sort = 1; // Position après le FilamentInfoWidget
+
 
     public function table(Table $table): Table
     {
@@ -47,6 +50,13 @@ class Borrowers extends BaseWidget
                     })
                     ->tooltip(fn (Loan $record): string => $record->book->title)
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Date d\'emprunt')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
+
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Statut')
                     ->badge()

@@ -43,6 +43,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Support\Enums\ActionSize;
 
+// Widgets
+
 class LoanResource extends Resource
 {
     protected static ?string $model             = Loan::class;
@@ -50,6 +52,9 @@ class LoanResource extends Resource
     protected static ?string $pluralModelLabel  = 'Emprunts';
     protected static ?string $navigationGroup   = 'Gestion des prêts';
     protected static ?string $navigationIcon    = 'heroicon-o-shopping-bag';
+
+
+
 
     public static function getNavigationLabel(): string
     {
@@ -330,5 +335,8 @@ class LoanResource extends Resource
             'edit' => Pages\EditLoan::route('/{record}/edit'),
         ];
     }
+
+
+
 
 }

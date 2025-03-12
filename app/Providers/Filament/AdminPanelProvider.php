@@ -108,7 +108,6 @@ class AdminPanelProvider extends PanelProvider
                 AdminWidgets::class,
                 UserStatsWidgets::class,
                 BookTagCloud::class,
-                WhoBorrowedMyBooks::class,
                 Borrowers::class,
                 //WhoIBorrowedFrom::class,
             ])
