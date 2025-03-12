@@ -53,9 +53,6 @@ class LoanResource extends Resource
     protected static ?string $navigationGroup   = 'Gestion des prêts';
     protected static ?string $navigationIcon    = 'heroicon-o-shopping-bag';
 
-
-
-
     public static function getNavigationLabel(): string
     {
         return auth()->user()?->hasAnyRole(['admin', 'super_admin']) 
@@ -114,7 +111,7 @@ class LoanResource extends Resource
                     ->label('Emprunteur')
                     ->relationship('borrower', 'name')
                     ->required(),
-                
+         
                 Forms\Components\Select::make('book_id')
                     ->label('Ouvrage')
                     ->relationship('book', 'title')
