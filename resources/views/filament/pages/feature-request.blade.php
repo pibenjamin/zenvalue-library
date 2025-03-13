@@ -3,7 +3,7 @@
         <div class="prose dark:prose-invert max-w-none">
             <div class="space-y-8">
                 <div>
-                    <h3>Gestion des livres</h3>
+                    <h3>Demander une évolution</h3>
                     <div class="space-y-4">
                         <p>Pour toute demande de nouvelles fonctionnalités, vous pouvez créer une demande sur notre board Jira.</p>
                         <p>Pour cela, cliquez sur le bouton ci-dessous :</p>
