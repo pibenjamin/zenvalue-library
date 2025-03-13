@@ -12,3 +12,9 @@ Schedule::command('loans:send-reminders')
     ->dailyAt('09:00')
     ->appendOutputTo($filePath)
     ->emailOutputTo('benjaminpiscart@gmail.com');
+
+
+Schedule::command('schema:dump')
+    ->dailyAt('00:00');
+
+    

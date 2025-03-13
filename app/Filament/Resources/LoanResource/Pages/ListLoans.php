@@ -10,6 +10,7 @@ class ListLoans extends ListRecords
 {
     protected static string $resource = LoanResource::class;
 
+
     protected function getHeaderActions(): array
     {
         return [

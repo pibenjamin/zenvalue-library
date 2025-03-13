@@ -32,7 +32,6 @@ class SendLoanReminders extends Command
 
     protected function sendFirstReminders()
     {
-        $this->info(" Start sendFirstReminders");
 
         $loans = $this->reminderService->getLoansDueForFirstReminder();
 
@@ -40,6 +39,8 @@ class SendLoanReminders extends Command
             $this->info("No loans due for first reminder");
             return;
         }
+
+        $this->info(" Start sendFirstReminders");
 
         $this->info("Sending first notification for " . $loans->count() . " loans");
         
@@ -70,7 +71,6 @@ class SendLoanReminders extends Command
 
     protected function sendRecurringReminders()
     {
-        $this->info(" Start sendRecurringReminders");
 
         $loans = $this->reminderService->getLoansNeedingRecurringReminder();
 
@@ -78,6 +78,8 @@ class SendLoanReminders extends Command
             $this->info("No loans due for recurring reminder");
             return;
         }
+
+        $this->info(" Start sendRecurringReminders");
         
         foreach ($loans as $loan) {
             $daysOverdue = (int) floor($loan->to_be_returned_at->diffInDays(now()));
@@ -102,14 +104,14 @@ class SendLoanReminders extends Command
 
     protected function sendUrgentNotifications()
     {
-        $this->info(" Start sendUrgentNotifications");
-
         $loans      = $this->reminderService->getLoansOverdueByMonth();
 
         if($loans->count() === 0) {
             $this->info("No loans due for urgent notification");
             return;
         }
+
+        $this->info(" Start sendUrgentNotifications");
 
         $librarians = User::whereIn('role_id', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN])->get();
         

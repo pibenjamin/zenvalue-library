@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "bezhansalleh/filament-shield": "^3.3",
+        "dragon-code/laravel-data-dumper": "^1.4",
         "filament/actions": "^3.2",
         "filament/filament": "3.2.136",
         "laravel/framework": "^11.31",
@@ -15,6 +16,9 @@
         "livewire/livewire": "3.5.12",
         "mokhosh/filament-rating": "^1.4",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "symfony/browser-kit": "^7.2",
+        "symfony/css-selector": "^7.2",
+        "symfony/http-client": "^7.2",
         "symfony/intl": "^7.2",
         "thiagoalessio/tesseract_ocr": "^2.13"
     },

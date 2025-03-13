@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
@@ -133,6 +134,22 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function hasRated(Book $book): bool
     {
         return $this->ratings()->where('book_id', $book->id)->exists();
+    }
+
+    public static function hasBorrowedFromUser(int $userId)
+    {
+        return User::query()
+            ->select([
+                'users.id',
+                'users.name',
+                'users.email',
+                DB::raw('COUNT(DISTINCT loans.id) as loans_count')
+            ])
+            ->join('loans', 'users.id', '=', 'loans.borrower_id')
+            ->join('books', 'loans.book_id', '=', 'books.id')
+            ->where('books.owner_id', $userId)
+            ->groupBy('users.id', 'users.name', 'users.email')
+            ->get();
     }
 
 

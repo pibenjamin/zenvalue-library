@@ -43,6 +43,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Support\Enums\ActionSize;
 
+// Widgets
+
 class LoanResource extends Resource
 {
     protected static ?string $model             = Loan::class;
@@ -109,7 +111,7 @@ class LoanResource extends Resource
                     ->label('Emprunteur')
                     ->relationship('borrower', 'name')
                     ->required(),
-                
+         
                 Forms\Components\Select::make('book_id')
                     ->label('Ouvrage')
                     ->relationship('book', 'title')
@@ -330,4 +332,8 @@ class LoanResource extends Resource
             'edit' => Pages\EditLoan::route('/{record}/edit'),
         ];
     }
+
+
+
+
 }

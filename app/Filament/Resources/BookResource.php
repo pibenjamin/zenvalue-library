@@ -136,6 +136,7 @@ class BookResource extends Resource
 
                 Forms\Components\FileUpload::make('cover_url')
                     ->label('Couverture')
+                    ->directory('books/covers')
                     ->maxSize(5120) // 5MB
                     ->columnSpanFull(),
 
@@ -216,7 +217,7 @@ class BookResource extends Resource
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
                     ->sortable()
-                    ->defaultImageUrl(url('/storage/book-placeholder.jpeg'))
+                    ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
                     ->height(75)
                     ->alignment(Alignment::Center),
                 
@@ -228,6 +229,7 @@ class BookResource extends Resource
                     ->label('Portraits')
                     ->circular()
                     ->stacked()
+                    ->toggleable()
                     ->tooltip(fn (Book $record): string => $record->authors->pluck('name')->implode(', '))
                     ->height(50),
 
@@ -251,6 +253,7 @@ class BookResource extends Resource
                             '&color=FFFFFF&background=09090b') 
                         : url('/avatar/default-avatar.png'))
                     ->tooltip(fn (Book $record): string => $record->owner->name)
+                    ->toggleable()
                     ->height(50),
 
                 TextColumn::make('difficulty_level')
@@ -260,6 +263,7 @@ class BookResource extends Resource
                     ->state(function ($record): string {
                         return $record->getDifficultyLabel();
                     })
+                    ->toggleable()
                     ->color(fn (Book $record): string => $record->getDifficultyColor()),
 
                 TextColumn::make('tags.title')
@@ -271,6 +275,7 @@ class BookResource extends Resource
                     ->badge()
                     ->color('gray')
                     ->wrap()
+                    ->toggleable()
                     ->searchable(),
 
                 Tables\Columns\ViewColumn::make('rating_avg_rate')
@@ -303,7 +308,7 @@ class BookResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('borrow')
-                    ->label(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous empruntez ce livre' : 'Emprunter')
+                    ->label('Emprunter')
                     ->color('success')
                     ->icon('heroicon-s-shopping-bag')
                     ->requiresConfirmation()
