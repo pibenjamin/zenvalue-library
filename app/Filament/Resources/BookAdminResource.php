@@ -404,6 +404,11 @@ class BookAdminResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     //Pages\ListBookAdmins::bulkAddTagsAction(),
+                    BulkAction::make('put_on_shelf')
+                        ->label('Mettre sur étagère')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each->putOnShelf())
+                        ->modalDescription('Voulez-vous vraiment mettre ces livres à qualifier ?'),
                 ]),
 
             ])

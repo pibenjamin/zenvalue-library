@@ -90,6 +90,13 @@ class Book extends Model
         'amazon_content_page' => 'string'
     ];
 
+
+    public function putOnShelf()
+    {
+        $this->status = Book::STATUS_ON_SHELF;
+        $this->save();
+    }
+
     public function authors(): BelongsToMany
     {
         return $this->belongsToMany(Author::class, 'author_books');
