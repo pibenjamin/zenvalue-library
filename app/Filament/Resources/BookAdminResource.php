@@ -56,7 +56,9 @@ use Closure;
 use Filament\Icons\Icon;
 use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
+use Filament\Forms\Set;
 
+use App\Services\ImportBookData;
 
 class BookAdminResource extends Resource
 {
@@ -169,12 +171,19 @@ class BookAdminResource extends Resource
                                 );
                             })
                             ->prefixIcon('heroicon-o-globe-alt')
-                            ->disabled(fn (Book $record): bool => $record->cal_page === 'parsed')
-                            ->maxLength(255)
-                            ->default(null),
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('importFromCalPage')
+                                    ->label('Importer les informations')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->disabled(fn (Book $record): bool => $record->cal_page === 'parsed')
+                                    ->action(function (Book $record) {
+                                        app(ImportBookData::class)->importFromCalPage($record);
+//                                        $this->refreshFormData([
+//                                            'title',
+//                                        ]);
 
-                        Forms\Components\TextInput::make('lang')
-                            ->label('Langue'),
+                                    }),
+                        ),
 
                         Forms\Components\FileUpload::make('cover_url')
                             ->label('Couverture')
