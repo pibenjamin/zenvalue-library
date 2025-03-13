@@ -55,6 +55,7 @@ use Illuminate\Support\Str;
 use Closure;    
 use Filament\Icons\Icon;
 use Filament\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 
 class BookAdminResource extends Resource
@@ -156,6 +157,17 @@ class BookAdminResource extends Resource
 
                         Forms\Components\TextInput::make('cal_page')
                             ->label('Page sur chasse aux livres')
+                            ->helperText(function ($record) {
+                                if (!$record) return null;
+                                return new HtmlString(
+                                    '<a href="https://www.chasse-aux-livres.fr" 
+                                        target="_blank" 
+                                        class="text-success-600 hover:text-success-500 hover:underline"
+                                    >
+                                        Voir la page sur www.chasse-aux-livres.fr
+                                    </a>'
+                                );
+                            })
                             ->prefixIcon('heroicon-o-globe-alt')
                             ->disabled(fn (Book $record): bool => $record->cal_page === 'parsed')
                             ->maxLength(255)
