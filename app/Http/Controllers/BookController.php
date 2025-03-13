@@ -35,6 +35,8 @@ class BookController extends Controller
 
     public function printQrCodes(Request $request)
     {
+        set_time_limit(300);
+
         $this->canAccess();
 
         $books      = Book::all();

@@ -46,6 +46,8 @@ class CustomLogin extends Login
         }
 
         $user = Filament::auth()->user();
+        $user->last_login_at = now();
+        $user->save();
         
         if (! $user->is_activated) {
             Filament::auth()->logout();

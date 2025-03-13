@@ -122,11 +122,19 @@ class UserResource extends Resource
                     ->defaultImageUrl(url('/storage/avatars/default-avatar.png'))
                     ->height(50),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                    Tables\Columns\TextColumn::make('updated_at')
                     ->label('Modifié le')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
+
+                Tables\Columns\TextColumn::make('last_login_at')
+                    ->label('Dernière connexion')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
                     ->searchable(),

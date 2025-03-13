@@ -49,6 +49,10 @@ Route::get('/acquisition-request', function () {
     return view('filament.mockups.acquisition-request');
 });
 
+Route::get('/tutoriels', function () {
+    return view('tutorials');
+})->name('tutorials');    
+
 
 Route::post('/process-image', [LoanController::class, 'processImage'])->name('process-image');
 Route::post('/extract-isbn', [LoanController::class, 'extractISBNFromImage'])->name('extract-isbn');
