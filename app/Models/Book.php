@@ -33,7 +33,7 @@ class Book extends Model
 
     private const STATUS_COLORS = [
         self::STATUS_CONTRIBUTION_TO_QUALIFY => 'warning',
-        self::STATUS_CONTRIBUTION_QUALIFIED  => 'blue',
+        self::STATUS_CONTRIBUTION_QUALIFIED  => 'stone',
         self::STATUS_CONTRIBUTION_REJECTED   => 'danger',
         self::STATUS_ON_SHELF                => 'success',
         self::STATUS_BORROWED                => 'danger',
@@ -78,7 +78,8 @@ class Book extends Model
         'tags',
         'ol_key',
         'lang',
-        'status'
+        'status',
+        'cal_page'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',

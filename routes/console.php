@@ -13,6 +13,8 @@ Schedule::command('loans:send-reminders')
     ->appendOutputTo($filePath)
     ->emailOutputTo('benjaminpiscart@gmail.com');
 
+Schedule::command('app:search-isbn-cal')
+    ->hourly();
 
 Schedule::command('schema:dump')
     ->dailyAt('00:00');

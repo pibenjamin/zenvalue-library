@@ -149,6 +149,13 @@ class BookAdminResource extends Resource
                             ->maxLength(255)
                             ->default(null),
 
+                        Forms\Components\TextInput::make('cal_page')
+                            ->label('Page sur chasse aux livres')
+                            ->prefixIcon('heroicon-o-globe-alt')
+                            ->disabled(fn (Book $record): bool => $record->cal_page === 'parsed')
+                            ->maxLength(255)
+                            ->default(null),
+
                         Forms\Components\TextInput::make('lang')
                             ->label('Langue'),
 
@@ -262,7 +269,6 @@ class BookAdminResource extends Resource
                 
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
-                    ->url(fn (Book $record): string => $record->cover_url ? $record->cover_url : url('/books/covers/book-placeholder.jpeg'))
                     ->sortable()
                     ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
                     ->height(75),

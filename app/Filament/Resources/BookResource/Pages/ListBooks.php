@@ -14,7 +14,7 @@ use App\Models\Rating;
 use App\Models\Book;
 use Mokhosh\FilamentRating\Components\Rating as RatingComponent;
 use Filament\Notifications\Notification;
-
+use Illuminate\Support\HtmlString;
 class ListBooks extends ListRecords
 {
     protected static string $resource = BookResource::class;
@@ -48,6 +48,22 @@ class ListBooks extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        $image = asset('images/poster-livre-a-qualifier.png');
+        $html = <<<HTML
+        <div>
+            <p>Merci de renseigner le numéro ISBN de votre livre, il se 
+            trouve généralement au dos du livre en dessous du code barre.</p>
+            <p>Vous pourrez ensuite déposer votre livre dans le bureau, dans l'espace "livres à qualifier" sous ce poster :</p>
+            <div class="text-center">
+                <img src="$image" alt="Poster livres à qualifier" 
+                     style="height: 100px; border: 1px solid black; margin: 10px auto;"
+                >
+            </div>
+            <p>Notre équipe confirmera l'ajout de votre livre au catalogue et vous pourrez suivre les emprunts via l'application.</p>
+            <p>Merci pour votre contribution à la bibliothèque !</p>
+        </div>
+        HTML;
+
         return [
             Actions\CreateAction::make(),
             Actions\Action::make('contribute')
@@ -56,7 +72,7 @@ class ListBooks extends ListRecords
                 ->color('primary')
                 ->tooltip('Ajouter un de mes livres au catalogue')
                 ->modalHeading('Ajouter un livre')
-                ->modalDescription('Merci de renseigner le numéro ISBN de votre livre, il se trouve généralement au dos du livre en dessous du code barre.<br> Merci de déposer le livre dans la zone de la bibliothèque "Retour et nouveautés"')
+                ->modalDescription(fn (): HtmlString => new HtmlString($html))
                 ->form([
                     TextInput::make('isbn')
                         ->label('ISBN')
