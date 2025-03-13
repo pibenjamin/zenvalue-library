@@ -91,20 +91,19 @@ class EditBookAdmin extends EditRecord
         // Générer un nom de fichier unique
         $filename = 'books/covers/' . (string) Str::uuid() . '.jpg';
 
-            // Sauvegarder dans le storage
-            Storage::disk('public')->put(
-                '/' . $filename,
-                $image
-            );
-            
-            // Mettre à jour le record
-            $record->cover_url = $filename;
-            $record->save();
-            
-            Notification::make()
-                ->title('Image de couverture mise à jour')
-                ->success()
-                ->send();
-
+        // Sauvegarder dans le storage
+        Storage::disk('public')->put(
+            '/' . $filename,
+            $image
+        );
+        
+        // Mettre à jour le record
+        $record->cover_url = $filename;
+        $record->save();
+        
+        Notification::make()
+            ->title('Image de couverture mise à jour')
+            ->success()
+            ->send();
     }
 }
