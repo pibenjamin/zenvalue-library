@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
-
     const STATUS_CONTRIBUTION_TO_QUALIFY          = 'contribution_to_qualify';
     const STATUS_CONTRIBUTION_QUALIFIED           = 'contribution_qualified';
     const STATUS_CONTRIBUTION_REJECTED            = 'contribution_rejected';

@@ -127,6 +127,11 @@ class BookAdminResource extends Resource
                             ->maxLength(255)
                             ->default(null),
 
+                        Forms\Components\TextInput::make('lang')
+                            ->label('Langue')
+                            ->maxLength(255)
+                            ->default(null),
+
                         Forms\Components\TextInput::make('year_of_publication')
                             ->label('Année de publication')
                             ->numeric()
@@ -403,6 +408,14 @@ class BookAdminResource extends Resource
                         'true' => 'Oui',
                         'false' => 'Non',
                     ]),
+
+                Tables\Filters\SelectFilter::make('lang')
+                    ->label('Langue')
+                    ->options([
+                        'fr' => 'Français',
+                        'en' => 'Anglais',
+                    ])
+                    ->default(null),                    
 
                 Filter::make('isbn')
                     ->form([

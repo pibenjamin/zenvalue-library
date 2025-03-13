@@ -355,13 +355,22 @@ class BookResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('id')
                     ->label('ID')
-                    ->options(Book::all()->pluck('id', 'id')),                    
+                    ->options(Book::all()->pluck('id', 'id')),  
+                                     
                 Tables\Filters\SelectFilter::make('is_borrowed')
                     ->label('Emprunté')
                     ->options([
                         'true' => 'Oui',
                         'false' => 'Non',
                     ]),
+
+                Tables\Filters\SelectFilter::make('lang')
+                    ->label('Langue')
+                    ->options([
+                        'fr' => 'Français',
+                        'en' => 'Anglais',
+                    ])
+                    ->default(null),
 
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
