@@ -21,8 +21,14 @@ class ListBookAdmins extends ListRecords
 {
     protected static string $resource = BookAdminResource::class;
 
-
-
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\CreateAction::make()
+                ->label('Ajouter un livre')
+                ->icon('heroicon-o-plus')
+        ];
+    }
     public static function bulkAddTagsAction(): Action
     {
         return Action::make('bulkAddTagsAction')

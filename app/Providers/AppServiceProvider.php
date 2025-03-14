@@ -51,7 +51,8 @@ class AppServiceProvider extends ServiceProvider
                 'Œ|Æ' => 'OE',
                 
                 // Caractères spéciaux
-                '«|»|„|"|"|\'|\'' => '',
+                '«|»|„|"|"' => '',
+                '\'|\'' => '-',
                 '\s+' => '-',
             ];
 

@@ -175,13 +175,10 @@ class BookAdminResource extends Resource
                                 Forms\Components\Actions\Action::make('importFromCalPage')
                                     ->label('Importer les informations')
                                     ->icon('heroicon-o-arrow-down-tray')
-                                    ->disabled(fn (Book $record): bool => $record->cal_page === 'parsed')
-                                    ->action(function (Book $record) {
+                                    ->disabled(fn (?Book $record): bool => !$record || $record->cal_page === 'parsed')
+                                    ->action(function (?Book $record) {
+                                        if (!$record) return;
                                         app(ImportBookData::class)->importFromCalPage($record);
-//                                        $this->refreshFormData([
-//                                            'title',
-//                                        ]);
-
                                     }),
                         ),
 
@@ -253,7 +250,13 @@ class BookAdminResource extends Resource
        
                         Forms\Components\Toggle::make('is_borrowed')
                             ->label('Emprunté')
-                            ->helperText(fn(Book $record): string => $record->is_borrowed ? "jusqu'au " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') : 'Ce livre est actuellement disponible')
+                            ->helperText(fn(?Book $record): string => 
+                            !$record ? 'Ce livre sera disponible une fois créé' :
+                            ($record->is_borrowed ? 
+                                "jusqu'au " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') : 
+                                'Ce livre est actuellement disponible'
+                            )
+                        )
                             ->required(),
                     ])
                     ->columns(4)
