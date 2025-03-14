@@ -316,6 +316,16 @@ class BookAdminResource extends Resource
                     ->wrap()
                     ->searchable(),
 
+                TextColumn::make('lang')
+                    ->label('Langue')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->lang ?? '?';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+
                 TextColumn::make('cal_page')
                     ->label('Page c.a.l.')
                     ->toggleable(isToggledHiddenByDefault: true),

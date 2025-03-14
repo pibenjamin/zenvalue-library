@@ -226,6 +226,15 @@ class BookResource extends Resource
                     ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
                     ->height(75)
                     ->alignment(Alignment::Center),
+
+                TextColumn::make('lang')
+                    ->label('Langue')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->lang ?? '?';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 TextColumn::make('year_of_publication')
                     ->label('Année')
