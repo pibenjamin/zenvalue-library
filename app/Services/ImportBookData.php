@@ -37,6 +37,13 @@ class ImportBookData
             $content = $browser->getResponse()->getContent();
 
             if (empty($content)) {
+                $message = 'Le contenu de la page n\'a pas été trouvé pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Contenu de la page non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
                 return;
             }
 
@@ -44,8 +51,11 @@ class ImportBookData
             $authorCrawler = $crawler;
 
             // Première recherche (auteurs)
-            $authorNodes = $authorCrawler->filterXPath('//div[contains(text(), "Auteur(s)")]/a');
+            $authorNodes = $authorCrawler->filterXPath('//div[contains(text(), "Auteur(s)")]')
+            ->ancestors()->filter('a')->first();
+
             if ($authorNodes->count() > 0) {
+                
                 $authors = $authorNodes->each(function ($node) {
                     return $node->text();
                 });
@@ -62,7 +72,15 @@ class ImportBookData
                     }
                 }
             }
-
+            else {
+                $message = 'Les auteurs n\'ont pas été trouvés pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Auteurs non trouvés')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+            }
 
 
             $pagesCrawler = $crawler;
@@ -75,22 +93,33 @@ class ImportBookData
                     $book->pages = $pages;
                 }
             }
-            
-
+            else {
+                $message = 'Le nombre de pages n\'a pas été trouvé pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Nombre de pages non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+            }
 
             $isbnCrawler = $crawler;
             $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]')->attr('data-ean');
+
+
+
             if (!$isbnNode) {
+                $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title; 
                 Notification::make()
                     ->title('ISBN non trouvé')
-                    ->body('L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title)
+                    ->body($message)
                     ->danger()
                     ->send();
+                Log::error($message);
             }
             if($isbnNode) {
                 $book->isbn = $isbnNode;
             }
-
 
             $dateCrawler = $crawler;
             $dateNode = $dateCrawler->filterXPath('//div[contains(text(), "Date de publication")]/text()');
@@ -99,14 +128,21 @@ class ImportBookData
                     $year = $matches[1];
                     $book->year_of_publication = $year;
                 }
-
             }
-            
 
             $dimensionsCrawler = $crawler;
             $dimensionsNode = $dimensionsCrawler->filterXPath('//div[@id="dimensions"]//p[contains(text(), "cm")]');
             if ($dimensionsNode->count() > 0) {
                 $book->dimensions = $dimensionsNode->text();
+            }
+            else {
+                $message = 'Les dimensions n\'ont pas été trouvées pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Dimensions non trouvées')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
             }
 
             $publishedCrawler = $crawler;
@@ -114,11 +150,29 @@ class ImportBookData
             if ($publishedNode->count() > 0) {
                 $book->publisher = $publishedNode->text();
             }
+            else {
+                $message = 'L\'éditeur n\'a pas été trouvé pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Éditeur non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+            }
 
             $titleCrawler = $crawler;
             $titleNode = $titleCrawler->filterXPath('//div[@id="book-title-and-details"]//h1');
             if ($titleNode->count() > 0) {
                 $book->title = $titleNode->text();
+            }
+            else {
+                $message = 'Le titre n\'a pas été trouvé pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Titre non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
             }
 
             $langCrawler = $crawler;
@@ -134,14 +188,28 @@ class ImportBookData
             elseif($lang == 'Français') {
                 $lang = 'fr';
             }  
-            
-            
+            else {
+                $message = 'La langue n\'a pas été trouvée pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Langue non trouvée')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+            }
+
             $book->lang = $lang;
 
             $coverCrawler = $crawler;
             $coverNode = $coverCrawler->filterXPath('//img[@id="book-cover"]')->attr('src');
             if (!$coverNode) {
-                throw new \Exception('Image de couverture non trouvée');
+                $message = 'L\'image de couverture n\'a pas été trouvée pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Image de couverture non trouvée')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
             }
 
             $response = Http::withOptions([
@@ -149,7 +217,13 @@ class ImportBookData
             ])->get($coverNode);
     
             if (!$response->successful()) {
-                throw new \Exception('Failed to download image');
+                $message = 'Failed to download image for book ' . $book->title;
+                Notification::make()
+                    ->title('Image de couverture non téléchargée')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
             }
     
             $image = $response->body();
@@ -163,10 +237,21 @@ class ImportBookData
                 $image
             );
 
-
+            if (!$fileSaved) {
+                $message = 'L\'image de couverture n\'a pas été téléchargée pour le livre ' . $book->title;
+                Notification::make()
+                    ->title('Image de couverture non téléchargée')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+            }
+            
             $book->cover_url = $filename;
 
-            //$book->cal_page = 'parsed';
+            $book->status = Book::STATUS_CONTRIBUTION_QUALIFIED;
+
+            $book->cal_page = 'parsed';
 
             $book->slug = Str::slugify($book->title);
 
