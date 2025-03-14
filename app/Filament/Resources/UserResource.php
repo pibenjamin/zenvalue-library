@@ -45,7 +45,11 @@ class UserResource extends Resource
         
         if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
     
-            return $counts;
+            if($counts > 0){
+                return $counts;
+            }
+
+            return '';
         }
     }
 

@@ -14,14 +14,10 @@ class BookTagCloud extends Widget
     protected static string $view = 'filament.widgets.book-tag-cloud';
     protected int|string|array $columnSpan = 'full';
 
-
     protected function getHeading(): ?string
     {
         return 'Nuage de mots-clés';
     }
-
-
-    
 
     public function getViewData(): array
     {
@@ -38,7 +34,7 @@ class BookTagCloud extends Widget
             // Filtrer les mots courts et les mots vides
             $stopWords = [
                 'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'en', 'au', 'aux', 'for', 'how', 'what', 'and',
-                'l', 'd', 'j', 'n', 'm', 't', 's', 'c', 'qu', 'avec', 'the', 'pour', 'est', 'sont', 'dans'
+                'l', 'd', 'j', 'n', 'm', 't', 's', 'c', 'qu', 'avec', 'the', 'pour', 'est', 'sont', 'dans', 'plus', 'ont', 'qui'
             ];
             
             $filteredWords = array_filter($titleWords, function ($word) use ($stopWords) {

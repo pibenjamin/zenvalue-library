@@ -7,12 +7,13 @@
                     <div class="space-y-4">
                         <p>Pour toute demande de nouvelles fonctionnalités, vous pouvez créer une demande sur notre board Jira.</p>
                         <p>Pour cela, cliquez sur le bouton ci-dessous :</p>
-                        <x-filament::button 
+                        <x-filament::button
                             tag="a"
                             href="https://zenvalue-team-imlfyq1f.atlassian.net/jira/software/projects/ZENLIB/boards/67" 
                             target="_blank"
                             rel="noopener noreferrer"
                             icon="heroicon-o-ticket"
+                            class="hover:no-underline !no-underline"
                         >
                             Créer une demande
                         </x-filament::button>
