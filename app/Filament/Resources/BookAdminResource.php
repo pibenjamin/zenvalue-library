@@ -77,7 +77,7 @@ class BookAdminResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $booksToQualify = Book::where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)->count();
+        $booksToQualify = Book::where('status', Book::STATUS_TO_QUALIFY)->count();
         if($booksToQualify > 0){
             return $booksToQualify;
         }
@@ -279,6 +279,11 @@ class BookAdminResource extends Resource
                             ->onColor('success')
                             ->offColor('danger')
                             ->default(false),
+
+                        Forms\Components\Select::make('status')
+                            ->label('Statut')
+                            ->options(Book::getStatusLabels())
+                            ->default(Book::STATUS_QUALIFIED),
        
                         Forms\Components\Toggle::make('is_borrowed')
                             ->label('Emprunté')
@@ -500,6 +505,18 @@ class BookAdminResource extends Resource
                         'en' => 'Anglais',
                     ])
                     ->default(null),                    
+
+                Filter::make('lang_null')
+                    ->form([
+                        Forms\Components\Checkbox::make('lang_null')
+                            ->label('Langue non renseignée'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['lang_null'],
+                            fn (Builder $query): Builder => $query->whereNull('lang')
+                        );
+                    }),
 
                 Filter::make('isbn')
                     ->form([

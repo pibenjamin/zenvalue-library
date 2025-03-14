@@ -51,8 +51,7 @@ class ImportBookData
             $authorCrawler = $crawler;
 
             // Première recherche (auteurs)
-            $authorNodes = $authorCrawler->filterXPath('//div[contains(text(), "Auteur(s)")]')
-            ->ancestors()->filter('a')->first();
+            $authorNodes = $authorCrawler->filterXPath('//div[contains(text(), "Auteur(s)")]/a');
 
             if ($authorNodes->count() > 0) {
                 
@@ -249,7 +248,7 @@ class ImportBookData
             
             $book->cover_url = $filename;
 
-            $book->status = Book::STATUS_CONTRIBUTION_QUALIFIED;
+            $book->status = Book::STATUS_TO_QUALIFY;
 
             $book->cal_page = 'parsed';
 

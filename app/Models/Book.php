@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
-    const STATUS_CONTRIBUTION_TO_QUALIFY          = 'contribution_to_qualify';
-    const STATUS_CONTRIBUTION_QUALIFIED           = 'contribution_qualified';
-    const STATUS_CONTRIBUTION_REJECTED            = 'contribution_rejected';
+    const STATUS_TO_QUALIFY          = 'to_qualify';
+    const STATUS_QUALIFIED           = 'qualified';
+    const STATUS_REJECTED            = 'rejected';
     const STATUS_ON_SHELF                         = 'on_shelf';
     const STATUS_BORROWED                         = 'borrowed';
     const STATUS_MISSING                          = 'missing';
@@ -22,18 +22,18 @@ class Book extends Model
     const DIFFICULTY_LEVEL_EXPERT       = 'expert';
 
     private const STATUS_LABELS = [
-        self::STATUS_CONTRIBUTION_TO_QUALIFY => 'Contribution à qualifier',
-        self::STATUS_CONTRIBUTION_QUALIFIED  => 'Contribution qualifiée',
-        self::STATUS_CONTRIBUTION_REJECTED   => 'Contribution rejetée',
+        self::STATUS_TO_QUALIFY => 'À qualifier',
+        self::STATUS_QUALIFIED  => 'Qualifiée',
+        self::STATUS_REJECTED   => 'Rejetée',
         self::STATUS_ON_SHELF                => 'Sur étagère',
         self::STATUS_BORROWED                => 'Emprunté',
         self::STATUS_MISSING                 => 'Manquant',
     ];
 
     private const STATUS_COLORS = [
-        self::STATUS_CONTRIBUTION_TO_QUALIFY => 'warning',
-        self::STATUS_CONTRIBUTION_QUALIFIED  => 'stone',
-        self::STATUS_CONTRIBUTION_REJECTED   => 'danger',
+        self::STATUS_TO_QUALIFY => 'warning',
+        self::STATUS_QUALIFIED  => 'stone',
+        self::STATUS_REJECTED   => 'danger',
         self::STATUS_ON_SHELF                => 'success',
         self::STATUS_BORROWED                => 'danger',
         self::STATUS_MISSING                 => 'danger',

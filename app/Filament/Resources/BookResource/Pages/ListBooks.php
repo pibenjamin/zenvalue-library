@@ -89,7 +89,7 @@ class ListBooks extends ListRecords
                     
                     $book = Book::create([
                         'isbn'          => $isbn,
-                        'status'        => Book::STATUS_CONTRIBUTION_TO_QUALIFY,
+                        'status'        => Book::STATUS_TO_QUALIFY,
                         'owner_id'      => auth()->id(),
                         'support_id'    => 1,
                         'is_contribution' => true,
