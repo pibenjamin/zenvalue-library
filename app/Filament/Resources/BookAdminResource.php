@@ -462,7 +462,24 @@ class BookAdminResource extends Resource
                         ->icon('heroicon-o-archive-box-arrow-down')
                         ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->putOnShelf())
-                        ->modalDescription('Voulez-vous vraiment mettre ces livres à qualifier ?'),
+                        ->modalDescription('Voulez-vous vraiment mettre le statut de ces livres à qualifier ?'),
+
+                    BulkAction::make('lang')
+                        ->label('Saisir la langue')
+                        ->icon('heroicon-o-language')
+                        ->form([
+                            Forms\Components\Select::make('lang')
+                                ->label('Langue')
+                                ->required()
+                                ->options([
+                                    'fr' => 'Français',
+                                    'en' => 'Anglais',
+                                ])
+                        ])
+                        ->action(fn (Collection $records, array $data) => $records->each(function (Book $record) use ($data) {
+                            $record->lang = $data['lang'];
+                            $record->save();
+                        })),
 
                     BulkAction::make('generateQrCodes')
                         ->label('Générer les QR codes')
