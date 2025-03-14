@@ -76,11 +76,21 @@ class ImportBookData
                 }
             }
             
+
+
             $isbnCrawler = $crawler;
             $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]')->attr('data-ean');
-            if($isbnNode->count() > 0) {
+            if (!$isbnNode) {
+                Notification::make()
+                    ->title('ISBN non trouvé')
+                    ->body('L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title)
+                    ->danger()
+                    ->send();
+            }
+            if($isbnNode) {
                 $book->isbn = $isbnNode;
             }
+
 
             $dateCrawler = $crawler;
             $dateNode = $dateCrawler->filterXPath('//div[contains(text(), "Date de publication")]/text()');
@@ -89,7 +99,9 @@ class ImportBookData
                     $year = $matches[1];
                     $book->year_of_publication = $year;
                 }
+
             }
+            
 
             $dimensionsCrawler = $crawler;
             $dimensionsNode = $dimensionsCrawler->filterXPath('//div[@id="dimensions"]//p[contains(text(), "cm")]');
