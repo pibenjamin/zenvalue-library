@@ -43,6 +43,13 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
+
+
+use Webbingbrasil\FilamentAdvancedFilter\Filters\TextFilter;
+use Webbingbrasil\FilamentAdvancedFilter\Filters\BooleanFilter;
+
 
 // Filament Other
 use Filament\Infolists;
@@ -64,8 +71,7 @@ use Filament\Tables\Columns\ImageColumn;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 // Filament Plugins
-
-
+use Filament\Tables\Filters\QueryBuilder;
 
 class BookResource extends Resource
 {
@@ -333,36 +339,33 @@ class BookResource extends Resource
                     ->iconSize('sm')
                     ->color('stone')
                     ->tooltip('Voir les détails'),
-/*
-                Tables\Actions\Action::make('share')
-                    ->label('Recommander')
-                    ->disableLabel()
-                    ->button()
-                    ->iconSize('sm')
-                    ->icon('heroicon-o-share')
-                    ->color('primary')
-                    ->tooltip('Partager')
-                    ->modalHeading('Partager ce livre')
-                    ->modalDescription(fn (Book $record) => "Choisissez comment partager \"{$record->title}\"")
-                    ->modalContent(fn (Book $record) => view('filament.actions.share-options', ['record' => $record]))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Fermer'),
-*/                    
-
             ])
             ->defaultPaginationPageOption(50)
             ->paginationPageOptions([25, 50, 100])
             ->filters([
-                Tables\Filters\SelectFilter::make('id')
-                    ->label('ID')
-                    ->options(Book::all()->pluck('id', 'id')),  
-                                     
-                Tables\Filters\SelectFilter::make('is_borrowed')
-                    ->label('Emprunté')
-                    ->options([
-                        'true' => 'Oui',
-                        'false' => 'Non',
-                    ]),
+
+                TextFilter::make('title')
+                    ->label('Titre'),
+
+
+                Tables\Filters\SelectFilter::make('authors.name')
+                    ->label('Auteurs')
+                    ->multiple()
+                    ->relationship('authors', 'name')
+                    ->options(Author::all()->pluck('name', 'id')),
+
+
+                Tables\Filters\SelectFilter::make('tags.title')
+                    ->label('Mots-clés')
+                    ->preload()
+                    ->multiple()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return empty($data['values']) ? $query : $query->whereHas('tags', function ($query) use ($data) {
+                            $query->whereIn('id', $data['values']);
+                        }, '=', count($data['values']));
+                    })
+                    ->relationship('tags', 'title')
+                    ->options(Tag::all()->pluck('title', 'id')),
 
                 Tables\Filters\SelectFilter::make('lang')
                     ->label('Langue')
@@ -372,38 +375,24 @@ class BookResource extends Resource
                     ])
                     ->default(null),
 
-                Tables\Filters\SelectFilter::make('authors.name')
-                    ->label('Auteurs')
-                    ->relationship('authors', 'name')
-                    ->options(Author::all()->pluck('name', 'id')),
-
-                Tables\Filters\SelectFilter::make('owner.name')
-                    ->label('Propriétaire')
-                    ->relationship('owner', 'name')
-                    ->options(User::all()->pluck('name', 'id')),
-
-                Tables\Filters\SelectFilter::make('tags.title')
-                    ->label('Mots-clés')
-                    ->multiple()
-                    ->relationship('tags', 'title')
-                    ->options(Tag::all()->pluck('title', 'id')),
-
                 Tables\Filters\SelectFilter::make('difficulty_level')
                     ->label('Difficulté')
                     ->options(Book::getDifficulties())
+
                     ->default(null),
 
-                Tables\Filters\SelectFilter::make('is_borrowed')
-                    ->label('Disponibilité')
-                    ->options([
-                        'true' => 'Disponible',
-                        'false' => 'Emprunté',
-                    ]),
-            ])
+
+
+                BooleanFilter::make('is_borrowed')->nullsAreFalse()
+                    ->label('Emprunté ?')
+                    ->default(BooleanFilter::CLAUSE_IS_FALSE)
+                    
+                                     
+
+            ], layout: FiltersLayout::Modal)
+            ->filtersFormColumns(3)
             ->actionsPosition(ActionsPosition::BeforeColumns);
     }
-
-
 
     public static function infolist(Infolist $infolist): Infolist
     {
@@ -514,8 +503,5 @@ class BookResource extends Resource
             'edit' => Pages\EditBook::route('/{record}/edit'),
         ];
     }
-
-
-
 
 }
