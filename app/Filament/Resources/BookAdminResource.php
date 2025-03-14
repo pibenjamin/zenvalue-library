@@ -311,6 +311,10 @@ class BookAdminResource extends Resource
                     ->wrap()
                     ->searchable(),
 
+                TextColumn::make('cal_page')
+                    ->label('Page c.a.l.')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')
                     ->circular()
