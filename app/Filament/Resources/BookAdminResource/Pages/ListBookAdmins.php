@@ -26,7 +26,7 @@ class ListBookAdmins extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->label('Ajouter un livre')
-                ->icon('heroicon-o-plus')
+                ->icon('heroicon-o-plus'),
         ];
     }
     public static function bulkAddTagsAction(): Action

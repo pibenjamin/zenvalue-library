@@ -15,6 +15,8 @@ use App\Models\User;
 use App\Models\Tag;
 use App\Models\Support;
 
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Field;
 
 use Livewire\Component;
 
@@ -57,7 +59,7 @@ use Filament\Icons\Icon;
 use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Set;
-
+use Filament\Forms\Get;
 use App\Services\ImportBookData;
 
 class BookAdminResource extends Resource
@@ -98,6 +100,7 @@ class BookAdminResource extends Resource
                             ->placeholder('Titre de l\'ouvrage')
                             ->maxLength(255)
                             ->reactive()
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function (Forms\Set $set, $state) {
                                 $set('slug', Str::slugify($state));
                             })
@@ -152,10 +155,47 @@ class BookAdminResource extends Resource
                             ->numeric()
                             ->default(null),
 
+                        Forms\Components\FileUpload::make('cover_url')
+                            ->label('Couverture')
+                            ->directory('books/covers')
+                            ->maxSize(5120) // 5MB
+                            ->columnSpanFull()
+                            ->columnSpan(4),
+
+                    ])
+                    ->columns(3)
+                    ->collapsible(),
+
+                Forms\Components\Section::make('Import de données')
+                    ->schema([
                         Forms\Components\TextInput::make('ol_key')
-                            ->label('Open Library Key')
-                            ->maxLength(255)
-                            ->default(null),
+                            ->label('Code Open Library')
+                            ->helperText(function ($record) {
+                                if (!$record) return null;
+                                return new HtmlString(
+                                    '<a href="https://openlibrary.org/works/' . $record->ol_key . '" 
+                                        target="_blank" 
+                                        class="text-success-600 hover:text-success-500 hover:underline"
+                                    >
+                                        Voir la page sur openlibrary.org
+                                    </a>'
+                                );
+                            })
+                            ->prefixIcon('heroicon-o-globe-alt')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('importFromCalPage')
+                                    ->label('Importer les informations')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->modalContent(fn (Book $record): View => view(
+                                        'filament.modals.view.compare_with_ol',
+                                        ['record' => $record,
+                                         'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
+                                    ))
+                                    ->modalCancelActionLabel('Fermer')
+                                    ->disabled(fn (?Book $record): bool => !$record || $record->ol_key === 'parsed' || $record->ol_key === null)
+                                    ->action(function (?Book $record) {
+                                }),
+                            ),
 
                         Forms\Components\TextInput::make('cal_page')
                             ->label('Page sur chasse aux livres')
@@ -180,17 +220,9 @@ class BookAdminResource extends Resource
                                         if (!$record) return;
                                         app(ImportBookData::class)->importFromCalPage($record);
                                     }),
-                        ),
-
-                        Forms\Components\FileUpload::make('cover_url')
-                            ->label('Couverture')
-                            ->directory('books/covers')
-                            ->maxSize(5120) // 5MB
-                            ->columnSpanFull()
-                            ->columnSpan(4),
-
+                            ),
                     ])
-                    ->columns(3)
+                    ->columns(2)
                     ->collapsible(),
 
                 Forms\Components\Section::make('Qualifications supplémentaires')
@@ -418,9 +450,28 @@ class BookAdminResource extends Resource
                     //Pages\ListBookAdmins::bulkAddTagsAction(),
                     BulkAction::make('put_on_shelf')
                         ->label('Mettre sur étagère')
+                        ->icon('heroicon-o-archive-box-arrow-down')
                         ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->putOnShelf())
                         ->modalDescription('Voulez-vous vraiment mettre ces livres à qualifier ?'),
+
+                    BulkAction::make('generateQrCodes')
+                        ->label('Générer les QR codes')
+                        ->icon('heroicon-o-qr-code')
+                        ->action(function (array $data, $livewire): void {
+
+                            $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                            $serializedIds  = implode(',', $ids);
+                            $url            = route('print-qr-codes', 
+                                [
+                                    'ids' => $serializedIds,
+                                    'print_size' => 300,
+                                    'regenerate' => true,
+                                ]
+                            );
+
+                            $livewire->js("window.open('{$url}', '_blank')");
+                        }),
                 ]),
 
             ])
