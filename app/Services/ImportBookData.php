@@ -37,7 +37,6 @@ class ImportBookData
             $content = $browser->getResponse()->getContent();
 
             if (empty($content)) {
-                $this->error('No content received from the page');
                 return;
             }
 
@@ -46,6 +45,10 @@ class ImportBookData
 
             // Première recherche (auteurs)
             $authorNodes = $authorCrawler->filterXPath('//div[contains(text(), "Auteur(s)")]/a');
+            if ($authorNodes->count() === 0) {
+                throw new \Exception('Aucun auteur trouvé sur la page');
+            }
+
             $authors = $authorNodes->each(function ($node) {
                 return $node->text();
             });
@@ -65,6 +68,9 @@ class ImportBookData
             $pagesCrawler = $crawler;
             // Deuxième recherche (pages) - utilise le crawler original
             $pagesNode = $pagesCrawler->filterXPath('//div[@id="book-more-more-details-mobile-cont"]/div[@class="row"][2]');
+            if ($pagesNode->count() === 0) {
+                throw new \Exception('Impossible de trouver le nombre de pages');
+            }
             
             $htmlPagesNode = $pagesNode->html();
             if (preg_match('/(\d+)\s*pages/', $htmlPagesNode, $matches)) {
@@ -74,32 +80,42 @@ class ImportBookData
 
             $isbnCrawler = $crawler;
             $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]')->attr('data-ean');
+            if (!$isbnNode) {
+                throw new \Exception('ISBN non trouvé');
+            }
             if($isbnNode) {
                 $book->isbn = $isbnNode;
             }
 
 
             $dateCrawler = $crawler;
-            $dateNode = $dateCrawler->filterXPath('//div[contains(text(), "Date de publication")]/text()')->text();
-            
-            if (preg_match('/(\d{4})/', $dateNode, $matches)) {
-                $year = $matches[1];
-                $book->year_of_publication = $year;
+            $dateNode = $dateCrawler->filterXPath('//div[contains(text(), "Date de publication")]/text()');
+            if ($dateNode->count() > 0) {
+                if (preg_match('/(\d{4})/', $dateNode->text(), $matches)) {
+                    $year = $matches[1];
+                    $book->year_of_publication = $year;
+                }
+    
             }
+            
 
             $dimensionsCrawler = $crawler;
-            $dimensionsNode = $dimensionsCrawler->filterXPath('//div[@id="dimensions"]//p[contains(text(), "cm")]')->text();
-            $book->dimensions = $dimensionsNode;
+            $dimensionsNode = $dimensionsCrawler->filterXPath('//div[@id="dimensions"]//p[contains(text(), "cm")]');
+            if ($dimensionsNode->count() > 0) {
+                $book->dimensions = $dimensionsNode->text();
+            }
 
             $publishedCrawler = $crawler;
-            $publishedNode = $publishedCrawler->filterXPath('//div[contains(text(), "Éditeur")]//a')->text();
-            $book->publisher = $publishedNode;
+            $publishedNode = $publishedCrawler->filterXPath('//div[contains(text(), "Éditeur")]//a');
+            if ($publishedNode->count() > 0) {
+                $book->publisher = $publishedNode->text();
+            }
 
             $titleCrawler = $crawler;
-            $titleNode = $titleCrawler->filterXPath('//div[@id="book-title-and-details"]//h1')->text();
-            $book->title = $titleNode;
-
-
+            $titleNode = $titleCrawler->filterXPath('//div[@id="book-title-and-details"]//h1');
+            if ($titleNode->count() > 0) {
+                $book->title = $titleNode->text();
+            }
 
             $langCrawler = $crawler;
             $langNode = $langCrawler->filterXPath('//span[contains(text(), "Langue")]');
@@ -120,6 +136,9 @@ class ImportBookData
 
             $coverCrawler = $crawler;
             $coverNode = $coverCrawler->filterXPath('//img[@id="book-cover"]')->attr('src');
+            if (!$coverNode) {
+                throw new \Exception('Image de couverture non trouvée');
+            }
 
             $response = Http::withOptions([
                 'verify' => false,
