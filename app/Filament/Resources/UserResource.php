@@ -138,6 +138,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('is_after_release')
                     ->label('Activé après la sortie')
                     ->state(function ($record): string {
@@ -184,6 +185,15 @@ class UserResource extends Resource
                 ])
             ]);
     }
+
+    public static function getWidgets(): array
+    {
+        return [
+            UserResource\Widgets\LatestConnectedUsers::class,
+        ];
+    }
+
+
 
     public static function getPages(): array
     {
