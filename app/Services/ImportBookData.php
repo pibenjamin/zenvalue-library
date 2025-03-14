@@ -45,48 +45,42 @@ class ImportBookData
 
             // Première recherche (auteurs)
             $authorNodes = $authorCrawler->filterXPath('//div[contains(text(), "Auteur(s)")]/a');
-            if ($authorNodes->count() === 0) {
-                throw new \Exception('Aucun auteur trouvé sur la page');
-            }
-
-            $authors = $authorNodes->each(function ($node) {
-                return $node->text();
-            });
-
-            foreach($authors as $author) {
-                $author = trim($author);
-                if(!$Author = Author::where('name', $author)->first()) {
-                    $Author = Author::create([
-                        'name' => $author,
-                    ]);
-                }
-                if (!$book->authors()->where('authors.id', $Author->id)->exists()) {
-                    $book->authors()->attach($Author);
+            if ($authorNodes->count() > 0) {
+                $authors = $authorNodes->each(function ($node) {
+                    return $node->text();
+                });
+    
+                foreach($authors as $author) {
+                    $author = trim($author);
+                    if(!$Author = Author::where('name', $author)->first()) {
+                        $Author = Author::create([
+                            'name' => $author,
+                        ]);
+                    }
+                    if (!$book->authors()->where('authors.id', $Author->id)->exists()) {
+                        $book->authors()->attach($Author);
+                    }
                 }
             }
+
+
 
             $pagesCrawler = $crawler;
             // Deuxième recherche (pages) - utilise le crawler original
             $pagesNode = $pagesCrawler->filterXPath('//div[@id="book-more-more-details-mobile-cont"]/div[@class="row"][2]');
-            if ($pagesNode->count() === 0) {
-                throw new \Exception('Impossible de trouver le nombre de pages');
+            if ($pagesNode->count() > 0) {
+                $htmlPagesNode = $pagesNode->html();
+                if (preg_match('/(\d+)\s*pages/', $htmlPagesNode, $matches)) {
+                    $pages = (int)$matches[1];
+                    $book->pages = $pages;
+                }
             }
             
-            $htmlPagesNode = $pagesNode->html();
-            if (preg_match('/(\d+)\s*pages/', $htmlPagesNode, $matches)) {
-                $pages = (int)$matches[1];
-                $book->pages = $pages;
-            }
-
             $isbnCrawler = $crawler;
             $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]')->attr('data-ean');
-            if (!$isbnNode) {
-                throw new \Exception('ISBN non trouvé');
-            }
-            if($isbnNode) {
+            if($isbnNode->count() > 0) {
                 $book->isbn = $isbnNode;
             }
-
 
             $dateCrawler = $crawler;
             $dateNode = $dateCrawler->filterXPath('//div[contains(text(), "Date de publication")]/text()');
@@ -95,9 +89,7 @@ class ImportBookData
                     $year = $matches[1];
                     $book->year_of_publication = $year;
                 }
-    
             }
-            
 
             $dimensionsCrawler = $crawler;
             $dimensionsNode = $dimensionsCrawler->filterXPath('//div[@id="dimensions"]//p[contains(text(), "cm")]');
