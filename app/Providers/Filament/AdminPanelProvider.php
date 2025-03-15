@@ -104,7 +104,6 @@ class AdminPanelProvider extends PanelProvider
                 LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
                 MyLoanHistory::class,
-                MyBookLenders::class,
                 AdminWidgets::class,
                 UserStatsWidgets::class,
                 BookTagCloud::class,
