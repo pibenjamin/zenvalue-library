@@ -90,7 +90,6 @@ class Book extends Model
         'amazon_content_page' => 'string'
     ];
 
-
     public function putOnShelf()
     {
         $this->status = Book::STATUS_ON_SHELF;
