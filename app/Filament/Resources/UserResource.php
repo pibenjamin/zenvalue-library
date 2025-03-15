@@ -138,7 +138,6 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
                     ->searchable(),
@@ -168,17 +167,19 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('password')
                     ->label('Mot de passe'),
-
-
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
             ->filters([
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\ViewAction::make(),
+                ])
             ])
+
+
             ->actionsPosition(ActionsPosition::BeforeColumns)
 
             ->bulkActions([

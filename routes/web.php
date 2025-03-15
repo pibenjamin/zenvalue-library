@@ -45,6 +45,8 @@ Route::get('/emprunter/{book_id}', function () {
 });
 
 
+
+
 Route::get('/acquisition-request', function () {
     return view('filament.mockups.acquisition-request');
 });
