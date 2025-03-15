@@ -42,8 +42,8 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
-
-
+use Webbingbrasil\FilamentCopyActions\Tables\CopyableTextColumn;
+use Webbingbrasil\FilamentCopyActions\Forms\Actions\CopyAction;
 // Laravel
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope; 
@@ -103,7 +103,8 @@ class BookAdminResource extends Resource
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Forms\Set $set, $state) {
                                 $set('slug', Str::slugify($state));
-                            })
+                            })          
+                            ->suffixAction(CopyAction::make())                  
                             ->columnSpan(4),
 
                         Forms\Components\TextInput::make('slug')
