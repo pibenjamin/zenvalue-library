@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Pages\Statistics\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use App\Models\Book;
@@ -12,9 +12,6 @@ class BookLanguageStats extends ChartWidget
     protected static ?string $maxHeight = '300px';
 
     
-    
-
-
     protected function getOptions(): RawJs
     {
         return RawJs::make(<<<JS

@@ -5,9 +5,8 @@ namespace App\Filament\Pages;
 use Filament\Pages\Page;
 use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
-
-
-use App\Filament\Widgets\BookLanguageStats;
+use App\Filament\Pages\Statistics\Widgets\BookLanguageStats;
+use App\Filament\Pages\Statistics\Widgets\BookLoanStats;
 
 class Statistics extends Page
 {
@@ -21,9 +20,7 @@ class Statistics extends Page
     {
         return [
             BookLanguageStats::class,
-
+            BookLoanStats::class,
         ];
     }
-
-
 }

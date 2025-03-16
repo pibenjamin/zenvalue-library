@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Livewire;
 
 use Filament\Widgets\ChartWidget;
 use App\Models\Book;

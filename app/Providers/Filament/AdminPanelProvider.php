@@ -54,7 +54,6 @@ use Filament\Navigation\NavigationBuilder;
 use App\Filament\Widgets\Borrowers;
 use App\Filament\Widgets\EmployeesOverview;
 use Illuminate\Support\Facades\App;
-use App\Filament\Widgets\BookLanguageStats;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -108,7 +107,7 @@ class AdminPanelProvider extends PanelProvider
                 UserStatsWidgets::class,
                 BookTagCloud::class,
                 Borrowers::class,
-                BookLanguageStats::class,
+                //BookLanguageStats::class,
                 //EmployeesOverview::class,
                 //WhoIBorrowedFrom::class,
             ])
