@@ -52,7 +52,7 @@ class BookLanguageStats extends ChartWidget
 
     protected function getData(): array
     {
-        $books = Book::all();
+        $books = Book::whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])->get();
         $booksLanguages = $books->groupBy('lang')->toArray();
         $totalBooks = $books->count();
 
