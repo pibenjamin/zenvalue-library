@@ -64,22 +64,17 @@ class TagResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('books.title')
-                    ->label('Livres')
-                    ->tooltip(fn (Tag $record) => $record->books->pluck('title')->implode(' - '))
-                    ->url(fn (Tag $record) => url('/admin/books?tableFilters[tags][title][values][0]=' . $record->id))
-                    ->openUrlInNewTab()
-                    ->listWithLineBreaks()
-                    ->badge()
-                    ->color('gray')
-                    ->wrap()
-                    ->searchable(),
+                   ->label('Livres')
+                   ->tooltip(fn (Tag $record) => $record->books->pluck('title')->implode(' - '))
+                   ->url(fn (Tag $record) => url('/admin/books?tableFilters[tags][title][values][0]=' . $record->id))
+                   ->openUrlInNewTab()
+                   ->listWithLineBreaks()
+                   ->badge()
+                   ->color('gray')
+                   ->wrap()
+                   ->searchable(),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('books.title')
-                ->label('Livres')
-                ->relationship('books', 'title')
-                ->options(Book::all()->pluck('title', 'id')),
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
