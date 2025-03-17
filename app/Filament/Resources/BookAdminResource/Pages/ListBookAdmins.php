@@ -41,12 +41,18 @@ class ListBookAdmins extends ListRecords
                     ->multiple()
                     ->relationship('tags', 'title')
                     ->dehydrated()  // pour récupérer les données dans la fonction action à partir d"une relation
-                    ->preload(),
+                    ->preload()
+                    ->action(function (array $data, $livewire): void {
+
+                        $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                        dd($ids);
+                    }),
 
             ])
             ->action(function (array $data, $livewire): void {
 
-                dd($data, $livewire->getSelectedTableRecords());
+                $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                dd($ids);
 
                 /*
                 foreach ($data['add_tags'] as $tag) {

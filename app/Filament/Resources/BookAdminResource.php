@@ -475,6 +475,68 @@ class BookAdminResource extends Resource
                         ->action(fn (Collection $records) => $records->each->putOnShelf())
                         ->modalDescription('Voulez-vous vraiment mettre le statut de ces livres à qualifier ?'),
 
+                    /*
+                    BulkAction::make('add_tags')
+                        ->label('Ajouter un mot-clé')
+                        ->icon('heroicon-o-tag')
+                        ->action(function (Collection $records, array $data): void {
+
+                            $bookIds = $records->pluck('id')->toArray();
+
+                            dd($data, $bookIds);
+
+                            $bookIds = $records->pluck('id')->toArray();
+                            $selectedTags = $data['tags'];
+
+                            
+
+                            foreach ($selectedTags as $tag) {
+                                if(!$Tag = Tag::where('title', $tag)->first()) 
+                                {
+                                    $Tag = Tag::create([
+                                        'title' => $tag,
+                                        'slug' => Str::slug($tag),
+                                    ]);
+                                }
+            
+                                foreach ($records as $record) {
+                                    $record->tags()->attach($Tag->id);
+                                }
+                            }   
+                        })
+                        ->form([
+                            Forms\Components\Select::make('tags')
+                                ->label('Mots-clés')
+                                ->multiple()
+                                ->relationship('tags', 'title')
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Nom')
+                                ])
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+
+                            dd($records->pluck('id')->toArray(), $data);
+                            $bookIds = $records->pluck('id')->toArray();
+                            $selectedTags = $data['tags'];
+
+                            foreach ($selectedTags as $tag) {
+                                if(!$Tag = Tag::where('title', $tag)->first()) 
+                                {
+                                    $Tag = Tag::create([
+                                        'title' => $tag,
+                                        'slug' => Str::slug($tag),
+                                    ]);
+                                }
+            
+                                foreach ($records as $record) {
+                                    $record->tags()->attach($Tag->id);
+                                }
+                            }   
+                        }),
+                    */
+
                     BulkAction::make('lang')
                         ->label('Saisir la langue')
                         ->icon('heroicon-o-language')
