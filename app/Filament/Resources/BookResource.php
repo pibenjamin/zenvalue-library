@@ -16,7 +16,7 @@ use App\Models\User;
 use App\Models\Support;
 use App\Models\Notification;
 use App\Models\Rating;
-
+use App\Models\Claim;
 use Illuminate\Support\Str;
 use Illuminate\Support\HtmlString;
 // Services
@@ -342,6 +342,25 @@ class BookResource extends Resource
                      ->disabled(fn (Book $book) => $book->is_borrowed)
                      ->visible(fn (Book $book) => $book->is_borrowed),
 
+
+                Tables\Actions\Action::make('claim')
+                    ->label('Réclamer')
+                    ->disableLabel()
+                    ->color('success')
+                    ->icon('heroicon-s-hand-raised')
+                    ->requiresConfirmation()
+                    ->modalHeading('Revendiquer la propriété de ce livre')
+                     ->modalDescription(fn (Book $book) => "Voulez-vous pensez être le propriétaire de ce livre ?")
+                      ->action(function (Book $book) {
+                         $newClaim = new Claim();
+                         $newClaim->book_id = $book->id;
+                         $newClaim->user_id = auth()->id();
+                         $newClaim->status = 'pending';
+                         $newClaim->save();
+                     })
+                     ->tooltip('Revendiquer la propriété de ce livre')
+                     ->button(),
+                     
                 Tables\Actions\ViewAction::make()
                     ->label('Voir')
                     ->disableLabel()
