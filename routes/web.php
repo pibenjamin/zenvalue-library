@@ -37,7 +37,8 @@ Route::get('/emprunter/{book_id}', function () {
 
     $book_id = request()->book_id;
     $session = session();
-    $session->put('url.intended', url('admin/books?tableFilters[id][value]='.$book_id));
+    $session->put('url.intended', url('admin/books?tableFilters[id][clause]=equal&tableFilters[id][value]='.$book_id));
+    
     // http://zbv.local/admin/books?tableFilters[id][value]=1
 
     return redirect()->to('admin/login');
