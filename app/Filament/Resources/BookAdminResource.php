@@ -316,7 +316,7 @@ class BookAdminResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->searchable(),
-            
+
                 TextColumn::make('missing')
                     ->label('Manquant')
                     ->sortable()
@@ -544,6 +544,14 @@ class BookAdminResource extends Resource
                         'en' => 'Anglais',
                     ])
                     ->default(null),                    
+
+                Tables\Filters\SelectFilter::make('missing')
+                    ->label('Manquant')
+                    ->options([
+                        'true' => 'Oui',
+                        'false' => 'Non',
+                    ])
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Filter::make('lang_null')
                     ->form([
