@@ -20,7 +20,7 @@ class BookLoanStats extends ChartWidget
         $topBorrowedBooks = Loan::query()
             ->select('book_id')
             ->selectRaw('COUNT(*) as loan_count')
-            ->with('book:id,title')
+            ->with('book:id,title,missing')
             ->groupBy('book_id')
             ->orderByDesc('loan_count')
             ->limit(static::$limit)
