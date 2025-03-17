@@ -550,9 +550,8 @@ class BookAdminResource extends Resource
                     ->options([
                         'true' => 'Oui',
                         'false' => 'Non',
-                    ])
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                    ]),
+                    
                 Filter::make('lang_null')
                     ->form([
                         Forms\Components\Checkbox::make('lang_null')
