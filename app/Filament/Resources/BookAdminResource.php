@@ -193,7 +193,6 @@ class BookAdminResource extends Resource
                                          'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
                                     ))
                                     ->modalCancelActionLabel('Fermer')
-                                    ->disabled(fn (?Book $record): bool => !$record || $record->ol_key === 'parsed' || $record->ol_key === null)
                                     ->action(function (?Book $record) {
                                 }),
                             ),
