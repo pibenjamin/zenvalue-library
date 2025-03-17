@@ -316,8 +316,18 @@ class BookAdminResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->searchable(),
+            
+                TextColumn::make('missing')
+                    ->label('Manquant')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->missing ? 'oui' : 'non';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('lang')
+                    
+                    TextColumn::make('lang')
                     ->label('Langue')
                     ->sortable()
                     ->badge()
@@ -325,6 +335,7 @@ class BookAdminResource extends Resource
                         return $record->lang ?? '?';
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
+
 
 
                 TextColumn::make('cal_page')
