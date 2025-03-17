@@ -115,6 +115,7 @@ class LoanResource extends Resource
                 Forms\Components\Select::make('book_id')
                     ->label('Ouvrage')
                     ->relationship('book', 'title')
+                    ->searchable()
                     ->required(),
 
                 Forms\Components\Select::make('status')
