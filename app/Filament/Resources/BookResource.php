@@ -373,11 +373,15 @@ class BookResource extends Resource
             ->paginationPageOptions([25, 50, 100])
             ->filters([
 
+
+
+                
                 TextFilter::make('title')
                     ->label('Titre'),
 
                 TextFilter::make('id')
                     ->label('ID'),
+
 
 
 

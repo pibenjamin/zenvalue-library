@@ -33,8 +33,8 @@ class AdminWidgets extends BaseWidget
     {
         $activatedUsers         = User::where('password', 'LIKE', '%$2y$%')->count();
         $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
-        $booksWithCover         = Book::where('cover_url', '!=', null)->count();
-        $booksWithISBN          = Book::where('isbn', '!=', null)->count();
+        $booksWithCover         = Book::where('cover_url', '!=', null)->where('missing', false)->count();
+        $booksWithISBN          = Book::where('isbn', '!=', null)->where('missing', false)->count();
 
         return [
 
