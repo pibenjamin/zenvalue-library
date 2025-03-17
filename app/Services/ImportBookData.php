@@ -103,21 +103,21 @@ class ImportBookData
             }
 
             $isbnCrawler = $crawler;
-            $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]')->attr('data-ean');
+            $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]');
 
 
-
-            if (!$isbnNode) {
-                $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title; 
+            if($isbnNode->count() > 0) {
+                $book->isbn = $isbnNode->attr('data-ean');;
+            }
+            else {
+                $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title;
                 Notification::make()
                     ->title('ISBN non trouvé')
                     ->body($message)
                     ->danger()
                     ->send();
-                Log::error($message);
-            }
-            if($isbnNode) {
-                $book->isbn = $isbnNode;
+                    Log::error($message);
+
             }
 
             $dateCrawler = $crawler;
