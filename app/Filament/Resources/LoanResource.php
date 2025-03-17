@@ -251,7 +251,10 @@ class LoanResource extends Resource
 
             Tables\Columns\TextColumn::make('book.title')
                 ->label('Ouvrage')
-                ->url(fn (Loan $record) => route('filament.admin.resources.books.edit', $record->book_id))
+                ->url(fn (Loan $record) 
+                    => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin') ? 
+                    route('filament.admin.resources.book-admins.edit', $record->book_id) : 
+                    route('filament.admin.resources.books.view', $record->book_id))
                 
                 ->sortable()
                 ->wrap()
