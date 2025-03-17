@@ -106,8 +106,16 @@ class ImportBookData
             $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]');
 
 
+
             if($isbnNode->count() > 0) {
-                $book->isbn = $isbnNode->attr('data-ean');;
+                if($isbnNode->attr('data-ean')) {
+                    $book->isbn = $isbnNode->attr('data-ean');
+                }
+                else {
+                    $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title;
+                    Notification::make()
+                        ->title('ISBN non trouvé');
+                }
             }
             else {
                 $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $book->title;
