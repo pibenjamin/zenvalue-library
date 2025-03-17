@@ -251,6 +251,8 @@ class LoanResource extends Resource
 
             Tables\Columns\TextColumn::make('book.title')
                 ->label('Ouvrage')
+                ->url(fn (Loan $record) => route('filament.admin.resources.books.edit', $record->book_id))
+                
                 ->sortable()
                 ->wrap()
                 ->width('15%'),
