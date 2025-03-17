@@ -26,7 +26,7 @@ class UserStatsWidgets extends BaseWidget
     protected function getCards(): array
     {
         return [
-            Stat::make('', Book::where('status', Book::STATUS_ON_SHELF)->count() . ' livres')
+            Stat::make('', Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count() . ' livres')
                 ->description('Total des livres sur étagère')
                 ->color('primary')
                 ->descriptionIcon('heroicon-m-book-open', IconPosition::Before),
