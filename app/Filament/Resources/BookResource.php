@@ -357,6 +357,10 @@ class BookResource extends Resource
                 TextFilter::make('title')
                     ->label('Titre'),
 
+                TextFilter::make('id')
+                    ->label('ID'),
+
+
 
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
