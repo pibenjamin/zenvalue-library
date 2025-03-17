@@ -7,6 +7,7 @@ use App\Models\Loan;
 use Filament\Support\RawJs;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use Carbon\Carbon;
 
 class LoansChart extends ChartWidget
 {
@@ -31,7 +32,7 @@ class LoansChart extends ChartWidget
                 'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
             ],
         ],
-        'labels' => $data->map(fn (TrendValue $value) => $value->date),
+        'labels' => $data->map(fn (TrendValue $value) => Carbon::parse($value->date)->locale('fr_FR')->format('F Y')),
     ];
     }
 
