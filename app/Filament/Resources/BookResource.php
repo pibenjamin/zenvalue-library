@@ -206,6 +206,7 @@ class BookResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
                 ->where('status',Book::STATUS_ON_SHELF)
+                ->where('missing', false)
                     ->selectSub(function ($query) {
                         $query->from('ratings')
                             ->selectRaw('ROUND(AVG(rate))')
@@ -355,6 +356,10 @@ class BookResource extends Resource
 
                 TextFilter::make('title')
                     ->label('Titre'),
+
+                TextFilter::make('id')
+                    ->label('ID'),
+
 
 
                 Tables\Filters\SelectFilter::make('authors.name')

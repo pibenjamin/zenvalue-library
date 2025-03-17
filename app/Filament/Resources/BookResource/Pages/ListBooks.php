@@ -107,7 +107,7 @@ class ListBooks extends ListRecords
     {
         return [
             __('Tous les livres') => Tab::make()
-            ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->count()),
+            ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count()),
 
             __('Mes livres') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('owner_id', auth()->id()))

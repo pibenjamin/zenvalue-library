@@ -129,7 +129,7 @@ class ListBookAdmins extends ListRecords
         return [
             __('Livres sur étagère') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF))
-                ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->count()),
+                ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count()),
             __('Livres à qualifier') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_TO_QUALIFY))
                 ->badge(fn () => Book::where('status', Book::STATUS_TO_QUALIFY)->count()),
