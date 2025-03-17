@@ -9,7 +9,10 @@ use Filament\Support\RawJs;
 class BookLoanStats extends ChartWidget
 {
     protected static ?int $limit = 10;
+    protected static ?string $maxHeight = '300px';
     
+
+
     public function getHeading(): ?string
     {
         return 'Les ' . static::$limit . ' livres les plus empruntés';

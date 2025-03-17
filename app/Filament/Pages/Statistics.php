@@ -7,6 +7,7 @@ use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
 use App\Filament\Pages\Statistics\Widgets\BookLanguageStats;
 use App\Filament\Pages\Statistics\Widgets\BookLoanStats;
+use App\Filament\Pages\Statistics\Widgets\LoansChart;
 
 class Statistics extends Page
 {
@@ -21,6 +22,7 @@ class Statistics extends Page
         return [
             BookLanguageStats::class,
             BookLoanStats::class,
+            LoansChart::class,
         ];
     }
 }
