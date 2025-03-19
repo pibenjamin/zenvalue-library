@@ -33,6 +33,11 @@ class AdminWidgets extends BaseWidget
     {
         $activatedUsers         = User::where('password', 'LIKE', '%$2y$%')->count();
         $sumUserSharingBooks    = Book::where('owner_id', 'IS NOT', null)->distinct()->count('owner_id');
+
+        $indexedBooks           = Book::whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
+                                ->where('missing', false)
+                                ->count();
+
         $booksWithCover         = Book::where('cover_url', '!=', null)
                                 ->whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
                                 ->where('missing', false)
@@ -46,8 +51,8 @@ class AdminWidgets extends BaseWidget
 
             Stat::make('# d\'utilisateurs activés', $activatedUsers . ' / ' . User::count()),
             Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks . ' citizens'),
-            Stat::make('# de livres avec couverture', $booksWithCover . ' soit ' . round($booksWithCover / Book::count() * 100) . '%'),
-            Stat::make('# de livres avec ISBN', $booksWithISBN . ' soit ' . round($booksWithISBN / Book::count() * 100) . '%'),
+            Stat::make('# de livres avec couverture', $booksWithCover . ' soit ' . round($booksWithCover / $indexedBooks * 100) . '%'),
+            Stat::make('# de livres avec ISBN', $booksWithISBN . ' soit ' . round($booksWithISBN / $indexedBooks * 100) . '%'),
         ];
     }
 }
