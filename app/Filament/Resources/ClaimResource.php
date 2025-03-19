@@ -44,10 +44,16 @@ class ClaimResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('book.title')
+                    ->label('Livre')
                     ->url(fn (Claim $record) => route('filament.admin.resources.books.edit', $record->book_id))
                     ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('user.name'),
+
+                Tables\Columns\TextColumn::make('book.owner.name')
+                    ->label('Actuellement possédé par'),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Demandeur'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Statut')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
