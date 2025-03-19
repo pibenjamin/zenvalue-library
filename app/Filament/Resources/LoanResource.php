@@ -254,7 +254,7 @@ class LoanResource extends Resource
                 ->url(fn (Loan $record) 
                     => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin') ? 
                     route('filament.admin.resources.book-admins.edit', $record->book_id) : 
-                    route('filament.admin.resources.books.view', $record->book_id))
+                    url('admin/books?tableSearch=' . $record->book->title))
                 
                 ->sortable()
                 ->wrap()
