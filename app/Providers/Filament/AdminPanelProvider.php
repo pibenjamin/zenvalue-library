@@ -76,6 +76,13 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber, // Couleur principale du thème
             ])
 
+            ->userMenuItems([
+//                MenuItem::make()
+//                    ->label('Mes statistiques')
+//                    ->icon('heroicon-o-chart-bar')
+//                    ->url(fn (): string => \App\Filament\Resources\UserResource::getUrl('index'))
+            ])
+
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Gestion du catalogue'),
