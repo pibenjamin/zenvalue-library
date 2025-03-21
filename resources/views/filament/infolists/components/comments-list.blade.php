@@ -1,3 +1,4 @@
+@if($getState() != null)
 <div class="space-y-2">
     <div class="text-sm font-medium text-gray-950 dark:text-gray-400">
         {{ $getState()->count() }} commentaire{{ $getState()->count() > 1 ? 's' : '' }}
@@ -24,3 +25,4 @@
         @endforelse
     </div>
 </div> 
+@endif
