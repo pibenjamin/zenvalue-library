@@ -208,15 +208,15 @@ class BookResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
-                ->withCount('comments')
-                ->where('status',Book::STATUS_ON_SHELF)
-                ->where('missing', false)
-                    ->selectSub(function ($query) {
-                        $query->from('ratings')
-                            ->selectRaw('ROUND(AVG(rate))')
+                    ->withCount('comments')
+                    ->where('status', Book::STATUS_ON_SHELF)
+                    ->where('missing', false)
+                    ->selectSub(
+                        Rating::selectRaw('ROUND(AVG(rate))')
                             ->whereColumn('book_id', 'books.id')
-                            ->where('user_id', auth()->id());
-                    }, 'users_rating');
+                            ->where('user_id', auth()->id()),
+                        'users_rating'
+                    );
             })
             ->columns([
                 TextColumn::make('title')
@@ -337,10 +337,10 @@ class BookResource extends Resource
                     )
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('comments.comment')
+                Tables\Columns\TextColumn::make('comments_count')
                     ->label('Commentaires')
                     ->state(function (Book $record): string {
-                        return $record->comments->count() . ' commentaire' . ($record->comments->count() > 1 ? 's' : '');
+                        return $record->comments_count . ' commentaire' . ($record->comments_count > 1 ? 's' : '');
                     })
                     ->sortable()
                     ->searchable()
