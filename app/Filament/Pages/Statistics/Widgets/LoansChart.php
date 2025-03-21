@@ -15,6 +15,7 @@ class LoansChart extends ChartWidget
     protected int | string | array $columnSpan = 'full';
     protected static ?string $maxHeight = '300px';
 
+
     protected function getData(): array
     {
         $data = Trend::model(Loan::class)

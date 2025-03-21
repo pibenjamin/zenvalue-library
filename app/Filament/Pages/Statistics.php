@@ -20,9 +20,7 @@ class Statistics extends Page
     protected function getHeaderWidgets(): array
     {
         return [
-            BookLanguageStats::class,
-            BookLoanStats::class,
-            LoansChart::class,
+
         ];
     }
 }

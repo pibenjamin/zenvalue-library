@@ -604,14 +604,7 @@ class BookAdminResource extends Resource
                         'fr' => 'Français',
                         'en' => 'Anglais',
                     ])
-                    ->default(null),                    
-
-                Tables\Filters\SelectFilter::make('missing')
-                    ->label('Manquant')
-                    ->options([
-                        'true' => 'Oui',
-                        'false' => 'Non',
-                    ]),
+                    ->default(null),    
                     
                 Filter::make('lang_null')
                     ->form([
@@ -623,8 +616,15 @@ class BookAdminResource extends Resource
                             $data['lang_null'],
                             fn (Builder $query): Builder => $query->whereNull('lang')
                         );
-                    }),
+                    }),                    
 
+                Tables\Filters\SelectFilter::make('missing')
+                    ->label('Manquant')
+                    ->options([
+                        'true' => 'Oui',
+                        'false' => 'Non',
+                    ]),
+                    
                 Filter::make('isbn')
                     ->form([
                         Forms\Components\TextInput::make('isbn')
@@ -652,6 +652,19 @@ class BookAdminResource extends Resource
                         );
                     }),
 
+
+                Filter::make('description_null')
+                    ->form([
+                        Forms\Components\Checkbox::make('description_null')
+                            ->label('Description vide'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['description_null'],
+                            fn (Builder $query): Builder => $query->whereNull('description')
+                        );
+                    }),
+                    
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
                     ->relationship('authors', 'name')

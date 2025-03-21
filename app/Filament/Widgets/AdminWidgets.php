@@ -47,12 +47,25 @@ class AdminWidgets extends BaseWidget
                                 ->where('missing', false)
                                 ->count();
 
+        $booksWithDescription   = Book::where('description', '!=', null)
+                                ->whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
+                                ->where('missing', false)
+                                ->count();
+
+        $booksWithTags         = Book::whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
+                                ->where('missing', false)
+                                ->whereHas('tags')
+                                ->count();
+                                
+
         return [
 
             Stat::make('# d\'utilisateurs activés', $activatedUsers . ' / ' . User::count()),
             Stat::make('Combien sommes-nous à partager des livres ?', $sumUserSharingBooks . ' citizens'),
             Stat::make('# de livres avec couverture', $booksWithCover . ' soit ' . round($booksWithCover / $indexedBooks * 100) . '%'),
             Stat::make('# de livres avec ISBN', $booksWithISBN . ' soit ' . round($booksWithISBN / $indexedBooks * 100) . '%'),
+            Stat::make('# de livres avec description', $booksWithDescription . ' soit ' . round($booksWithDescription / $indexedBooks * 100) . '%'),
+            Stat::make('# de livres avec tags', $booksWithTags . ' soit ' . round($booksWithTags / $indexedBooks * 100) . '%'),
         ];
     }
 }
