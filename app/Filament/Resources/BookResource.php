@@ -370,6 +370,7 @@ class BookResource extends Resource
                     ->disableLabel()
                     ->tooltip('Noter ce livre')
                     ->button()
+                    ->color('success')
                     ->modalDescription('Pour noter ce livre, nous vous demandons de nous confirmer sur vous l\'avez déjà lu 🙂')
                     ->icon('heroicon-o-star')
                     ->form([
@@ -402,7 +403,7 @@ class BookResource extends Resource
                     ->disableLabel()
                     ->tooltip('Commenter ce livre')
                     ->button()
-
+                    ->color('success')
                     ->icon('heroicon-s-chat-bubble-bottom-center-text')
                     ->modalDescription('Pour ajouter un commentaire, veuillez nous confirmer sur vous l\'avez déjà lu 🙂')
                     ->form([
@@ -422,6 +423,35 @@ class BookResource extends Resource
                             'user_id' => auth()->id(),
                         ]);
                     }),
+
+
+                Tables\Actions\Action::make('tags')
+                    ->label('Ajouter un mot-clé')
+                    ->disableLabel()
+                    ->color('success')
+                    ->icon('heroicon-s-tag')
+                    ->button()
+                    ->modalDescription(fn (Book $record) => "Gérer les mots-clés pour le livre : {$record->title}")
+                    ->form([
+                        Forms\Components\Select::make('tags')
+                            ->label('Mots-clés')
+                            ->multiple()
+                            ->relationship('tags', 'title')
+                            ->preload()
+                            ->default(fn (Book $record): array => $record->tags->pluck('id')->toArray())
+                            ->createOptionForm([    
+                                Forms\Components\TextInput::make('title')
+                                    ->label('Nom')
+                                    ->placeholder('Nom du mot-clé')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
+                            ])  
+                        ])
+                        ->visible(auth()->user()->hasAnyRole(['admin', 'super_admin', 'contributor'])),
+
+
+                        
+
                 Tables\Actions\Action::make('claim')
                     ->label('Réclamer')                    
                     ->disableLabel()
@@ -567,7 +597,7 @@ class BookResource extends Resource
                             ->columnSpanFull(),
                         Infolists\Components\TextEntry::make('tags.title')
                             ->label('Mots-clés')
-                            ->badge(),
+                            ->badge()
                     ])
                     ->id('informations-supplementaires')
                     ->icon('heroicon-o-plus-circle')
