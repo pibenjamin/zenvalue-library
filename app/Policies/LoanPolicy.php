@@ -5,9 +5,11 @@ namespace App\Policies;
 use App\Models\Loan;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class LoanPolicy
 {
+    use HandlesAuthorization;
     /**
      * Determine whether the user can view any models.
      */
@@ -46,6 +48,11 @@ class LoanPolicy
     public function delete(User $user, Loan $loan): bool
     {
         return $user->can('delete_loan');
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('delete_any_loan');
     }
 
     /**

@@ -10,8 +10,12 @@ use App\Filament\Widgets\MyLoanHistory;
 use App\Filament\Widgets\StatsOverviewWidget;
 use App\Filament\Widgets\UserStatsWidgets;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 class ReleaseNote extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationLabel   = 'Notes de version';
     protected static string $view               = 'filament.pages.release-note';
     protected static ?string $navigationGroup   = 'Support & Ressources';

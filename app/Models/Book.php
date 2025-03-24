@@ -90,6 +90,11 @@ class Book extends Model
         'amazon_content_page' => 'string'
     ];
 
+    public function trainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'training_books');
+    }
+
     public function putOnShelf()
     {
         $this->status = Book::STATUS_ON_SHELF;
