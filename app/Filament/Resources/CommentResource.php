@@ -27,7 +27,9 @@ class CommentResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Textarea::make('comment')
+                    ->label('Commentaire')
+                    ->required(),
             ]);
     }
 
