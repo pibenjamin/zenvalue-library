@@ -97,16 +97,7 @@ class BookResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-                Forms\Components\Select::make('authors')
-                    ->label('Auteurs')
-                    ->multiple()
-                    ->relationship('authors', 'name')
-                    ->preload()
-                    ->createOptionForm([
-                    Forms\Components\TextInput::make('name')
-                        ->label('Nom')
-                        ->required(),
-                ]),
+
 
                 Forms\Components\Toggle::make('missing')
                     ->label('Manquant')
@@ -131,7 +122,7 @@ class BookResource extends Resource
                     ]),
 
                 Forms\Components\Select::make('tags')
-                    ->label('Tags')
+                    ->label('Mots-clés')
                     ->multiple()
                     ->relationship('tags', 'title')
                     ->preload()
@@ -424,7 +415,6 @@ class BookResource extends Resource
                         ]);
                     }),
 
-
                 Tables\Actions\Action::make('tags')
                     ->label('Ajouter un mot-clé')
                     ->disableLabel()
@@ -448,10 +438,6 @@ class BookResource extends Resource
                             ])  
                         ])
                         ->visible(auth()->user()->hasAnyRole(['admin', 'super_admin', 'contributor'])),
-
-
-                        
-
                 Tables\Actions\Action::make('claim')
                     ->label('Réclamer')                    
                     ->disableLabel()
@@ -643,6 +629,7 @@ class BookResource extends Resource
             'index' => Pages\ListBooks::route('/'),
             'create' => Pages\CreateBook::route('/create'),
             'edit' => Pages\EditBook::route('/{record}/edit'),
+            'view' => Pages\ViewBook::route('/{record}'),
         ];
     }
 

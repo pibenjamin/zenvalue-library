@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Filament\Pages\Statistics\Widgets\BookLanguageStats;
 use App\Filament\Pages\Statistics\Widgets\BookLoanStats;
 use App\Filament\Pages\Statistics\Widgets\LoansChart;
-
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 class Statistics extends Page
-{
+{    
+    use HasPageShield;
+
     protected static ?string $navigationLabel   = 'Statistiques';
     protected static string $view               = 'filament.pages.statistics';
     protected static ?int $navigationSort       = 5;

@@ -5,9 +5,12 @@ namespace App\Policies;
 use App\Models\Author;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AuthorPolicy
-{
+{    
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
@@ -46,6 +49,11 @@ class AuthorPolicy
     public function delete(User $user, Author $author): bool
     {
         return $user->can('delete_author');
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('delete_any_author');
     }
 
     /**

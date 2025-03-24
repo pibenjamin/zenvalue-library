@@ -4,9 +4,11 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 use Filament\Support\Facades\FilamentIcon;
-
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 class HelpPage extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationLabel   = 'Aide';
     protected static ?string $title             = 'Centre d\'aide';
     protected static ?string $navigationGroup   = 'Support & Ressources';

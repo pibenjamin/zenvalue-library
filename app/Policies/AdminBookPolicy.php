@@ -5,15 +5,17 @@ namespace App\Policies;
 use App\Models\Book;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-
+use Illuminate\Auth\Access\HandlesAuthorization;
 class AdminBookPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('view_any_book::admin');
     }
 
     /**
@@ -21,7 +23,7 @@ class AdminBookPolicy
      */
     public function view(User $user, Book $book): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('view_book::admin');
     }
 
     /**
@@ -29,7 +31,7 @@ class AdminBookPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('create_book::admin');
     }
 
     /**
@@ -37,7 +39,7 @@ class AdminBookPolicy
      */
     public function update(User $user, Book $book): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('update_book::admin');
     }
 
     /**
@@ -45,7 +47,12 @@ class AdminBookPolicy
      */
     public function delete(User $user, Book $book): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('delete_book::admin');
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('delete_any_book::admin');
     }
 
     /**
@@ -53,7 +60,7 @@ class AdminBookPolicy
      */
     public function restore(User $user, Book $book): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('restore_book::admin');
     }
 
     /**
@@ -61,6 +68,6 @@ class AdminBookPolicy
      */
     public function forceDelete(User $user, Book $book): bool
     {
-        return $user->hasAnyRole(['admin', 'super_admin']);
+        return $user->can('force_delete_book::admin');
     }
 }

@@ -12,8 +12,12 @@ use App\Filament\Widgets\UserStatsWidgets;
 use App\Filament\Widgets\BookTagCloud;
 use App\Filament\Widgets\AdminWidgets;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 class OkrPage extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationLabel   = 'OKR';
     protected static string $view               = 'filament.pages.okr';
     protected static ?string $navigationGroup   = 'Support & Ressources';
