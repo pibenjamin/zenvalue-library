@@ -199,7 +199,7 @@ class BookResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
-                    ->withCount('comments')
+                    ->withCount('comments as comments_count')
                     ->where('status', Book::STATUS_ON_SHELF)
                     ->where('missing', false)
                     ->selectSub(
@@ -328,14 +328,14 @@ class BookResource extends Resource
                     )
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('comments_count')
-                    ->label('Commentaires')
-                    ->state(function (Book $record): string {
-                        return $record->comments_count . ' commentaire' . ($record->comments_count > 1 ? 's' : '');
-                    })
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
+//                Tables\Columns\TextColumn::make('comment')
+//                    ->label('Commentaires')
+//                    ->state(function (Book $record): string {
+//                        return $record->comments->count() . ' commentaire' . ($record->comments->count() > 1 ? 's' : '');
+//                    })
+//                    ->sortable()
+//                    ->searchable()
+//                    ->toggleable(),
 
             ])
             ->actions([
