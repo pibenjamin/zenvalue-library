@@ -20,6 +20,16 @@ class ListBooks extends ListRecords
 {
     protected static string $resource = BookResource::class;
 
+    public $defaultAction = 'addBookAction';
+
+    public function defaultAction(): Actions\Action
+    {
+        return Action::make('addBookAction')
+            ->label('Ajouter un livre')
+            ->modalHeading('Ajouter un livre')
+            ->icon('heroicon-o-plus');
+    }
+
     public function leaveRatingAction(): Action
     {
         return Action::make('leaveRatingAction')
