@@ -75,6 +75,7 @@ use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 // Filament Plugins
 use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Actions\BulkAction;
 
 class BookResource extends Resource
 {
@@ -468,6 +469,34 @@ class BookResource extends Resource
                 ->size(ActionSize::Small)
                 ->color('primary')
                 ->button()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    //Pages\ListBookAdmins::bulkAddTagsAction(),
+                    BulkAction::make('print_qr_code')
+                        ->label('Imprimer les QR Codes')
+                        ->icon('heroicon-o-qr-code')
+                        ->requiresConfirmation()
+                        ->modalHeading('Imprimer les QR Codes')
+                        ->modalDescription('Il vous suffira de coller cette étiquette au dos de la couverture du livre avec une colle en stick et de rappeler à l\'emprunteur d\'enregistrer le prêt.')
+                        ->modalSubmitActionLabel('Oui imprimer la sélection')                        
+                        //return new HtmlString('')
+
+                        ->action(function (array $data, $livewire): void {
+                            $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                            $serializedIds  = implode(',', $ids);
+                            $url            = route('print-qr-codes', 
+                                [
+                                    'ids' => $serializedIds,
+                                    'print_size' => 300,
+                                    'regenerate' => true,
+                                ]
+                            );
+
+                            $livewire->js("window.open('{$url}', '_blank')");
+                        }),
+                ])
             ])
             ->defaultPaginationPageOption(50)
             ->paginationPageOptions([25, 50, 100])
