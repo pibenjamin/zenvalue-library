@@ -15,6 +15,7 @@ use App\Models\Book;
 use Mokhosh\FilamentRating\Components\Rating as RatingComponent;
 use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
+use Closure;
 class ListBooks extends ListRecords
 {
     protected static string $resource = BookResource::class;
@@ -22,10 +23,12 @@ class ListBooks extends ListRecords
     public function leaveRatingAction(): Action
     {
         return Action::make('leaveRatingAction')
-            ->label('Noter ce livre')
+            ->label('Noter')
+            ->disableLabel()
+            ->tooltip('Noter ce livre')
             ->link()
             ->modalDescription('Pour noter ce livre, nous vous demandons de nous confirmer sur vous l\'avez déjà lu 🙂')
-            ->icon('heroicon-o-hand-thumb-up')
+            ->icon('heroicon-o-star')
             ->form([
                 RatingComponent::make('rate')
                     ->label('')
@@ -89,7 +92,7 @@ class ListBooks extends ListRecords
                     
                     $book = Book::create([
                         'isbn'          => $isbn,
-                        'status'        => Book::STATUS_CONTRIBUTION_TO_QUALIFY,
+                        'status'        => Book::STATUS_TO_QUALIFY,
                         'owner_id'      => auth()->id(),
                         'support_id'    => 1,
                         'is_contribution' => true,
@@ -107,7 +110,7 @@ class ListBooks extends ListRecords
     {
         return [
             __('Tous les livres') => Tab::make()
-            ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->count()),
+            ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count()),
 
             __('Mes livres') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('owner_id', auth()->id()))

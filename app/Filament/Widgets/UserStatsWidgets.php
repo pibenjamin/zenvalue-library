@@ -25,12 +25,24 @@ class UserStatsWidgets extends BaseWidget
 
     protected function getCards(): array
     {
+
+        $authorOnIndexedBooks = Author::whereHas('books', function ($query) {
+            $query->whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
+                ->where('missing', false);
+        })->count();
+
+        $tagOnIndexedBooks = Tag::whereHas('books', function ($query) {
+            $query->whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
+                ->where('missing', false);
+        })->count();
+
+
         return [
-            Stat::make('', Book::count() . ' livres')
-                ->description('Total des livres répertoriés')
+            Stat::make('', Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count() . ' livres')
+                ->description('Total des livres sur étagère')
                 ->color('primary')
                 ->descriptionIcon('heroicon-m-book-open', IconPosition::Before),
-            Stat::make('', Author::count() . ' auteurs')
+            Stat::make('', $authorOnIndexedBooks . ' auteurs')
                 ->description('Total des auteurs répertoriés')
                 ->color('primary')
                 ->descriptionIcon('heroicon-m-user-group', IconPosition::Before),

@@ -21,8 +21,14 @@ class ListBookAdmins extends ListRecords
 {
     protected static string $resource = BookAdminResource::class;
 
-
-
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\CreateAction::make()
+                ->label('Ajouter un livre')
+                ->icon('heroicon-o-plus'),
+        ];
+    }
     public static function bulkAddTagsAction(): Action
     {
         return Action::make('bulkAddTagsAction')
@@ -35,12 +41,18 @@ class ListBookAdmins extends ListRecords
                     ->multiple()
                     ->relationship('tags', 'title')
                     ->dehydrated()  // pour récupérer les données dans la fonction action à partir d"une relation
-                    ->preload(),
+                    ->preload()
+                    ->action(function (array $data, $livewire): void {
+
+                        $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                        dd($ids);
+                    }),
 
             ])
             ->action(function (array $data, $livewire): void {
 
-                dd($data, $livewire->getSelectedTableRecords());
+                $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                dd($ids);
 
                 /*
                 foreach ($data['add_tags'] as $tag) {
@@ -117,16 +129,19 @@ class ListBookAdmins extends ListRecords
         return [
             __('Livres sur étagère') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF))
-                ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->count()),
+                ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count()),
             __('Livres à qualifier') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY))
-                ->badge(fn () => Book::where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)->count()),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_TO_QUALIFY))
+                ->badge(fn () => Book::where('status', Book::STATUS_TO_QUALIFY)->count()),
             __('Livres qualifiés') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_QUALIFIED))
-                ->badge(fn () => Book::where('status', Book::STATUS_CONTRIBUTION_QUALIFIED)->count()),
-            __('Livres rejetés') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_CONTRIBUTION_REJECTED))
-                ->badge(fn () => Book::where('status', Book::STATUS_CONTRIBUTION_REJECTED)->count()),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_QUALIFIED))
+                ->badge(fn () => Book::where('status', Book::STATUS_QUALIFIED)->count()),
+                __('Livres rejetés') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_REJECTED))
+                ->badge(fn () => Book::where('status', Book::STATUS_REJECTED)->count()),
+            __('Tous les livres') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query)
+                ->badge(fn () => Book::count()),
         ];
     }
 

@@ -15,6 +15,8 @@ use App\Models\User;
 use App\Models\Tag;
 use App\Models\Support;
 
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Field;
 
 use Livewire\Component;
 
@@ -40,8 +42,8 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
-
-
+use Webbingbrasil\FilamentCopyActions\Tables\CopyableTextColumn;
+use Webbingbrasil\FilamentCopyActions\Forms\Actions\CopyAction;
 // Laravel
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope; 
@@ -55,7 +57,10 @@ use Illuminate\Support\Str;
 use Closure;    
 use Filament\Icons\Icon;
 use Filament\Notifications\Notification;
-
+use Illuminate\Support\HtmlString;
+use Filament\Forms\Set;
+use Filament\Forms\Get;
+use App\Services\ImportBookData;
 
 class BookAdminResource extends Resource
 {
@@ -72,7 +77,7 @@ class BookAdminResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $booksToQualify = Book::where('status', Book::STATUS_CONTRIBUTION_TO_QUALIFY)->count();
+        $booksToQualify = Book::where('status', Book::STATUS_TO_QUALIFY)->count();
         if($booksToQualify > 0){
             return $booksToQualify;
         }
@@ -95,9 +100,11 @@ class BookAdminResource extends Resource
                             ->placeholder('Titre de l\'ouvrage')
                             ->maxLength(255)
                             ->reactive()
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function (Forms\Set $set, $state) {
                                 $set('slug', Str::slugify($state));
-                            })
+                            })          
+                            ->suffixAction(CopyAction::make())                  
                             ->columnSpan(4),
 
                         Forms\Components\TextInput::make('slug')
@@ -127,6 +134,11 @@ class BookAdminResource extends Resource
                             ->maxLength(255)
                             ->default(null),
 
+                        Forms\Components\TextInput::make('lang')
+                            ->label('Langue')
+                            ->maxLength(255)
+                            ->default(null),
+
                         Forms\Components\TextInput::make('year_of_publication')
                             ->label('Année de publication')
                             ->numeric()
@@ -144,21 +156,6 @@ class BookAdminResource extends Resource
                             ->numeric()
                             ->default(null),
 
-                        Forms\Components\TextInput::make('ol_key')
-                            ->label('Open Library Key')
-                            ->maxLength(255)
-                            ->default(null),
-
-                        Forms\Components\TextInput::make('cal_page')
-                            ->label('Page sur chasse aux livres')
-                            ->prefixIcon('heroicon-o-globe-alt')
-                            ->disabled(fn (Book $record): bool => $record->cal_page === 'parsed')
-                            ->maxLength(255)
-                            ->default(null),
-
-                        Forms\Components\TextInput::make('lang')
-                            ->label('Langue'),
-
                         Forms\Components\FileUpload::make('cover_url')
                             ->label('Couverture')
                             ->directory('books/covers')
@@ -168,6 +165,64 @@ class BookAdminResource extends Resource
 
                     ])
                     ->columns(3)
+                    ->collapsible(),
+
+                Forms\Components\Section::make('Import de données')
+                    ->schema([
+                        Forms\Components\TextInput::make('ol_key')
+                            ->label('Code Open Library')
+                            ->helperText(function ($record) {
+                                if (!$record) return null;
+                                return new HtmlString(
+                                    '<a href="https://openlibrary.org/works/' . $record->ol_key . '" 
+                                        target="_blank" 
+                                        class="text-success-600 hover:text-success-500 hover:underline"
+                                    >
+                                        Voir la page sur openlibrary.org
+                                    </a>'
+                                );
+                            })
+                            ->prefixIcon('heroicon-o-globe-alt')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('importFromCalPage')
+                                    ->label('Importer les informations')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->modalContent(fn (Book $record): View => view(
+                                        'filament.modals.view.compare_with_ol',
+                                        ['record' => $record,
+                                         'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
+                                    ))
+                                    ->modalCancelActionLabel('Fermer')
+                                    ->action(function (?Book $record) {
+                                }),
+                            ),
+
+                        Forms\Components\TextInput::make('cal_page')
+                            ->label('Page sur chasse aux livres')
+                            ->helperText(function ($record) {
+                                if (!$record) return null;
+                                return new HtmlString(
+                                    '<a href="https://www.chasse-aux-livres.fr" 
+                                        target="_blank" 
+                                        class="text-success-600 hover:text-success-500 hover:underline"
+                                    >
+                                        Voir la page sur www.chasse-aux-livres.fr
+                                    </a>'
+                                );
+                            })
+                            ->prefixIcon('heroicon-o-globe-alt')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('importFromCalPage')
+                                    ->label('Importer les informations')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->disabled(fn (?Book $record): bool => !$record || $record->cal_page === 'parsed')
+                                    ->action(function (?Book $record) {
+                                        if (!$record) return;
+                                        app(ImportBookData::class)->importFromCalPage($record);
+                                    }),
+                            ),
+                    ])
+                    ->columns(2)
                     ->collapsible(),
 
                 Forms\Components\Section::make('Qualifications supplémentaires')
@@ -224,10 +279,21 @@ class BookAdminResource extends Resource
                             ->onColor('success')
                             ->offColor('danger')
                             ->default(false),
+
+                        Forms\Components\Select::make('status')
+                            ->label('Statut')
+                            ->options(Book::getStatusLabels())
+                            ->default(Book::STATUS_QUALIFIED),
        
                         Forms\Components\Toggle::make('is_borrowed')
                             ->label('Emprunté')
-                            ->helperText(fn(Book $record): string => $record->is_borrowed ? "jusqu'au " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') : 'Ce livre est actuellement disponible')
+                            ->helperText(fn(?Book $record): string => 
+                            !$record ? 'Ce livre sera disponible une fois créé' :
+                            ($record->is_borrowed ? 
+                                "jusqu'au " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') : 
+                                'Ce livre est actuellement disponible'
+                            )
+                        )
                             ->required(),
                     ])
                     ->columns(4)
@@ -249,6 +315,31 @@ class BookAdminResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->searchable(),
+
+                TextColumn::make('missing')
+                    ->label('Manquant')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->missing ? 'oui' : 'non';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                    
+                    TextColumn::make('lang')
+                    ->label('Langue')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->lang ?? '?';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+
+
+                TextColumn::make('cal_page')
+                    ->label('Page c.a.l.')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')
@@ -387,6 +478,109 @@ class BookAdminResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     //Pages\ListBookAdmins::bulkAddTagsAction(),
+                    BulkAction::make('put_on_shelf')
+                        ->label('Mettre sur étagère')
+                        ->icon('heroicon-o-archive-box-arrow-down')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each->putOnShelf())
+                        ->modalDescription('Voulez-vous vraiment mettre le statut de ces livres à qualifier ?'),
+
+                    /*
+                    BulkAction::make('add_tags')
+                        ->label('Ajouter un mot-clé')
+                        ->icon('heroicon-o-tag')
+                        ->action(function (Collection $records, array $data): void {
+
+                            $bookIds = $records->pluck('id')->toArray();
+
+                            dd($data, $bookIds);
+
+                            $bookIds = $records->pluck('id')->toArray();
+                            $selectedTags = $data['tags'];
+
+                            
+
+                            foreach ($selectedTags as $tag) {
+                                if(!$Tag = Tag::where('title', $tag)->first()) 
+                                {
+                                    $Tag = Tag::create([
+                                        'title' => $tag,
+                                        'slug' => Str::slug($tag),
+                                    ]);
+                                }
+            
+                                foreach ($records as $record) {
+                                    $record->tags()->attach($Tag->id);
+                                }
+                            }   
+                        })
+                        ->form([
+                            Forms\Components\Select::make('tags')
+                                ->label('Mots-clés')
+                                ->multiple()
+                                ->relationship('tags', 'title')
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Nom')
+                                ])
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+
+                            dd($records->pluck('id')->toArray(), $data);
+                            $bookIds = $records->pluck('id')->toArray();
+                            $selectedTags = $data['tags'];
+
+                            foreach ($selectedTags as $tag) {
+                                if(!$Tag = Tag::where('title', $tag)->first()) 
+                                {
+                                    $Tag = Tag::create([
+                                        'title' => $tag,
+                                        'slug' => Str::slug($tag),
+                                    ]);
+                                }
+            
+                                foreach ($records as $record) {
+                                    $record->tags()->attach($Tag->id);
+                                }
+                            }   
+                        }),
+                    */
+
+                    BulkAction::make('lang')
+                        ->label('Saisir la langue')
+                        ->icon('heroicon-o-language')
+                        ->form([
+                            Forms\Components\Select::make('lang')
+                                ->label('Langue')
+                                ->required()
+                                ->options([
+                                    'fr' => 'Français',
+                                    'en' => 'Anglais',
+                                ])
+                        ])
+                        ->action(fn (Collection $records, array $data) => $records->each(function (Book $record) use ($data) {
+                            $record->lang = $data['lang'];
+                            $record->save();
+                        })),
+
+                    BulkAction::make('generateQrCodes')
+                        ->label('Générer les QR codes')
+                        ->icon('heroicon-o-qr-code')
+                        ->action(function (array $data, $livewire): void {
+
+                            $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                            $serializedIds  = implode(',', $ids);
+                            $url            = route('print-qr-codes', 
+                                [
+                                    'ids' => $serializedIds,
+                                    'print_size' => 300,
+                                    'regenerate' => true,
+                                ]
+                            );
+
+                            $livewire->js("window.open('{$url}', '_blank')");
+                        }),
                 ]),
 
             ])
@@ -404,6 +598,33 @@ class BookAdminResource extends Resource
                         'false' => 'Non',
                     ]),
 
+                Tables\Filters\SelectFilter::make('lang')
+                    ->label('Langue')
+                    ->options([
+                        'fr' => 'Français',
+                        'en' => 'Anglais',
+                    ])
+                    ->default(null),    
+                    
+                Filter::make('lang_null')
+                    ->form([
+                        Forms\Components\Checkbox::make('lang_null')
+                            ->label('Langue non renseignée'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['lang_null'],
+                            fn (Builder $query): Builder => $query->whereNull('lang')
+                        );
+                    }),                    
+
+                Tables\Filters\SelectFilter::make('missing')
+                    ->label('Manquant')
+                    ->options([
+                        'true' => 'Oui',
+                        'false' => 'Non',
+                    ]),
+                    
                 Filter::make('isbn')
                     ->form([
                         Forms\Components\TextInput::make('isbn')
@@ -431,6 +652,19 @@ class BookAdminResource extends Resource
                         );
                     }),
 
+
+                Filter::make('description_null')
+                    ->form([
+                        Forms\Components\Checkbox::make('description_null')
+                            ->label('Description vide'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['description_null'],
+                            fn (Builder $query): Builder => $query->whereNull('description')
+                        );
+                    }),
+                    
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
                     ->relationship('authors', 'name')

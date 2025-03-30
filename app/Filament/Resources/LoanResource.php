@@ -115,6 +115,7 @@ class LoanResource extends Resource
                 Forms\Components\Select::make('book_id')
                     ->label('Ouvrage')
                     ->relationship('book', 'title')
+                    ->searchable()
                     ->required(),
 
                 Forms\Components\Select::make('status')
@@ -250,6 +251,11 @@ class LoanResource extends Resource
 
             Tables\Columns\TextColumn::make('book.title')
                 ->label('Ouvrage')
+                ->url(fn (Loan $record) 
+                    => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin') ? 
+                    route('filament.admin.resources.book-admins.edit', $record->book_id) : 
+                    url('admin/books?tableSearch=' . $record->book->title))
+                
                 ->sortable()
                 ->wrap()
                 ->width('15%'),

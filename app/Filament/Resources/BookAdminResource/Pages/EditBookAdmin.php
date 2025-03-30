@@ -35,7 +35,7 @@ class EditBookAdmin extends EditRecord
                 ->modalCancelActionLabel('Fermer')
                 ->action(function (Book $record) {
 
-                    $record->status = Book::STATUS_CONTRIBUTION_QUALIFIED;
+                    $record->status = Book::STATUS_QUALIFIED;
                     $record->save();
 
                     Notification::make()

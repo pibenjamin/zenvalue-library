@@ -16,9 +16,12 @@ use App\Models\User;
 use App\Models\Support;
 use App\Models\Notification;
 use App\Models\Rating;
-
+use App\Models\Claim;
+use App\Models\Comment;
 use Illuminate\Support\Str;
 use Illuminate\Support\HtmlString;
+use Mokhosh\FilamentRating\Components\Rating as RatingComponent;
+use Filament\Forms\Components\Checkbox;
 // Services
 use App\Services\LoanService;
 use App\Services\QrCodeService;
@@ -43,6 +46,13 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
+
+
+use Webbingbrasil\FilamentAdvancedFilter\Filters\TextFilter;
+use Webbingbrasil\FilamentAdvancedFilter\Filters\BooleanFilter;
+
 
 // Filament Other
 use Filament\Infolists;
@@ -64,8 +74,8 @@ use Filament\Tables\Columns\ImageColumn;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 // Filament Plugins
-
-
+use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Actions\BulkAction;
 
 class BookResource extends Resource
 {
@@ -88,16 +98,7 @@ class BookResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-                Forms\Components\Select::make('authors')
-                    ->label('Auteurs')
-                    ->multiple()
-                    ->relationship('authors', 'name')
-                    ->preload()
-                    ->createOptionForm([
-                    Forms\Components\TextInput::make('name')
-                        ->label('Nom')
-                        ->required(),
-                ]),
+
 
                 Forms\Components\Toggle::make('missing')
                     ->label('Manquant')
@@ -122,7 +123,7 @@ class BookResource extends Resource
                     ]),
 
                 Forms\Components\Select::make('tags')
-                    ->label('Tags')
+                    ->label('Mots-clés')
                     ->multiple()
                     ->relationship('tags', 'title')
                     ->preload()
@@ -199,17 +200,26 @@ class BookResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
-                ->where('status',Book::STATUS_ON_SHELF)
-                    ->selectSub(function ($query) {
-                        $query->from('ratings')
-                            ->selectRaw('ROUND(AVG(rate))')
+                    ->withCount('comments as comments_count')
+                    ->where('status', Book::STATUS_ON_SHELF)
+                    ->where('missing', false)
+                    ->selectSub(
+                        Rating::selectRaw('ROUND(AVG(rate))')
                             ->whereColumn('book_id', 'books.id')
-                            ->where('user_id', auth()->id());
-                    }, 'users_rating');
+                            ->where('user_id', auth()->id()),
+                        'users_rating'
+                    );
             })
             ->columns([
                 TextColumn::make('title')
                     ->label('Titre')
+                    ->state(function ($record): string {
+                        if($record->is_borrowed) {
+                            return new HtmlString($record->title . ' <span class="text-gray-500 text-sm">(Emprunté, retour prévu le ' . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') . ')</span>');
+                        }
+                        return $record->title;
+                    })
+                    ->html()
                     ->sortable()
                     ->wrap()
                     ->searchable(),
@@ -219,11 +229,22 @@ class BookResource extends Resource
                     ->sortable()
                     ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
                     ->height(75)
-                    ->alignment(Alignment::Center),
+                    ->alignment(Alignment::Center)
+                    ->toggleable(),
+
+                TextColumn::make('lang')
+                    ->label('Langue')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->lang ?? '?';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 TextColumn::make('year_of_publication')
                     ->label('Année')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')
@@ -241,7 +262,8 @@ class BookResource extends Resource
                     ->wrap()
                     ->listWithLineBreaks()
                     ->verticallyAlignStart()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 Tables\Columns\ImageColumn::make('owner.avatar')
                     ->label('Propriétaire')
@@ -282,13 +304,14 @@ class BookResource extends Resource
                     ->label(new HtmlString('Note <br> moyenne'))
                     ->view('filament.tables.columns.rating_avg_rate')
                     ->tooltip("Moyenne des notes des utilisateurs")
-                    ->alignment(Alignment::Center),
+                    ->alignment(Alignment::Center)
+                    ->toggleable(),
 
                 Tables\Columns\ViewColumn::make('users_rating')
                     ->label('Ma note')
                     ->view('filament.tables.columns.my_rate')
-                    ->tooltip("Ma note personnelle")
-                    ->alignment(Alignment::Center),
+                    ->alignment(Alignment::Center)
+                    ->toggleable(),
 
                 TextColumn::make('is_borrowed')
                     ->label('Disponibilité')
@@ -303,98 +326,226 @@ class BookResource extends Resource
                     ->tooltip(fn (Book $record) => $record->is_borrowed 
                         ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
                         : "Ce livre est actuellement disponible"
-                    ),
+                    )
+                    ->toggleable(),
+
+//                Tables\Columns\TextColumn::make('comment')
+//                    ->label('Commentaires')
+//                    ->state(function (Book $record): string {
+//                        return $record->comments->count() . ' commentaire' . ($record->comments->count() > 1 ? 's' : '');
+//                    })
+//                    ->sortable()
+//                    ->searchable()
+//                    ->toggleable(),
 
             ])
             ->actions([
-                Tables\Actions\Action::make('borrow')
-                    ->label('Emprunter')
-                    ->color('success')
-                    ->icon('heroicon-s-shopping-bag')
-                    ->requiresConfirmation()
-                    ->modalHeading('Emprunter ce livre')
+                ActionGroup::make([
+                    Tables\Actions\Action::make('borrow')
+                        ->label('Emprunter')
+                        ->color('success')
+                        ->icon('heroicon-s-shopping-bag')
+                        ->requiresConfirmation()
+                        ->modalHeading('Emprunter ce livre')
                     ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
                      ->action(function (Book $book) {
                         app(LoanService::class)->borrowBook($book);
                     })
                     ->tooltip(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous avez déjà emprunté ce livre' : 'Emprunter')
                     ->button()
+                    ->size(ActionSize::Small)
                     ->visible(fn (Book $book) => !$book->is_borrowed),
 
-                 Tables\Actions\Action::make('already_borrowed')
-                     ->label(fn (Book $book) => 'Retour le ' . \Carbon\Carbon::parse($book->getLastLoan()->to_be_returned_at)->format('d/m/Y'))
-                     ->disabled(fn (Book $book) => $book->is_borrowed)
-                     ->visible(fn (Book $book) => $book->is_borrowed),
 
+                Tables\Actions\Action::make('leaveRatingAction')
+                    ->label('Noter')
+                    ->disableLabel()
+                    ->tooltip('Noter ce livre')
+                    ->button()
+                    ->color('success')
+                    ->modalDescription('Pour noter ce livre, nous vous demandons de nous confirmer sur vous l\'avez déjà lu 🙂')
+                    ->icon('heroicon-o-star')
+                    ->form([
+                        RatingComponent::make('rate')
+                            ->label('')
+                            ->allowZero()
+                            ->default(0)
+                            ->required(),
+                        Checkbox::make('Je confirme avoir lu ce livre')
+                            ->label('J\'ai lu ce livre')
+                            ->required()
+                            ->default(false),
+                    ])
+                    ->action(function (array $data, Book $book) {
+                        if(!$rating = Rating::where('book_id', $book->id)->where('user_id', auth()->id())->first()) {
+                            Rating::create([
+                                'book_id' => $book->id,
+                                'rate' => $data['rate'],
+                                'user_id' => auth()->id(),
+                            ]);
+                        } else {
+                            Rating::where('book_id', $book->id)
+                                ->where('user_id', auth()->id())
+                                ->update(['rate' => $data['rate']]);
+                        }
+                    }),
+
+                Tables\Actions\Action::make('comment')
+                    ->label('Commenter')
+                    ->disableLabel()
+                    ->tooltip('Commenter ce livre')
+                    ->button()
+                    ->color('success')
+                    ->icon('heroicon-s-chat-bubble-bottom-center-text')
+                    ->modalDescription('Pour ajouter un commentaire, veuillez nous confirmer sur vous l\'avez déjà lu 🙂')
+                    ->form([
+                        Textarea::make('comment')
+                            ->label('Commentaire')
+                            ->required()
+                            ->default(''),
+                        Checkbox::make('Je confirme avoir lu ce livre')
+                            ->label('J\'ai lu ce livre')
+                            ->required()
+                            ->default(false),                            
+                    ])
+                    ->action(function (array $data, Book $book) {
+                        Comment::create([
+                            'book_id' => $book->id,
+                            'comment' => $data['comment'],
+                            'user_id' => auth()->id(),
+                        ]);
+                    }),
+
+                Tables\Actions\Action::make('tags')
+                    ->label('Ajouter un mot-clé')
+                    ->disableLabel()
+                    ->color('success')
+                    ->icon('heroicon-s-tag')
+                    ->button()
+                    ->modalDescription(fn (Book $record) => "Gérer les mots-clés pour le livre : {$record->title}")
+                    ->form([
+                        Forms\Components\Select::make('tags')
+                            ->label('Mots-clés')
+                            ->multiple()
+                            ->relationship('tags', 'title')
+                            ->preload()
+                            ->default(fn (Book $record): array => $record->tags->pluck('id')->toArray())
+                            ->createOptionForm([    
+                                Forms\Components\TextInput::make('title')
+                                    ->label('Nom')
+                                    ->placeholder('Nom du mot-clé')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
+                            ])  
+                        ])
+                        ->visible(auth()->user()->hasAnyRole(['admin', 'super_admin', 'contributor'])),
+                Tables\Actions\Action::make('claim')
+                    ->label('Réclamer')                    
+                    ->disableLabel()
+                    ->color('success')
+                    ->icon('heroicon-s-hand-raised')
+                    ->requiresConfirmation()
+                    ->modalHeading('Revendiquer la propriété de ce livre')
+                     ->modalDescription(fn (Book $book) => "Voulez-vous pensez être le propriétaire de ce livre ?")
+                      ->action(function (Book $book) {
+                         $newClaim = new Claim();
+                         $newClaim->book_id = $book->id;
+                         $newClaim->user_id = auth()->id();
+                         $newClaim->status = 'pending';
+                         $newClaim->save();
+                     })
+                     ->tooltip('Revendiquer la propriété de ce livre')
+                     ->button(),
+                     
                 Tables\Actions\ViewAction::make()
                     ->label('Voir')
                     ->disableLabel()
                     ->button()
-                    ->iconSize('sm')
                     ->color('stone')
                     ->tooltip('Voir les détails'),
-/*
-                Tables\Actions\Action::make('share')
-                    ->label('Recommander')
-                    ->disableLabel()
-                    ->button()
-                    ->iconSize('sm')
-                    ->icon('heroicon-o-share')
-                    ->color('primary')
-                    ->tooltip('Partager')
-                    ->modalHeading('Partager ce livre')
-                    ->modalDescription(fn (Book $record) => "Choisissez comment partager \"{$record->title}\"")
-                    ->modalContent(fn (Book $record) => view('filament.actions.share-options', ['record' => $record]))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Fermer'),
-*/                    
+                ])
+                ->label('Actions')
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size(ActionSize::Small)
+                ->color('primary')
+                ->button()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    //Pages\ListBookAdmins::bulkAddTagsAction(),
+                    BulkAction::make('print_qr_code')
+                        ->label('Imprimer les QR Codes')
+                        ->icon('heroicon-o-qr-code')
+                        ->requiresConfirmation()
+                        ->modalHeading('Imprimer les QR Codes')
+                        ->modalDescription('Il vous suffira de coller cette étiquette au dos de la couverture du livre avec une colle en stick et de rappeler à l\'emprunteur d\'enregistrer le prêt.')
+                        ->modalSubmitActionLabel('Oui imprimer la sélection')                        
+                        //return new HtmlString('')
 
+                        ->action(function (array $data, $livewire): void {
+                            $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
+                            $serializedIds  = implode(',', $ids);
+                            $url            = route('print-qr-codes', 
+                                [
+                                    'ids' => $serializedIds,
+                                    'print_size' => 300,
+                                    'regenerate' => true,
+                                ]
+                            );
+
+                            $livewire->js("window.open('{$url}', '_blank')");
+                        }),
+                ])
             ])
             ->defaultPaginationPageOption(50)
             ->paginationPageOptions([25, 50, 100])
             ->filters([
-                Tables\Filters\SelectFilter::make('id')
-                    ->label('ID')
-                    ->options(Book::all()->pluck('id', 'id')),                    
-                Tables\Filters\SelectFilter::make('is_borrowed')
-                    ->label('Emprunté')
-                    ->options([
-                        'true' => 'Oui',
-                        'false' => 'Non',
-                    ]),
+
+                TextFilter::make('title')
+                    ->label('Titre'),
+
+                TextFilter::make('id')
+                    ->label('ID'),
 
                 Tables\Filters\SelectFilter::make('authors.name')
                     ->label('Auteurs')
+                    ->multiple()
                     ->relationship('authors', 'name')
                     ->options(Author::all()->pluck('name', 'id')),
 
-                Tables\Filters\SelectFilter::make('owner.name')
-                    ->label('Propriétaire')
-                    ->relationship('owner', 'name')
-                    ->options(User::all()->pluck('name', 'id')),
-
                 Tables\Filters\SelectFilter::make('tags.title')
                     ->label('Mots-clés')
+                    ->preload()
                     ->multiple()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return empty($data['values']) ? $query : $query->whereHas('tags', function ($query) use ($data) {
+                            $query->whereIn('id', $data['values']);
+                        }, '=', count($data['values']));
+                    })
                     ->relationship('tags', 'title')
                     ->options(Tag::all()->pluck('title', 'id')),
+
+                Tables\Filters\SelectFilter::make('lang')
+                    ->label('Langue')
+                    ->options([
+                        'fr' => 'Français',
+                        'en' => 'Anglais',
+                    ])
+                    ->default(null),
 
                 Tables\Filters\SelectFilter::make('difficulty_level')
                     ->label('Difficulté')
                     ->options(Book::getDifficulties())
                     ->default(null),
 
-                Tables\Filters\SelectFilter::make('is_borrowed')
-                    ->label('Disponibilité')
-                    ->options([
-                        'true' => 'Disponible',
-                        'false' => 'Emprunté',
-                    ]),
-            ])
+                BooleanFilter::make('is_borrowed')->nullsAreFalse()
+                    ->label('Emprunté ?')
+
+            ], layout: FiltersLayout::Modal)
+            ->filtersFormColumns(3)
             ->actionsPosition(ActionsPosition::BeforeColumns);
     }
-
-
 
     public static function infolist(Infolist $infolist): Infolist
     {
@@ -461,7 +612,7 @@ class BookResource extends Resource
                             ->columnSpanFull(),
                         Infolists\Components\TextEntry::make('tags.title')
                             ->label('Mots-clés')
-                            ->badge(),
+                            ->badge()
                     ])
                     ->id('informations-supplementaires')
                     ->icon('heroicon-o-plus-circle')
@@ -487,6 +638,10 @@ class BookResource extends Resource
                             })
                             ->label('Note')
                             ->badge(),
+                        Infolists\Components\TextEntry::make('comments')
+                            ->label('Commentaires')
+                            ->view('filament.infolists.components.comments-list')
+                            ->columnSpanFull(),
                     ])
                     ->id('apports-citizens')
                     ->icon('heroicon-o-sparkles')
@@ -503,10 +658,8 @@ class BookResource extends Resource
             'index' => Pages\ListBooks::route('/'),
             'create' => Pages\CreateBook::route('/create'),
             'edit' => Pages\EditBook::route('/{record}/edit'),
+            'view' => Pages\ViewBook::route('/{record}'),
         ];
     }
-
-
-
 
 }

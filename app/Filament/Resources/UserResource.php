@@ -45,7 +45,11 @@ class UserResource extends Resource
         
         if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
     
-            return $counts;
+            if($counts > 0){
+                return $counts;
+            }
+
+            return '';
         }
     }
 
@@ -122,14 +126,22 @@ class UserResource extends Resource
                     ->defaultImageUrl(url('/storage/avatars/default-avatar.png'))
                     ->height(50),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                    Tables\Columns\TextColumn::make('updated_at')
                     ->label('Modifié le')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
+
+                Tables\Columns\TextColumn::make('last_login_at')
+                    ->label('Dernière connexion')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('is_after_release')
                     ->label('Activé après la sortie')
                     ->state(function ($record): string {
@@ -155,17 +167,19 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('password')
                     ->label('Mot de passe'),
-
-
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
             ->filters([
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\ViewAction::make(),
+                ])
             ])
+
+
             ->actionsPosition(ActionsPosition::BeforeColumns)
 
             ->bulkActions([
@@ -176,6 +190,15 @@ class UserResource extends Resource
                 ])
             ]);
     }
+
+    public static function getWidgets(): array
+    {
+        return [
+            UserResource\Widgets\LatestConnectedUsers::class,
+        ];
+    }
+
+
 
     public static function getPages(): array
     {

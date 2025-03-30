@@ -4,9 +4,7 @@ namespace App\Policies;
 
 use App\Models\AquisitionRequest;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Facades\Auth;
 
 class AquisitionRequestPolicy
 {
@@ -17,8 +15,7 @@ class AquisitionRequestPolicy
      */
     public function viewAny(User $user): bool
     {
-
-        return true;
+        return $user->can('view_any_aquisition::request');
     }
 
     /**
@@ -26,7 +23,8 @@ class AquisitionRequestPolicy
      */
     public function view(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return auth()->user()?->hasAnyRole(['super_admin', 'admin', 'user']);
+        return $user->can('view_aquisition::request');
+        
     }
 
     /**
@@ -34,7 +32,7 @@ class AquisitionRequestPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->can('create_aquisition::request');
     }
 
     /**
@@ -42,7 +40,7 @@ class AquisitionRequestPolicy
      */
     public function update(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return auth()->user()?->hasRole('super_admin');
+        return $user->can('update_aquisition::request');
     }
 
     /**
@@ -50,7 +48,12 @@ class AquisitionRequestPolicy
      */
     public function delete(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return false;
+        return $user->can('delete_aquisition::request');
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('delete_any_aquisition::request');
     }
 
     /**
@@ -58,7 +61,7 @@ class AquisitionRequestPolicy
      */
     public function restore(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return false;
+        return $user->can('restore_aquisition::request');
     }
 
     /**
@@ -66,6 +69,6 @@ class AquisitionRequestPolicy
      */
     public function forceDelete(User $user, AquisitionRequest $aquisitionRequest): bool
     {
-        return false;
+        return $user->can('force_delete_aquisition::request');
     }
 }

@@ -36,7 +36,26 @@
                 </p>
             </div>
         </div>
-
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div class="plyr__video-embed" id="player">
+                <video 
+                    id="player"
+                    controls
+                    class="w-full h-full"
+                >
+                    <source src="/storage/video/print-qr-codes-for-my-books.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2">Imprimer le QR code de mes livres</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">
+                    Vous pouvez imprimer le QR code de vos livres en suivant les étapes ci-dessous.
+                    - Selectionnez les livres grâce à l'action de masse
+                    - Cliquez sur l'action "Imprimer le QR code"
+                    - Imprimez le QR code et placez le dans vos livres
+                </p>
+            </div>
+        </div>
     </div>
 </x-filament-panels::page>
 

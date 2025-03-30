@@ -14,7 +14,7 @@ Schedule::command('loans:send-reminders')
     ->emailOutputTo('benjaminpiscart@gmail.com');
 
 Schedule::command('app:search-isbn-cal')
-    ->hourly();
+    ->everyTwoMinutes();
 
 Schedule::command('schema:dump')
     ->dailyAt('00:00');

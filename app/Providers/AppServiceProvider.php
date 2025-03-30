@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+
+
         FilamentColor::register([
             'expert' => Color::Purple,
             'stone' => Color::Stone,
@@ -51,7 +54,8 @@ class AppServiceProvider extends ServiceProvider
                 'Œ|Æ' => 'OE',
                 
                 // Caractères spéciaux
-                '«|»|„|"|"|\'|\'' => '',
+                '«|»|„|"|"' => '',
+                '\'|\'' => '-',
                 '\s+' => '-',
             ];
 

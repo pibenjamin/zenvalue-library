@@ -54,8 +54,7 @@ use Filament\Navigation\NavigationBuilder;
 use App\Filament\Widgets\Borrowers;
 use App\Filament\Widgets\EmployeesOverview;
 use Illuminate\Support\Facades\App;
-
-
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -75,6 +74,13 @@ class AdminPanelProvider extends PanelProvider
             // Personnalisation du thème
             ->colors([
                 'primary' => Color::Amber, // Couleur principale du thème
+            ])
+
+            ->userMenuItems([
+//                MenuItem::make()
+//                    ->label('Mes statistiques')
+//                    ->icon('heroicon-o-chart-bar')
+//                    ->url(fn (): string => \App\Filament\Resources\UserResource::getUrl('index'))
             ])
 
             ->navigationGroups([
@@ -104,11 +110,11 @@ class AdminPanelProvider extends PanelProvider
                 LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
                 MyLoanHistory::class,
-                MyBookLenders::class,
                 AdminWidgets::class,
                 UserStatsWidgets::class,
                 BookTagCloud::class,
                 Borrowers::class,
+                //BookLanguageStats::class,
                 //EmployeesOverview::class,
                 //WhoIBorrowedFrom::class,
             ])
@@ -126,7 +132,24 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->plugins([
-                FilamentShieldPlugin::make(),
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                ->gridColumns([
+                    'default' => 1,
+                    'sm' => 2,
+                    'lg' => 3
+                ])
+                ->sectionColumnSpan(1)
+                ->checkboxListColumns([
+                    'default' => 1,
+                    'sm' => 2,
+                    'lg' => 4,
+                ])
+                ->resourceCheckboxListColumns([
+                    'default' => 1,
+                    'sm' => 2,
+                ]),
+                
+
             ])
             ->authMiddleware([
                 Authenticate::class,                          // Vérifie que l'utilisateur est connecté

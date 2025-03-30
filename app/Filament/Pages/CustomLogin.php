@@ -41,11 +41,14 @@ class CustomLogin extends Login
 
         $data = $this->form->getState();
 
+
         if (! Filament::auth()->attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
             $this->throwFailureValidationException();
         }
 
         $user = Filament::auth()->user();
+        $user->last_login_at = now();
+        $user->save();
         
         if (! $user->is_activated) {
             Filament::auth()->logout();

@@ -3,9 +3,11 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
-
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 class Tutorials extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationLabel   = 'Tutoriels';
     protected static string $view               = 'filament.pages.tutorials';
     protected static ?string $navigationGroup   = 'Support & Ressources';

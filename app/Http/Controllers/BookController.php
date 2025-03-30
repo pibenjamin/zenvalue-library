@@ -22,25 +22,28 @@ use Illuminate\Support\Facades\Storage;
 use DOMDocument;
 use DOMXPath;
 
-
-
-
 class BookController extends Controller
 {
-
-    public function extractBookInfo(Request $request)
+    public function printQrCodes(Request $request, $ids = null)
     {
+        set_time_limit(300);
 
-    }
-
-    public function printQrCodes(Request $request)
-    {
         $this->canAccess();
 
-        $books      = Book::all();
         $qrCodes    = [];
         $printSize  = $request->print_size ?? 300;
         $regenerate = $request->regenerate ?? false;
+        $ids        = $request->ids ?? null;
+
+        if($ids){
+            $ids = explode(',', $ids);
+
+            $books = Book::whereIn('id', $ids)->get();
+        }else{
+            $books = Book::all();
+        }
+
+
 
         $qrCodeService = new QrCodeService();
 
