@@ -22,7 +22,7 @@ class ListBooks extends ListRecords
 
     public $defaultAction = 'addBookAction';
 
-    public function defaultAction(): Actions\Action
+    public function defaultAction(): Action
     {
         return Action::make('addBookAction')
             ->label('Ajouter un livre')
