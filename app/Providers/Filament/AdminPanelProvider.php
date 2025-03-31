@@ -55,6 +55,9 @@ use App\Filament\Widgets\Borrowers;
 use App\Filament\Widgets\EmployeesOverview;
 use Illuminate\Support\Facades\App;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
+use App\Filament\Widgets\AddBookActionWidget;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -100,13 +103,14 @@ class AdminPanelProvider extends PanelProvider
             // Auto-découverte des composants Filament
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')  // Ressources (CRUD)
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')             // Pages personnalisées
-            //->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')       // Widgets du dashboard
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')       // Widgets du dashboard
 
             // Configuration des pages et widgets par défaut
             ->pages([
                 Pages\Dashboard::class,    // Page dashboard par défaut
             ])
             ->widgets([
+                //AddBookActionWidget::class,
                 LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
                 MyLoanHistory::class,

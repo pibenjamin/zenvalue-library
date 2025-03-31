@@ -16,9 +16,74 @@ use Mokhosh\FilamentRating\Components\Rating as RatingComponent;
 use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 use Closure;
+use App\Filament\Resources\BookResource\Widgets\ContributionWidget;
+
 class ListBooks extends ListRecords
 {
     protected static string $resource = BookResource::class;
+
+//    public $defaultAction = 'triggerContributeAction';
+
+    public function triggerContributeAction(): Action
+    {
+
+        return $this->getContributeAction();    
+    }
+
+    protected function getContributeAction(): Action 
+    {
+        $image = asset('images/poster-livre-a-qualifier.png');
+        $html = <<<HTML
+        <div>
+            <p>Merci de renseigner le numéro ISBN de votre livre, il se 
+            trouve généralement au dos du livre en dessous du code barre.</p>
+            <p>Vous pourrez ensuite déposer votre livre dans le bureau, dans l'espace "livres à qualifier" sous ce poster :</p>
+            <div class="text-center">
+                <img src="$image" alt="Poster livres à qualifier" 
+                     style="height: 100px; border: 1px solid black; margin: 10px auto;"
+                >
+            </div>
+            <p>Notre équipe confirmera l'ajout de votre livre au catalogue et vous pourrez suivre les emprunts via l'application.</p>
+            <p>Merci pour votre contribution à la bibliothèque !</p>
+        </div>
+        HTML;
+
+        return Actions\Action::make('contribute')
+            ->label('Ajouter un de mes livres au catalogue')
+            ->icon('heroicon-o-plus')
+            ->color('primary')
+            ->tooltip('Ajouter un de mes livres au catalogue')
+            ->modalHeading('Ajouter un livre')
+            ->modalDescription(fn (): HtmlString => new HtmlString($html))
+            ->form([
+                TextInput::make('isbn')
+                    ->label('ISBN')
+                    ->required()
+                    ->helperText('L\'isbn est un code à 14 chiffres de ce type : 9782070423528 ou 978-2070423528')
+                    ->unique(Book::class, 'isbn')
+                    ->validationMessages([
+                        'required' => 'L\'isbn est obligatoire',
+                        'unique' => 'Ce livre existe déjà dans notre catalogue',
+                    ]),
+            ])
+            ->action(function (array $data) {
+                $isbn = str_replace('-', '', trim($data['isbn']));
+                
+                $book = Book::create([
+                    'title'         => '[Livre en cours d\'ajout]',
+                    'isbn'          => $isbn,
+                    'status'        => Book::STATUS_TO_QUALIFY,
+                    'owner_id'      => auth()->id(),
+                    'support_id'    => 1,
+                    'is_contribution' => true,
+                ]);
+
+                Notification::make()
+                    ->title('Livre en cours d\'ajout au catalogue')
+                    ->success()
+                    ->send();
+            });
+    }
 
     public function leaveRatingAction(): Action
     {
@@ -51,59 +116,25 @@ class ListBooks extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        $image = asset('images/poster-livre-a-qualifier.png');
-        $html = <<<HTML
-        <div>
-            <p>Merci de renseigner le numéro ISBN de votre livre, il se 
-            trouve généralement au dos du livre en dessous du code barre.</p>
-            <p>Vous pourrez ensuite déposer votre livre dans le bureau, dans l'espace "livres à qualifier" sous ce poster :</p>
-            <div class="text-center">
-                <img src="$image" alt="Poster livres à qualifier" 
-                     style="height: 100px; border: 1px solid black; margin: 10px auto;"
-                >
-            </div>
-            <p>Notre équipe confirmera l'ajout de votre livre au catalogue et vous pourrez suivre les emprunts via l'application.</p>
-            <p>Merci pour votre contribution à la bibliothèque !</p>
-        </div>
-        HTML;
-
         return [
             Actions\CreateAction::make(),
-            Actions\Action::make('contribute')
-                ->label('Ajouter un de mes livres au catalogue')
-                ->icon('heroicon-o-plus')
-                ->color('primary')
-                ->tooltip('Ajouter un de mes livres au catalogue')
-                ->modalHeading('Ajouter un livre')
-                ->modalDescription(fn (): HtmlString => new HtmlString($html))
-                ->form([
-                    TextInput::make('isbn')
-                        ->label('ISBN')
-                        ->required()
-                        ->helperText('L\'isbn est un code à 14 chiffres de ce type : 9782070423528 ou 978-2070423528')
-                        ->unique(Book::class, 'isbn')
-                        ->validationMessages([
-                            'required' => 'L\'isbn est obligatoire',
-                            'unique' => 'Ce livre existe déjà dans notre catalogue',
-                        ]),
-                ])
-                ->action(function (array $data) {
-                    $isbn = str_replace('-', '', trim($data['isbn']));
-                    
-                    $book = Book::create([
-                        'isbn'          => $isbn,
-                        'status'        => Book::STATUS_TO_QUALIFY,
-                        'owner_id'      => auth()->id(),
-                        'support_id'    => 1,
-                        'is_contribution' => true,
-                    ]);
-
-                    Notification::make()
-                        ->title('Livre en cours d\'ajout au catalogue')
-                        ->success()
-                        ->send();
-                }),
+            $this->getContributeAction(),
         ];
+    }
+
+    public function getHeaderWidgets(): array
+    {
+
+        if (auth()->user()->hasRole('user')) {
+
+            if(Book::where('owner_id', auth()->id())->where('status', Book::STATUS_TO_QUALIFY)->count() > 0) {
+                return [
+                    ContributionWidget::class,
+                ];
+            }
+        }
+
+        return [];
     }
 
     public function getTabs(): array

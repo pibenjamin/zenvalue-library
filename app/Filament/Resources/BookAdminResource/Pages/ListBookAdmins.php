@@ -128,16 +128,19 @@ class ListBookAdmins extends ListRecords
     {
         return [
             __('Livres sur étagère') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_ON_SHELF)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_ON_SHELF)->where('missing', false)->count()),
+            __('Livres déposés au bureau') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_DROP_OFF)->orderBy('created_at', 'desc'))
+                ->badge(fn () => Book::where('status', Book::STATUS_DROP_OFF)->count()),
             __('Livres à qualifier') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_TO_QUALIFY))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_TO_QUALIFY)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_TO_QUALIFY)->count()),
             __('Livres qualifiés') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_QUALIFIED))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_QUALIFIED)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_QUALIFIED)->count()),
                 __('Livres rejetés') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_REJECTED))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_REJECTED)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_REJECTED)->count()),
             __('Tous les livres') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query)

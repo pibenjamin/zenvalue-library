@@ -53,6 +53,9 @@ use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
 use Webbingbrasil\FilamentAdvancedFilter\Filters\TextFilter;
 use Webbingbrasil\FilamentAdvancedFilter\Filters\BooleanFilter;
 
+use App\Filament\Resources\BookResource\Widgets\ContributionWidget;
+
+
 
 // Filament Other
 use Filament\Infolists;
@@ -76,7 +79,7 @@ use NunoMaduro\Collision\Adapters\Phpunit\State;
 // Filament Plugins
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Actions\BulkAction;
-
+use App\Filament\Resources\BookResource\Pages\ListBooks;
 class BookResource extends Resource
 {
     protected static ?string $model                 = Book::class;
@@ -201,7 +204,7 @@ class BookResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
                     ->withCount('comments as comments_count')
-                    ->where('status', Book::STATUS_ON_SHELF)
+                    //->where('status', Book::STATUS_ON_SHELF)
                     ->where('missing', false)
                     ->selectSub(
                         Rating::selectRaw('ROUND(AVG(rate))')
@@ -659,6 +662,13 @@ class BookResource extends Resource
             'create' => Pages\CreateBook::route('/create'),
             'edit' => Pages\EditBook::route('/{record}/edit'),
             'view' => Pages\ViewBook::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            ContributionWidget::class,
         ];
     }
 
