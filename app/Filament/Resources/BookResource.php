@@ -53,6 +53,9 @@ use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
 use Webbingbrasil\FilamentAdvancedFilter\Filters\TextFilter;
 use Webbingbrasil\FilamentAdvancedFilter\Filters\BooleanFilter;
 
+use App\Filament\Resources\BookResource\Widgets\ContributionWidget;
+
+
 
 // Filament Other
 use Filament\Infolists;
@@ -76,6 +79,12 @@ use NunoMaduro\Collision\Adapters\Phpunit\State;
 // Filament Plugins
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Actions\BulkAction;
+use App\Filament\Resources\BookResource\Pages\ListBooks;
+
+use App\Services\BookService;
+
+
+
 
 class BookResource extends Resource
 {
@@ -201,7 +210,7 @@ class BookResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
                     ->withCount('comments as comments_count')
-                    ->where('status', Book::STATUS_ON_SHELF)
+                    //->where('status', Book::STATUS_ON_SHELF)
                     ->where('missing', false)
                     ->selectSub(
                         Rating::selectRaw('ROUND(AVG(rate))')
@@ -223,6 +232,35 @@ class BookResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->searchable(),
+
+                TextColumn::make('is_borrowed')
+                    ->label('Disponibilité')
+                    ->state(function (Book $record): string {
+                        return $record->is_borrowed ? 'Emprunté' : 'Disponible';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Emprunté' => 'danger',
+                        'Disponible' => 'success',
+                    })
+                    ->tooltip(fn (Book $record) => $record->is_borrowed 
+                        ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
+                        : "Ce livre est actuellement disponible"
+                    )
+                    ->toggleable(),
+
+                TextColumn::make('location')
+                    ->label('Localisation')
+                    ->state(function (Book $record): string {
+
+   
+
+                        return Book::getLocationLabel($record->location);
+                    })
+                    ->badge()
+                    ->color(fn (Book $record): string => Book::getLocationColor($record->location))
+                    ->toggleable(),
+
                     
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
@@ -312,32 +350,6 @@ class BookResource extends Resource
                     ->view('filament.tables.columns.my_rate')
                     ->alignment(Alignment::Center)
                     ->toggleable(),
-
-                TextColumn::make('is_borrowed')
-                    ->label('Disponibilité')
-                    ->state(function (Book $record): string {
-                        return $record->is_borrowed ? 'Emprunté' : 'Disponible';
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Emprunté' => 'danger',
-                        'Disponible' => 'success',
-                    })
-                    ->tooltip(fn (Book $record) => $record->is_borrowed 
-                        ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
-                        : "Ce livre est actuellement disponible"
-                    )
-                    ->toggleable(),
-
-//                Tables\Columns\TextColumn::make('comment')
-//                    ->label('Commentaires')
-//                    ->state(function (Book $record): string {
-//                        return $record->comments->count() . ' commentaire' . ($record->comments->count() > 1 ? 's' : '');
-//                    })
-//                    ->sortable()
-//                    ->searchable()
-//                    ->toggleable(),
-
             ])
             ->actions([
                 ActionGroup::make([
@@ -347,9 +359,29 @@ class BookResource extends Resource
                         ->icon('heroicon-s-shopping-bag')
                         ->requiresConfirmation()
                         ->modalHeading('Emprunter ce livre')
-                    ->modalDescription(fn (Book $book) => "Voulez-vous emprunter {$book->title} ?")
+                    ->modalDescription(function (Book $book){
+
+                        if($book->location === Book::LOCATION_KEEP_AT_HOME) {
+
+                            $html  = "Voulez-vous emprunter {$book->title} ?<br>";
+                            $html .= "Ce livre est gardé chez son propriétaire {$book->owner->name}, il va être informé par courriel de votre intérêt pour ce livre !<br>";
+                            $html .= "N'hésitez pas à le contacter sur teams si nécessaire.<br>";
+                            $html .= "Si le livre est muni d'un QR Code vous pourrez enregistrer votre prêt via la caméra de votre télépéhone !";
+
+                            return new HtmlString($html);
+                        }
+
+                        return "Voulez-vous emprunter {$book->title} ?";
+                    })
                      ->action(function (Book $book) {
-                        app(LoanService::class)->borrowBook($book);
+
+                        if($book->location === Book::LOCATION_KEEP_AT_HOME) {
+
+                            app(BookService::class)->borrowBookAtHome($book, auth()->user());
+                        }
+                        else {
+                            app(LoanService::class)->borrowBook($book);
+                        }
                     })
                     ->tooltip(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous avez déjà emprunté ce livre' : 'Emprunter')
                     ->button()
@@ -455,6 +487,7 @@ class BookResource extends Resource
                          $newClaim->save();
                      })
                      ->tooltip('Revendiquer la propriété de ce livre')
+                     ->visible(fn (Book $book) => $book->location === Book::LOCATION_DROP_OFF)
                      ->button(),
                      
                 Tables\Actions\ViewAction::make()
@@ -659,6 +692,13 @@ class BookResource extends Resource
             'create' => Pages\CreateBook::route('/create'),
             'edit' => Pages\EditBook::route('/{record}/edit'),
             'view' => Pages\ViewBook::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            ContributionWidget::class,
         ];
     }
 

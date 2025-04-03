@@ -33,8 +33,8 @@ class BookTagCloud extends Widget
             
             // Filtrer les mots courts et les mots vides
             $stopWords = [
-                'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'en', 'au', 'aux', 'for', 'how', 'what', 'and',
-                'l', 'd', 'j', 'n', 'm', 't', 's', 'c', 'qu', 'avec', 'the', 'pour', 'est', 'sont', 'dans', 'plus', 'ont', 'qui'
+                'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'en', 'au', 'aux', 'for', 'how', 'what', 'and', 'edition',
+                'l', 'd', 'j', 'n', 'm', 't', 's', 'c', 'qu', 'avec', 'the', 'pour', 'est', 'sont', 'dans', 'plus', 'ont', 'qui', 'your', 'votre', 
             ];
             
             $filteredWords = array_filter($titleWords, function ($word) use ($stopWords) {

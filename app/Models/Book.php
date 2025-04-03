@@ -9,34 +9,49 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
-    const STATUS_TO_QUALIFY          = 'to_qualify';
-    const STATUS_QUALIFIED           = 'qualified';
-    const STATUS_REJECTED            = 'rejected';
-    const STATUS_ON_SHELF                         = 'on_shelf';
-    const STATUS_BORROWED                         = 'borrowed';
-    const STATUS_MISSING                          = 'missing';
+    const STATUS_TO_QUALIFY             = 'to_qualify';
+    const STATUS_QUALIFIED              = 'qualified';
+    const STATUS_REJECTED               = 'rejected';
+    const STATUS_ON_SHELF               = 'on_shelf';
+    const STATUS_BORROWED               = 'borrowed';
+    const STATUS_MISSING                = 'missing';
+
+
+    const LOCATION_DROP_OFF            = 'drop_off';
+    const LOCATION_KEEP_AT_HOME        = 'keep_at_home';
 
     const DIFFICULTY_LEVEL_EASY         = 'easy';
     const DIFFICULTY_LEVEL_MEDIUM       = 'medium';
     const DIFFICULTY_LEVEL_HARD         = 'hard';
     const DIFFICULTY_LEVEL_EXPERT       = 'expert';
 
+
+    private const LOCATION_LABELS = [
+        self::LOCATION_DROP_OFF            => 'Au bureau',
+        self::LOCATION_KEEP_AT_HOME        => 'Chez le propriétaire',
+    ];
+
     private const STATUS_LABELS = [
-        self::STATUS_TO_QUALIFY => 'À qualifier',
-        self::STATUS_QUALIFIED  => 'Qualifiée',
-        self::STATUS_REJECTED   => 'Rejetée',
-        self::STATUS_ON_SHELF                => 'Sur étagère',
-        self::STATUS_BORROWED                => 'Emprunté',
-        self::STATUS_MISSING                 => 'Manquant',
+        self::STATUS_TO_QUALIFY             => 'À qualifier',
+        self::STATUS_QUALIFIED              => 'Qualifiée',
+        self::STATUS_REJECTED               => 'Rejetée',
+        self::STATUS_ON_SHELF               => 'Sur étagère',
+        self::STATUS_BORROWED               => 'Emprunté',
+        self::STATUS_MISSING                => 'Manquant',
+    ];
+
+    private const LOCATION_COLORS = [
+        self::LOCATION_DROP_OFF            => 'stone',
+        self::LOCATION_KEEP_AT_HOME        => 'stone',
     ];
 
     private const STATUS_COLORS = [
-        self::STATUS_TO_QUALIFY => 'warning',
-        self::STATUS_QUALIFIED  => 'stone',
-        self::STATUS_REJECTED   => 'danger',
-        self::STATUS_ON_SHELF                => 'success',
-        self::STATUS_BORROWED                => 'danger',
-        self::STATUS_MISSING                 => 'danger',
+        self::STATUS_TO_QUALIFY             => 'warning',
+        self::STATUS_QUALIFIED              => 'stone',
+        self::STATUS_REJECTED               => 'danger',
+        self::STATUS_ON_SHELF               => 'success',
+        self::STATUS_BORROWED               => 'danger',
+        self::STATUS_MISSING                => 'danger',
     ];
 
     private const DIFFICULTY_LABELS = [
@@ -78,7 +93,9 @@ class Book extends Model
         'ol_key',
         'lang',
         'status',
-        'cal_page'
+        'location',
+        'cal_page',
+        'qr_code_interest'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',
@@ -159,6 +176,32 @@ class Book extends Model
     public static function getStatusLabels(): array
     {
         return self::STATUS_LABELS;
+    }
+
+    public static function getLocations(): array
+    {
+        return self::LOCATION_LABELS;
+    }
+
+    public static function getLocationLabel(string|null $location): string
+    {
+        if($location === null) {
+            $location = self::LOCATION_DROP_OFF;
+        }
+        return self::LOCATION_LABELS[$location] ?? 'Non défini';
+    }
+
+    public static function getLocationColors(): array
+    {
+        return self::LOCATION_COLORS;
+    }
+
+    public static function getLocationColor(string|null $location): string
+    {
+        if($location === null) {
+            $location = self::LOCATION_DROP_OFF;
+        }
+        return self::LOCATION_COLORS[$location] ?? 'stone';
     }
 
     public function getStatusLabel(): string

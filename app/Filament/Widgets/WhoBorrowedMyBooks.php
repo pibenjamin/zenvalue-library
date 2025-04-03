@@ -67,9 +67,9 @@ class WhoBorrowedMyBooks extends BaseWidget
                     ->wrap()
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('total_books')
-                    ->label('Nombre de livres empruntés')
-                    ->sortable(),
+//                Tables\Columns\TextColumn::make('total_books')
+//                    ->label('Nombre de livres empruntés')
+//                    ->sortable(),
                     
             ])
             ->recordUrl(null)

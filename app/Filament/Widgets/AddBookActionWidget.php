@@ -14,5 +14,4 @@ class AddBookActionWidget extends Widget
      * @var view-string
      */
     protected static string $view = 'filament.widgets.add-book-action';
-
 }

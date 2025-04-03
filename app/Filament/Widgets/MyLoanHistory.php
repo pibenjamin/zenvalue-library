@@ -16,6 +16,7 @@ class MyLoanHistory extends BaseWidget
 
     protected static ?int $sort = 2; // Position après le FilamentInfoWidget
     protected static ?int $defaultTableRecordsPerPage = 5;
+    protected int|string|array $columnSpan = 'full';
 
     protected function getHeading(): ?string
     {

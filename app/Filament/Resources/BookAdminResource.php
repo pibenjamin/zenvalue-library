@@ -284,6 +284,11 @@ class BookAdminResource extends Resource
                             ->label('Statut')
                             ->options(Book::getStatusLabels())
                             ->default(Book::STATUS_QUALIFIED),
+
+                        Forms\Components\Select::make('location')
+                            ->label('Localisation')
+                            ->options(Book::getLocations())
+                            ->default(Book::LOCATION_DROP_OFF),
        
                         Forms\Components\Toggle::make('is_borrowed')
                             ->label('Emprunté')
