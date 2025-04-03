@@ -143,7 +143,7 @@ class ListBookAdmins extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_REJECTED)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_REJECTED)->count()),
             __('Tous les livres') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query)
+                ->modifyQueryUsing(fn (Builder $query) => $query->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::count()),
         ];
     }

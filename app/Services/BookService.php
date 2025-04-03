@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Mail\AdminConfirmReturn;
 use App\Mail\DropOff;
+use App\Mail\RequestLoan;
 
 class BookService
 {
@@ -24,4 +25,13 @@ class BookService
             ownerName: $book->owner->name
         ));
     }    
+
+    public function borrowBookAtHome(Book $book, $user)
+    {
+        Mail::to($book->owner->email)->send(new RequestLoan(
+            book: $book,
+            owner: $book->owner,
+            user: $user
+        ));
+    }
 } 
