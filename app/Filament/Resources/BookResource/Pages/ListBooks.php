@@ -86,42 +86,56 @@ class ListBooks extends ListRecords
                     ->label('Adresse de la page')
                     ->disableLabel()                   
                     ->rules(['starts_with:https://www.chasse-aux-livres.fr/prix/'])
-                    ->prefixIcon('heroicon-o-globe-alt'), 
+                    ->prefixIcon('heroicon-o-globe-alt')
+                    ->required(),
+
+
+
                     
-                    TextInput::make('isbn')
-                    ->requiredWithout('cal_page')
-                    ->label('ou l\'ISBN')
-//                    ->disableLabel()
-                    ->helperText('L\'isbn est un code à 14 chiffres de ce type : 9782070423528 ou 978-2070423528')
-                    ->unique(Book::class, 'isbn')
-                    ->validationMessages([
-                        'required' => 'L\'isbn est obligatoire',
-                        'unique' => 'Ce livre existe déjà dans notre catalogue',
-                        'required_without' => 'Un des deux champs est obligatoire',
-                    ]),
+//                    TextInput::make('isbn')
+//                    ->requiredWithout('cal_page')
+//                    ->label('ou l\'ISBN')
+//                    ->helperText('L\'isbn est un code à 14 chiffres de ce type : 9782070423528 ou 978-2070423528')
+//                    ->unique(Book::class, 'isbn')
+//                    ->validationMessages([
+//                        'required' => 'L\'isbn est obligatoire',
+//                        'unique' => 'Ce livre existe déjà dans notre catalogue',
+//                        'required_without' => 'Un des deux champs est obligatoire',
+//                    ]),
+                ]),
+            Step::make('QR code')
+                ->description('Ajouter un QR code à votre livre')
+                ->schema([  
+                    ViewField::make('qr_code')
+                    ->view('filament.forms.components.book-qr-code-helper'),
+
+                    Checkbox::make('qr_code_interest')
+                    ->label('Je suis intéressé.e par le QR code')
+                    ->default(false),
                 ])
-            ])
-            ->action(function (array $data) {
-                $isbn               = str_replace('-', '', trim($data['isbn']));
-                $cal_page           = $data['cal_page'];
-                $selectedLocation   = $data['location'];
+            
+        ])
+        ->action(function (array $data) {
+            $cal_page           = $data['cal_page'];
+            $selectedLocation   = $data['location'];
+            $qr_code_interest   = $data['qr_code_interest'];
 
-                $book = Book::create([
-                    'title'         => '[Livre en cours d\'ajout]',
-                    'isbn'          => $isbn,
-                    'cal_page'      => $cal_page,
-                    'status'        => Book::STATUS_TO_QUALIFY,
-                    'owner_id'      => auth()->id(),
-                    'support_id'    => 1,
-                    'location'      => $selectedLocation,
-                    'is_contribution' => true,
-                ]);
+            $book = Book::create([
+                'title'             => '[Livre en cours d\'ajout]',
+                'cal_page'          => $cal_page,
+                'status'            => Book::STATUS_TO_QUALIFY,
+                'owner_id'          => auth()->id(),
+                'support_id'        => 1,
+                'location'          => $selectedLocation,
+                'is_contribution'   => true,
+                'qr_code_interest'  => $qr_code_interest,
+            ]);
 
-                Notification::make()
-                    ->title('Livre en cours d\'ajout au catalogue')
-                    ->success()
-                    ->send();
-            });
+            Notification::make()
+                ->title('Livre en cours d\'ajout au catalogue')
+                ->success()
+                ->send();
+        });
     }
 
     public function leaveRatingAction(): Action

@@ -15,8 +15,6 @@ class Book extends Model
     const STATUS_ON_SHELF               = 'on_shelf';
     const STATUS_BORROWED               = 'borrowed';
     const STATUS_MISSING                = 'missing';
-    const STATUS_DROP_OFF               = 'drop_off';
-    const STATUS_KEEP_AT_HOME           = 'keep_at_home';
 
 
     const LOCATION_DROP_OFF            = 'drop_off';
@@ -30,7 +28,7 @@ class Book extends Model
 
     private const LOCATION_LABELS = [
         self::LOCATION_DROP_OFF            => 'Au bureau',
-        self::LOCATION_KEEP_AT_HOME        => 'A la maison',
+        self::LOCATION_KEEP_AT_HOME        => 'Chez le propriétaire',
     ];
 
     private const STATUS_LABELS = [
@@ -40,8 +38,6 @@ class Book extends Model
         self::STATUS_ON_SHELF               => 'Sur étagère',
         self::STATUS_BORROWED               => 'Emprunté',
         self::STATUS_MISSING                => 'Manquant',
-        self::STATUS_DROP_OFF               => 'Déposé',
-        self::STATUS_KEEP_AT_HOME           => 'Gardé à la maison',
     ];
 
     private const LOCATION_COLORS = [
@@ -56,10 +52,6 @@ class Book extends Model
         self::STATUS_ON_SHELF               => 'success',
         self::STATUS_BORROWED               => 'danger',
         self::STATUS_MISSING                => 'danger',
-        self::STATUS_DROP_OFF               => 'success',
-
-        self::STATUS_KEEP_AT_HOME           => 'stone',
-        self::STATUS_DROP_OFF               => 'stone',
     ];
 
     private const DIFFICULTY_LABELS = [
@@ -102,7 +94,8 @@ class Book extends Model
         'lang',
         'status',
         'location',
-        'cal_page'
+        'cal_page',
+        'qr_code_interest'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',
