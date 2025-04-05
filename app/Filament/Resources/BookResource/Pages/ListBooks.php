@@ -37,7 +37,7 @@ class ListBooks extends ListRecords
     protected function getContributeAction(): Action 
     {
 
-
+        https://www.chasse-aux-livres.fr/prix/2749962412/les-gueux-on-fait-quoi-alexandre-jardin
 
         return Action::make('contribute')
         ->label('Ajouter un de mes livres au catalogue')
@@ -51,16 +51,16 @@ class ListBooks extends ListRecords
                     ToggleButtons::make('location')
                     ->disableLabel()
                     ->options([
-                        'drop_off'      => 'Déposer au bureau',
-                        'keep_at_home'  => 'Garder à la maison',
+                        Book::LOCATION_DROP_OFF             => 'Déposer au bureau',
+                        Book::LOCATION_KEEP_AT_HOME         => 'Garder à la maison',
                     ])
                     ->icons([
-                        'keep_at_home'  => 'heroicon-o-home',
-                        'drop_off'      => 'heroicon-o-building-office',
+                        Book::LOCATION_DROP_OFF             => 'heroicon-o-building-office',
+                        Book::LOCATION_KEEP_AT_HOME         => 'heroicon-o-home',
                     ])
                     ->colors([
-                        'keep_at_home'  => 'primary',
-                        'drop_off'      => 'primary',
+                        Book::LOCATION_DROP_OFF             => 'primary',
+                        Book::LOCATION_KEEP_AT_HOME         => 'primary',
                     ])
                     ->inline()
                     ->extraAttributes([
@@ -88,20 +88,6 @@ class ListBooks extends ListRecords
                     ->rules(['starts_with:https://www.chasse-aux-livres.fr/prix/'])
                     ->prefixIcon('heroicon-o-globe-alt')
                     ->required(),
-
-
-
-                    
-//                    TextInput::make('isbn')
-//                    ->requiredWithout('cal_page')
-//                    ->label('ou l\'ISBN')
-//                    ->helperText('L\'isbn est un code à 14 chiffres de ce type : 9782070423528 ou 978-2070423528')
-//                    ->unique(Book::class, 'isbn')
-//                    ->validationMessages([
-//                        'required' => 'L\'isbn est obligatoire',
-//                        'unique' => 'Ce livre existe déjà dans notre catalogue',
-//                        'required_without' => 'Un des deux champs est obligatoire',
-//                    ]),
                 ]),
             Step::make('QR code')
                 ->description('Ajouter un QR code à votre livre')

@@ -4,6 +4,8 @@ namespace App\Services;
 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Book;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 class QrCodeService
 {
     /**
@@ -23,23 +25,21 @@ class QrCodeService
     public function generateAndSaveAsFile(Book $book, $size = 300, $regenerate = false)
     {
         $qrCode = QrCode::format('png')
-        ->size($size)
-        ->errorCorrection('H')
-        ->generate(config('app.url').'/emprunter/'.$book->id);
-    
-        $path = storage_path('app/public/qr-codes/');
-        
-        if (!file_exists($path)) {
-            mkdir($path, 0777, true);
-        }
-        
+            ->size($size)
+            ->errorCorrection('H')
+            ->generate(config('app.url').'/emprunter/'.$book->id);
+
         $filename = 'qr-' . $book->id . '.png';
         
-        if ($regenerate) {
-            file_put_contents($path . $filename, $qrCode);
+        try {
+            // Utilisation de Storage facade pour gérer l'écriture du fichier
+            Storage::disk('public')->put('qr-codes/' . $filename, $qrCode);
+            
+            return $filename;
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la génération du QR code : ' . $e->getMessage());
+            return null;
         }
-
-        return $filename;
     }
 
 

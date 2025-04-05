@@ -26,6 +26,7 @@ use App\Services\LoanService;
 use App\Services\QrCodeService;
 use App\Services\OpenLibraryService;
 use App\Notifications\BookAddedToCatalogue;
+use Illuminate\Support\Facades\Storage;
 
 // Filament Forms
 use Filament\Forms;
@@ -464,9 +465,21 @@ class BookAdminResource extends Resource
                         ->action(function (Book $record) {
 
                             $record->status = Book::STATUS_ON_SHELF;
+                            $qrCodeFile     = app(QrCodeService::class)->generateAndSaveAsFile($record, 300);
+                            
+
+                            if($record->qr_code_interest == true) {     
+                                $record->owner->notify(new BookAddedToCatalogue($record,  $qrCodeFile));
+                            }
+                            else {
+                                $record->owner->notify(new BookAddedToCatalogue($record));
+                            }
+
+
+                            dd($record->id);
+
                             $record->save();
 
-                            $record->owner->notify(new BookAddedToCatalogue($record));
 
                             Notification::make()
                                 ->title('Livre ajouté au catalogue')
