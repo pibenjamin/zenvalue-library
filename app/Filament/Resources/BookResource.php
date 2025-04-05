@@ -252,12 +252,10 @@ class BookResource extends Resource
                 TextColumn::make('location')
                     ->label('Localisation')
                     ->state(function (Book $record): string {
-
-   
-
                         return Book::getLocationLabel($record->location);
                     })
                     ->badge()
+                    ->sortable()
                     ->color(fn (Book $record): string => Book::getLocationColor($record->location))
                     ->toggleable(),
 
@@ -487,7 +485,7 @@ class BookResource extends Resource
                          $newClaim->save();
                      })
                      ->tooltip('Revendiquer la propriété de ce livre')
-                     ->visible(fn (Book $book) => $book->location === Book::LOCATION_DROP_OFF)
+                     ->visible(fn (Book $book) => $book->location === Book::LOCATION_OFFICE)
                      ->button(),
                      
                 Tables\Actions\ViewAction::make()
@@ -572,8 +570,15 @@ class BookResource extends Resource
                     ->options(Book::getDifficulties())
                     ->default(null),
 
-                BooleanFilter::make('is_borrowed')->nullsAreFalse()
-                    ->label('Emprunté ?')
+                BooleanFilter::make('is_borrowed')->nullsAreUnknown()
+                    ->label('Emprunté ?')                    
+                    ->default(null),
+
+                Tables\Filters\SelectFilter::make('location')
+                    ->label('Localisation')
+                    ->options(Book::getLocations())
+                    ->default(null),
+
 
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)

@@ -64,7 +64,6 @@ class TrainingResource extends Resource
                             ->limit(50)
                             ->pluck('title', 'id')
                             ->toArray())
-                    ->required()
                     ->live(),
             ]);
     }

@@ -19,11 +19,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookTrainingsWidget extends BaseWidget
 {
-    use HasWidgetShield;
+    //use HasWidgetShield;
 
-    public ?Model $record = null;
-    protected int|string|array $columnSpan = 'full';
-    protected static ?bool $collapsible = true;
+    public ?Model $record                   = null;
+    protected int|string|array $columnSpan  = 'full';
+    protected static ?bool $collapsible     = true;
 
     protected static ?int $sort = 1; // Position après le FilamentInfoWidget
 
@@ -42,7 +42,7 @@ class BookTrainingsWidget extends BaseWidget
                     ->label('Livre')
                     ->url(function (Book $record) {
                         if (auth()->user()->hasRole('super_admin')) {
-                            return route('filament.admin.resources.books.edit', $record->book_id);
+                            return route('filament.admin.resources.book-admins.edit', $record->book_id);
                         }
                         return route('filament.admin.resources.books.view', $record->book_id);
                     })

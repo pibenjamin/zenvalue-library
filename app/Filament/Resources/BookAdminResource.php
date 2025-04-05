@@ -163,6 +163,11 @@ class BookAdminResource extends Resource
                             ->columnSpanFull()
                             ->columnSpan(4),
 
+
+                        Forms\Components\Select::make('status')
+                            ->label('Statut')
+                            ->options(Book::getStatusLabels()),
+
                     ])
                     ->columns(3)
                     ->collapsible(),
@@ -288,7 +293,7 @@ class BookAdminResource extends Resource
                         Forms\Components\Select::make('location')
                             ->label('Localisation')
                             ->options(Book::getLocations())
-                            ->default(Book::LOCATION_DROP_OFF),
+                            ->default(Book::LOCATION_OFFICE),
        
                         Forms\Components\Toggle::make('is_borrowed')
                             ->label('Emprunté')
@@ -320,6 +325,17 @@ class BookAdminResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->searchable(),
+
+
+                    TextColumn::make('location')
+                    ->label('Localisation')
+                    ->state(function (Book $record): string {
+                        return Book::getLocationLabel($record->location);
+                    })
+                    ->badge()
+                    ->sortable()
+                    ->color(fn (Book $record): string => Book::getLocationColor($record->location))
+                    ->toggleable(),
 
                 TextColumn::make('missing')
                     ->label('Manquant')

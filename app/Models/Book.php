@@ -15,9 +15,10 @@ class Book extends Model
     const STATUS_ON_SHELF               = 'on_shelf';
     const STATUS_BORROWED               = 'borrowed';
     const STATUS_MISSING                = 'missing';
+    const STATUS_DROP_OFF               = 'drop_off';
 
 
-    const LOCATION_DROP_OFF            = 'drop_off';
+    const LOCATION_OFFICE            = 'office';
     const LOCATION_KEEP_AT_HOME        = 'keep_at_home';
 
     const DIFFICULTY_LEVEL_EASY         = 'easy';
@@ -27,8 +28,8 @@ class Book extends Model
 
 
     private const LOCATION_LABELS = [
-        self::LOCATION_DROP_OFF            => 'Au bureau',
-        self::LOCATION_KEEP_AT_HOME        => 'Chez le propriétaire',
+        self::LOCATION_OFFICE               => 'Au bureau',
+        self::LOCATION_KEEP_AT_HOME         => 'A la maison',
     ];
 
     private const STATUS_LABELS = [
@@ -38,11 +39,12 @@ class Book extends Model
         self::STATUS_ON_SHELF               => 'Sur étagère',
         self::STATUS_BORROWED               => 'Emprunté',
         self::STATUS_MISSING                => 'Manquant',
+        self::STATUS_DROP_OFF               => 'Déposé',
     ];
 
     private const LOCATION_COLORS = [
-        self::LOCATION_DROP_OFF            => 'stone',
-        self::LOCATION_KEEP_AT_HOME        => 'stone',
+        self::LOCATION_OFFICE               => 'stone',
+        self::LOCATION_KEEP_AT_HOME         => 'stone',
     ];
 
     private const STATUS_COLORS = [
@@ -52,6 +54,7 @@ class Book extends Model
         self::STATUS_ON_SHELF               => 'success',
         self::STATUS_BORROWED               => 'danger',
         self::STATUS_MISSING                => 'danger',
+        self::STATUS_DROP_OFF               => 'stone',
     ];
 
     private const DIFFICULTY_LABELS = [
@@ -186,7 +189,7 @@ class Book extends Model
     public static function getLocationLabel(string|null $location): string
     {
         if($location === null) {
-            $location = self::LOCATION_DROP_OFF;
+            $location = self::LOCATION_OFFICE;
         }
         return self::LOCATION_LABELS[$location] ?? 'Non défini';
     }
@@ -199,7 +202,7 @@ class Book extends Model
     public static function getLocationColor(string|null $location): string
     {
         if($location === null) {
-            $location = self::LOCATION_DROP_OFF;
+            $location = self::LOCATION_OFFICE;
         }
         return self::LOCATION_COLORS[$location] ?? 'stone';
     }

@@ -36,9 +36,6 @@ class ListBooks extends ListRecords
 
     protected function getContributeAction(): Action 
     {
-
-
-
         return Action::make('contribute')
         ->label('Ajouter un de mes livres au catalogue')
         ->size('xl')
@@ -51,16 +48,16 @@ class ListBooks extends ListRecords
                     ToggleButtons::make('location')
                     ->disableLabel()
                     ->options([
-                        'drop_off'      => 'Déposer au bureau',
-                        'keep_at_home'  => 'Garder à la maison',
+                        'office'        => 'Au bureau',
+                        'home'          => 'Garder à la maison',
                     ])
                     ->icons([
-                        'keep_at_home'  => 'heroicon-o-home',
-                        'drop_off'      => 'heroicon-o-building-office',
+                        'home'          => 'heroicon-o-home',
+                        'office'        => 'heroicon-o-building-office',
                     ])
                     ->colors([
-                        'keep_at_home'  => 'primary',
-                        'drop_off'      => 'primary',
+                        'home'          => 'primary',
+                        'office'        => 'primary',
                     ])
                     ->inline()
                     ->extraAttributes([
@@ -182,7 +179,7 @@ class ListBooks extends ListRecords
 
             if(Book::where('owner_id', auth()->id())
             ->where('status', Book::STATUS_TO_QUALIFY)
-            ->where('location', 'drop_off')
+            ->where('location', Book::LOCATION_OFFICE)
             ->count() > 0) {
                 return [
                     ContributionWidget::class,
