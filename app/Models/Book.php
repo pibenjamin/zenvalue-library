@@ -15,10 +15,11 @@ class Book extends Model
     const STATUS_ON_SHELF               = 'on_shelf';
     const STATUS_BORROWED               = 'borrowed';
     const STATUS_MISSING                = 'missing';
+    const STATUS_DROP_OFF               = 'drop_off';
 
 
-    const LOCATION_DROP_OFF            = 'drop_off';
-    const LOCATION_KEEP_AT_HOME        = 'keep_at_home';
+    const LOCATION_DROP_OFF            = 'office';
+    const LOCATION_KEEP_AT_HOME        = 'home';
 
     const DIFFICULTY_LEVEL_EASY         = 'easy';
     const DIFFICULTY_LEVEL_MEDIUM       = 'medium';
