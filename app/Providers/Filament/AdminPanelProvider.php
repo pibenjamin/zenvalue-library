@@ -2,46 +2,39 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages;
+// Filament Core
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Support\Assets\Asset;
+use Filament\Support\Assets\Js;
 
-use App\Filament\Widgets\LatestBooksAdded;
-use App\Filament\Widgets\LatestBooksPublished;
+// Filament Navigation
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationBuilder;
 
+// Filament Pages
+use Filament\Pages;
+use App\Filament\Pages\OkrPage;
+use App\Filament\Pages\CustomLogin;
 
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
-
+// Filament Auth Pages
 use Filament\Pages\Auth\Login;
 use Filament\Pages\Auth\Register;
 use Filament\Pages\Auth\EmailVerification\EmailVerificationPrompt;
 use Filament\Pages\Auth\PasswordReset\RequestPasswordReset;
 use Filament\Pages\Auth\PasswordReset\ResetPassword;
-
-use Filament\Support\Enums\MaxWidth;
-use Filament\Navigation\NavigationItem;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-
-use App\Filament\Resources\RoleResource;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Livewire\Auth\CustomRegister;
-use Filament\Navigation\NavigationGroup;
 use App\Livewire\Auth\CustomResetPassword;
-use App\Filament\Pages\CustomLogin;
-use App\Filament\Pages\OkrPage;
-use Filament\Navigation\MenuItem;
 
+// Filament Widgets
+use Filament\Widgets;
+use App\Filament\Widgets\LatestBooksAdded;
+use App\Filament\Widgets\LatestBooksPublished;
 use App\Filament\Widgets\AdminWidgets;
 use App\Filament\Widgets\MyLoanHistory;
 use App\Filament\Widgets\BookTagCloud;
@@ -50,15 +43,32 @@ use App\Filament\Widgets\WhoBorrowedMyBooks;
 use App\Filament\Widgets\UserStatsWidgets;
 use App\Filament\Widgets\LatestBooksAddedWidgets;
 use App\Filament\Widgets\WhoIBorrowedFrom;
-use Filament\Navigation\NavigationBuilder;
 use App\Filament\Widgets\Borrowers;
 use App\Filament\Widgets\EmployeesOverview;
-use Illuminate\Support\Facades\App;
+use App\Filament\Widgets\CommitmentWidgets;
+use App\Filament\Widgets\AddBookActionWidget;
+
+// Filament Resources
+use App\Filament\Resources\RoleResource;
+
+// Filament Plugins
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
-use App\Filament\Widgets\AddBookActionWidget;
-use Filament\Support\Assets\Asset;
-use Filament\Support\Assets\Js;
+// Laravel Middleware
+use Filament\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+// Laravel Support
+use Illuminate\Support\Facades\App;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -79,6 +89,7 @@ class AdminPanelProvider extends PanelProvider
             // Personnalisation du thème
             ->colors([
                 'primary' => Color::Amber, // Couleur principale du thème
+                'secondary' => Color::Sky, // Couleur secondaire du thème
             ])
 
             ->userMenuItems([
@@ -115,6 +126,7 @@ class AdminPanelProvider extends PanelProvider
                 LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
                 MyLoanHistory::class,
+                CommitmentWidgets::class,
                 AdminWidgets::class,
                 UserStatsWidgets::class,
                 BookTagCloud::class,

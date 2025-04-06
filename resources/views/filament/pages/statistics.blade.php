@@ -12,9 +12,8 @@
         <x-slot name="description">
             Voir les statistiques d'utilisation de l'application
         </x-slot>
-
         <div>
-            @livewire(\App\Filament\Pages\Statistics\Widgets\LoansChart::class)
+            @livewire(\App\Filament\Pages\Statistics\Widgets\CommitmentChart::class)
         </div>
         <div>
             @livewire(\App\Filament\Pages\Statistics\Widgets\BookLoanStats::class)

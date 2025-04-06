@@ -6,7 +6,9 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\Tag;
-
+use App\Models\Comment;
+use App\Models\Rating;
+use App\Models\Loan;
 use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
@@ -55,8 +57,7 @@ class AdminWidgets extends BaseWidget
         $booksWithTags         = Book::whereIn('status', [Book::STATUS_ON_SHELF, Book::STATUS_BORROWED])
                                 ->where('missing', false)
                                 ->whereHas('tags')
-                                ->count();
-                                
+                                ->count();       
 
         return [
 
