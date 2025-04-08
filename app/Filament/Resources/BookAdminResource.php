@@ -475,11 +475,7 @@ class BookAdminResource extends Resource
                                 $record->owner->notify(new BookAddedToCatalogue($record));
                             }
 
-
-                            dd($record->id);
-
                             $record->save();
-
 
                             Notification::make()
                                 ->title('Livre ajouté au catalogue')

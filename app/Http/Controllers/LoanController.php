@@ -29,27 +29,12 @@ class LoanController extends Controller
         return view('j-emprunte');
     }
 
-
     public function processImage(Request $request)
     {
         $image = $request->file('image');
         $text = (new OcrService())->processImage($image);
         return view('j-emprunte', compact('text'));
     }
-
-    public function emprunter(Request $request)
-    {
-
-        $book = Book::find($request->book_id);
-
-        dd($book);
-
-
-    }
-    
-
-
-
 
     public function myLoans(Request $request)
     {

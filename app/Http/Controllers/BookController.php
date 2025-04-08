@@ -62,23 +62,5 @@ class BookController extends Controller
 
         return view('print-qr-codes', compact('qrCodes', 'printSize'));
     }
-
-    protected function canAccess()
-    {
-        if (!Auth::check()) {
-
-            $user = auth()->user();
-            if(!$user) {
-                abort(403, 'Unauthorized');
-            }
-
-            dd($user);
-            if($user->role->name != 'super-admin') {
-                abort(403, 'Unauthorized');
-            }
-
-        }
-    }
-
 }
 
