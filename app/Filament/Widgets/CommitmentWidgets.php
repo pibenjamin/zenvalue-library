@@ -8,6 +8,8 @@ use App\Models\Loan;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Models\AquisitionRequest;
+use App\Models\Book;
 
 class CommitmentWidgets extends BaseWidget
 {
@@ -19,13 +21,29 @@ class CommitmentWidgets extends BaseWidget
     protected function getStats(): array
     {
         $activatedUsers = User::where('password', 'LIKE', '%$2y$%')->count();
-        $totalComments = Comment::count();
-        $totalRatings = Rating::count();
-        $totalLoans = Loan::count();
+        $totalComments  = Comment::count();
+        $totalRatings   = Rating::count();
+        $totalLoans     = Loan::count();
+        $totalUserAquisitionDemands = AquisitionRequest::count();
 
-        $commentsCommitmentRate = round($totalComments / $activatedUsers * 100);
-        $ratingsCommitmentRate = round($totalRatings / $activatedUsers * 100);
-        $loansCommitmentRate = round($totalLoans / $activatedUsers * 100);
+        $adminIds = User::whereIn('email', [
+            config('app.admin_email'),
+            'gf@zenvalue.fr',
+        ])->pluck('id');
+
+        $adminWithGF = User::whereIn('email', [
+            config('app.admin_email'),
+        ])->pluck('id');
+
+        $totalSharingHerBooks       = Book::whereNotIn('owner_id', $adminIds)->count();
+        $totalSharingHerBooksWithGF = Book::whereIn('owner_id', $adminWithGF)->count();
+
+        $commentsCommitmentRate                 = round($totalComments / $activatedUsers * 100);
+        $ratingsCommitmentRate                  = round($totalRatings / $activatedUsers * 100);
+        $loansCommitmentRate                    = round($totalLoans / $activatedUsers * 100);
+        $userAquisitionDemandsCommitmentRate    = round($totalUserAquisitionDemands / $activatedUsers * 100);
+        $sharingHerBooksCommitmentRate          = round($totalSharingHerBooks / $activatedUsers * 100);
+        $sharingHerBooksCommitmentRateWithGF    = round($totalSharingHerBooksWithGF / $activatedUsers * 100);
 
         return [
             Stat::make('Taux de commentaires', $commentsCommitmentRate . '%')
@@ -51,6 +69,30 @@ class CommitmentWidgets extends BaseWidget
                 )
                 ->descriptionIcon($this->getEngagementIcon($loansCommitmentRate, 'loans'))
                 ->color($this->getEngagementColor($loansCommitmentRate, 'loans')),
+
+            Stat::make("Taux de demandes d'acquisition", $userAquisitionDemandsCommitmentRate . '%')
+                ->description(
+                    $this->getEngagementDescription('userAquisitionDemands', $userAquisitionDemandsCommitmentRate) . "\n" .
+                    "({$totalUserAquisitionDemands} demandes d'acquisition / {$activatedUsers} utilisateurs)"
+                )
+                ->descriptionIcon($this->getEngagementIcon($userAquisitionDemandsCommitmentRate, 'userAquisitionDemands'))
+                ->color($this->getEngagementColor($userAquisitionDemandsCommitmentRate, 'userAquisitionDemands')),
+
+            Stat::make("Taux de partage de livres", $sharingHerBooksCommitmentRate . '%')
+                ->description(
+                    $this->getEngagementDescription('sharingHerBooks', $sharingHerBooksCommitmentRate) . "\n" .
+                    "({$totalSharingHerBooks} livres partagés / {$activatedUsers} utilisateurs)"
+                )
+                ->descriptionIcon($this->getEngagementIcon($sharingHerBooksCommitmentRate, 'sharingHerBooks'))
+                ->color($this->getEngagementColor($sharingHerBooksCommitmentRate, 'sharingHerBooks')),
+
+            Stat::make("Taux de partage de livres avec GF 😎", $sharingHerBooksCommitmentRateWithGF . '%')
+                ->description(
+                    $this->getEngagementDescription('sharingHerBooksWithGF', $sharingHerBooksCommitmentRateWithGF) . "\n" .
+                    "({$totalSharingHerBooksWithGF} livres partagés / {$activatedUsers} utilisateurs)"
+                )   
+                ->descriptionIcon($this->getEngagementIcon($sharingHerBooksCommitmentRateWithGF, 'sharingHerBooksWithGF'))
+                ->color($this->getEngagementColor($sharingHerBooksCommitmentRateWithGF, 'sharingHerBooksWithGF')),
         ];
     }
 
@@ -72,6 +114,21 @@ class CommitmentWidgets extends BaseWidget
                 'medium' => 25,
                 'good' => 40,
             ],
+            'userAquisitionDemands' => [
+                'low' => 5,
+                'medium' => 15,
+                'good' => 30,
+            ],
+            'sharingHerBooks' => [
+                'low' => 5,
+                'medium' => 15,
+                'good' => 30,
+            ],
+            'sharingHerBooksWithGF' => [
+                'low' => 5,
+                'medium' => 15,
+                'good' => 30,
+            ],
         };
     }
 
@@ -80,10 +137,10 @@ class CommitmentWidgets extends BaseWidget
         $thresholds = $this->getEngagementThresholds($type);
         
         return match (true) {
-            $rate < $thresholds['low'] => 'Engagement faible',
-            $rate < $thresholds['medium'] => 'Engagement moyen',
-            $rate < $thresholds['good'] => 'Bon engagement',
-            default => 'Excellent engagement',
+            $rate < $thresholds['low']      => 'Engagement faible',
+            $rate < $thresholds['medium']   => 'Engagement moyen',
+            $rate < $thresholds['good']     => 'Bon engagement',
+            default                         => 'Excellent engagement',
         };
     }
 
@@ -92,10 +149,10 @@ class CommitmentWidgets extends BaseWidget
         $thresholds = $this->getEngagementThresholds($type);
         
         return match (true) {
-            $rate < $thresholds['low'] => 'heroicon-m-arrow-trending-down',
-            $rate < $thresholds['medium'] => 'heroicon-m-arrow-trending-up',
-            $rate < $thresholds['good'] => 'heroicon-m-arrow-up-circle',
-            default => 'heroicon-m-star',
+            $rate < $thresholds['low']      => 'heroicon-m-arrow-trending-down',
+            $rate < $thresholds['medium']   => 'heroicon-m-arrow-trending-up',
+            $rate < $thresholds['good']     => 'heroicon-m-arrow-trending-up',
+            default                         => 'heroicon-m-star',
         };
     }
 
@@ -104,10 +161,10 @@ class CommitmentWidgets extends BaseWidget
         $thresholds = $this->getEngagementThresholds($type);
         
         return match (true) {
-            $rate < $thresholds['low'] => 'danger',
-            $rate < $thresholds['medium'] => 'warning',
-            $rate < $thresholds['good'] => 'success',
-            default => 'secondary',
+            $rate < $thresholds['low']      => 'danger',
+            $rate < $thresholds['medium']   => 'warning',
+            $rate < $thresholds['good']     => 'success',
+            default                         => 'secondary',
         };
     }
 }

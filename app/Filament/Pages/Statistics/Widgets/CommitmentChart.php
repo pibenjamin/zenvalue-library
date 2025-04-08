@@ -6,6 +6,8 @@ use Filament\Widgets\ChartWidget;
 use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\Loan;
+use App\Models\AquisitionRequest;
+use App\Models\Book;
 use Filament\Support\RawJs;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
@@ -43,6 +45,23 @@ class CommitmentChart extends ChartWidget
             ->perMonth()
             ->count();
 
+
+        $dataUserAquisitionDemands = Trend::model(AquisitionRequest::class)
+            ->between(
+                start: now()->startOfYear(),
+                end: now()->endOfYear(),
+            )
+            ->perMonth()    
+            ->count();
+
+        $dataSharingHerBooks = Trend::model(Book::class)
+            ->between(
+                start: now()->startOfYear(),
+                end: now()->endOfYear(),
+            )
+            ->perMonth()
+            ->count();
+
         return [
             'datasets' => [
                 [
@@ -66,6 +85,20 @@ class CommitmentChart extends ChartWidget
                     'fill' => true,
                     'backgroundColor' => 'rgba(33, 150, 243, 0.1)',
                 ],
+                [
+                    'label' => 'Demandes d\'acquisition',
+                    'data' => $dataUserAquisitionDemands->map(fn (TrendValue $value) => $value->aggregate),
+                    'borderColor' => '#FF5722',
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(255, 87, 34, 0.1)',
+                ],
+                [
+                    'label' => 'Partage de livres',
+                    'data' => $dataSharingHerBooks->map(fn (TrendValue $value) => $value->aggregate),
+                    'borderColor' => '#9C27B0',
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(156, 39, 176, 0.1)',
+                ],      
             ],
             'labels' => $dataComments->map(fn (TrendValue $value) => Carbon::parse($value->date)->locale('fr_FR')->format('F Y')),
         ];
