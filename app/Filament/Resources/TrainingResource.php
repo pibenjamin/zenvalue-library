@@ -91,7 +91,6 @@ class TrainingResource extends Resource
                     ->searchable(),
                 Forms\Components\Select::make('books.title')
                     ->label('Livres')
-                    ->sortable()
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList()
