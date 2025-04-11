@@ -89,8 +89,9 @@ class TrainingResource extends Resource
                     ->openUrlInNewTab()
                     ->sortable()
                     ->searchable(),
-                Forms\Components\Select::make('books.title')
+                TextColumn::make('books.title')
                     ->label('Livres')
+                    ->sortable()
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList()
