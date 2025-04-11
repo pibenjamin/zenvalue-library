@@ -34,7 +34,7 @@ class BookTrainingsWidget extends BaseWidget
                 Book::query()
                     ->join('training_books', 'books.id', '=', 'training_books.book_id')
                     ->where('training_books.training_id', $this->record->id)
-                    
+                    ->where('books.status', Book::STATUS_ON_SHELF)
             )
             ->heading('Les livres liés et/ou permettant d\'approfondir cette formation')
             ->columns([
