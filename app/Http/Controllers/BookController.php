@@ -28,7 +28,9 @@ class BookController extends Controller
     {
         set_time_limit(300);
 
-        $this->canAccess();
+        if(!auth()->user()->hasRole('super_admin') && !auth()->user()->hasRole('admin')){
+            abort(403, 'Accès refusé');
+        }
 
         $qrCodes    = [];
         $printSize  = $request->print_size ?? 300;
