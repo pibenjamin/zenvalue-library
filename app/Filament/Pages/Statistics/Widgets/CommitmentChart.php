@@ -12,7 +12,7 @@ use Filament\Support\RawJs;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Carbon\Carbon;
-
+use App\Models\User;
 class CommitmentChart extends ChartWidget
 {
     protected static ?string $heading = 'Taux d\'engagement des utilisateurs';
@@ -54,7 +54,29 @@ class CommitmentChart extends ChartWidget
             ->perMonth()    
             ->count();
 
-        $dataSharingHerBooks = Trend::model(Book::class)
+        $adminIds = User::whereIn('email', [
+            config('app.admin_email'),
+            'gf@zenvalue.fr',
+        ])->pluck('id');
+
+        $adminWithGF = User::whereIn('email', [
+            config('app.admin_email'),
+        ])->pluck('id');
+
+
+        $dataSharingHerBooks = Trend::query(
+            Book::query()->whereNotIn('owner_id', $adminIds)
+        )
+            ->between(
+                start: now()->startOfYear(),
+                end: now()->endOfYear(),
+            )
+            ->perMonth()
+            ->count();
+
+        $dataSharingHerBooksWithGF = Trend::query(
+            Book::query()->whereNotIn('owner_id', $adminWithGF)
+        )
             ->between(
                 start: now()->startOfYear(),
                 end: now()->endOfYear(),
@@ -64,6 +86,26 @@ class CommitmentChart extends ChartWidget
 
         return [
             'datasets' => [
+                [
+                    'label' => 'Engagement global',
+                    'data' => $dataComments->map(function (TrendValue $value, $key) use (
+                        $dataRatings, 
+                        $dataLoan, 
+                        $dataUserAquisitionDemands, 
+                        $dataSharingHerBooks,
+                        $dataSharingHerBooksWithGF
+                    ) {
+                        return $value->aggregate 
+                            + $dataRatings[$key]->aggregate 
+                            + $dataLoan[$key]->aggregate 
+                            + $dataUserAquisitionDemands[$key]->aggregate 
+                            + $dataSharingHerBooks[$key]->aggregate
+                            + $dataSharingHerBooksWithGF[$key]->aggregate;
+                    }),
+                    'borderColor' => '#A0A0A0',
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(160, 160, 160, 0.1)',
+                ],
                 [
                     'label' => 'Commentaires',
                     'data' => $dataComments->map(fn (TrendValue $value) => $value->aggregate),
@@ -99,6 +141,13 @@ class CommitmentChart extends ChartWidget
                     'fill' => true,
                     'backgroundColor' => 'rgba(156, 39, 176, 0.1)',
                 ],      
+                [
+                    'label' => 'Partage de livres avec GF',
+                    'data' => $dataSharingHerBooksWithGF->map(fn (TrendValue $value) => $value->aggregate),
+                    'borderColor' => '#E91E63',
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(233, 30, 99, 0.1)',
+                ],
             ],
             'labels' => $dataComments->map(fn (TrendValue $value) => Carbon::parse($value->date)->locale('fr_FR')->format('F Y')),
         ];
