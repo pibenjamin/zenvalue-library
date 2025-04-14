@@ -22,6 +22,8 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Grid;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\TrainingResource\Widgets\BookTrainingsWidget;
+use App\Filament\Resources\TrainingResource\Widgets\LinksTrainingsWidget;
+use App\Filament\Resources\TrainingResource\Widgets\DocsTrainingsWidget;
 
 class TrainingResource extends Resource
 {
@@ -36,36 +38,98 @@ class TrainingResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->label('Titre')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('url')
-                    ->label('URL Catalogue')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image')
-                    ->label('Image')
-                    ->directory('trainings')
-                    ->maxSize(5120) // 5MB
-                    ->required(),
-                Forms\Components\Textarea::make('description')
-                    ->label('Description')
-                    ->required(),
-                Forms\Components\Select::make('books')
-                    ->label('Livres')
-                    ->multiple()
-                    ->relationship('books', 'title')
-                    ->preload()
-                    ->getSearchResultsUsing(fn (string $search): array => 
-                        Book::where('status', Book::STATUS_ON_SHELF)
-                            ->where('missing', false)
-                            ->where('title', 'like', "%{$search}%")
-                            ->limit(50)
-                            ->pluck('title', 'id')
-                            ->toArray())
-                    ->required()
-                    ->live(),
+                // Section 1 : Informations de la formation
+                Forms\Components\Section::make('Informations de la formation')
+                    ->schema([
+                        Forms\Components\Grid::make()
+                            ->schema([
+                                // Colonne gauche (titre, url, description)
+                                Forms\Components\Grid::make()
+                                    ->schema([
+                                        Forms\Components\TextInput::make('title')
+                                            ->label('Titre')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->columnSpan('full'),
+                                        Forms\Components\TextInput::make('url')
+                                            ->label('URL Catalogue')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->columnSpan('full'),
+                                        Forms\Components\Textarea::make('description')
+                                            ->label('Description')
+                                            ->required()
+                                            ->columnSpan('full'),
+                                    ])
+                                    ->columnSpan(['lg' => 2]),
+
+                                // Colonne droite (image)
+                                Forms\Components\FileUpload::make('image')
+                                    ->label('Image')
+                                    ->directory('trainings')
+                                    ->maxSize(5120) // 5MB
+                                    ->required()
+                                    ->columnSpan(['lg' => 1]),
+                            ])
+                            ->columns(['lg' => 3]),
+                    ]),
+
+                // Section 2 : Ressources associées
+                Forms\Components\Section::make('Ressources associées')
+                    ->schema([
+                        Forms\Components\Select::make('books')
+                            ->label('Livres')
+                            ->multiple()
+                            ->relationship('books', 'title')
+                            ->preload()
+                            ->getSearchResultsUsing(fn (string $search): array => 
+                                Book::where('status', Book::STATUS_ON_SHELF)
+                                    ->where('missing', false)
+                                    ->where('title', 'like', "%{$search}%")
+                                    ->limit(50)
+                                    ->pluck('title', 'id')
+                                    ->toArray())
+                            ->required()
+                            ->live(),
+                        Forms\Components\Select::make('docs')
+                            ->label('Documents')
+                            ->multiple()
+                            ->relationship('docs', 'name')
+                            ->preload()
+                            ->required()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')    
+                                    ->label('Nom')
+                                    ->placeholder('Nom du document')
+                                    ->unique(ignoreRecord: true)
+                                    
+                                    ->required(),
+                                Forms\Components\FileUpload::make('path')
+                                    ->label('Fichier')
+                                    ->directory('trainings/docs')
+                                    ->placeholder('Chemin du fichier')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
+                            ]),
+                        Forms\Components\Select::make('links')
+                            ->label('Liens')
+                            ->multiple()
+                            ->relationship('links', 'name')
+                            ->preload()
+                            ->required()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nom')
+                                    ->placeholder('Nom du lien')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
+                                Forms\Components\TextInput::make('url')
+                                    ->label('Adresse du lien')
+                                    ->placeholder('https://www.exemple.com/article')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -125,23 +189,61 @@ class TrainingResource extends Resource
         return $infolist
             ->schema([
                 Section::make()
-                    ->heading('Informations de la formation')
                     ->schema([
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
-                                TextEntry::make('title')
-                                    ->label('Titre'),
-                                TextEntry::make('url')
-                                    ->label('URL')
-                                    ->url(fn (Training $record) => $record->url)
-                                    ->openUrlInNewTab()
-                                    ->color('primary'),
-                                ImageEntry::make('image')
-                                    ->label('Image'),
+                                // Colonne gauche : Informations de la formation
+                                Grid::make()
+                                    ->schema([
+                                        TextEntry::make('title')
+                                            ->label('Titre')
+                                            ->columnSpan('full'),
+
+                                        ImageEntry::make('image')
+                                            ->label('Image')
+                                            ->columnSpan('full'),
+
+                                    ])
+                                    ->columnSpan(1),
+
+                                // Colonne droite : Ressources associées
+                                Grid::make()
+                                    ->schema([
+                                        TextEntry::make('books.title')
+                                            ->label('Livres associés')
+                                            ->listWithLineBreaks()
+                                            ->bulleted()
+                                            ->columnSpan('full'),
+                                        TextEntry::make('links.name')
+                                            ->label('Liens')
+                                            ->listWithLineBreaks()
+                                            ->bulleted()
+                                            ->columnSpan('full'),
+                                        TextEntry::make('docs.name')
+                                            ->label('Documents')
+                                            ->listWithLineBreaks()
+                                            ->bulleted()
+                                            ->columnSpan('full'),
+                                    ])
+                                    ->columnSpan(1),
+                                Grid::make()
+                                    ->schema([
+                                        TextEntry::make('url')
+                                            ->label('URL')
+                                            ->url(fn (Training $record) => $record->url)
+                                            ->openUrlInNewTab()
+                                            ->color('primary')
+                                            ->columnSpan('full'),                                        
+                                        TextEntry::make('description')
+                                            ->label('Description')
+                                            ->markdown()
+                                            ->columnSpan('full'),
+                                    ])
+                                    ->columnSpan('full'),
+
                             ]),
                     ])
                     ->columnSpan('full'),
-
             ]);
     }
 
@@ -157,6 +259,8 @@ class TrainingResource extends Resource
     {
         return [
             BookTrainingsWidget::class,
+            LinksTrainingsWidget::class,
+            DocsTrainingsWidget::class,
         ];
     }
 

@@ -20,4 +20,15 @@ class Training extends Model
         return $this->belongsToMany(Book::class, 'training_books');
     }
 
+    public function docs(): BelongsToMany
+    {
+        return $this->belongsToMany(Doc::class, 'training_docs');
+    }
+
+    public function links(): BelongsToMany
+    {
+        return $this->belongsToMany(Link::class, 'training_links');
+    }
+    
+
 } 

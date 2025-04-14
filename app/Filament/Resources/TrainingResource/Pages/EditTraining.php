@@ -6,6 +6,8 @@ use App\Filament\Resources\TrainingResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\TrainingResource\Widgets\BookTrainingsWidget;
+use App\Filament\Resources\TrainingResource\Widgets\LinksTrainingsWidget;
+use App\Filament\Resources\TrainingResource\Widgets\DocsTrainingsWidget;
 use Illuminate\Support\Str;
 use Filament\Forms;
 use App\Models\Book;
@@ -38,6 +40,8 @@ class EditTraining extends EditRecord
     {
         return [
             BookTrainingsWidget::class,
+            LinksTrainingsWidget::class,
+            DocsTrainingsWidget::class,
         ];
     }
 

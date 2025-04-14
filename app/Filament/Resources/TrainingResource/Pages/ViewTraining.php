@@ -6,6 +6,8 @@ use App\Filament\Resources\TrainingResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\TrainingResource\Widgets\BookTrainingsWidget;
+use App\Filament\Resources\TrainingResource\Widgets\LinksTrainingsWidget;
+use App\Filament\Resources\TrainingResource\Widgets\DocsTrainingsWidget;
 use Filament\Forms;
 use App\Models\Book;
 use Filament\Notifications\Notification;
@@ -47,6 +49,8 @@ class ViewTraining extends ViewRecord
     {
         return [
             BookTrainingsWidget::class,
+            LinksTrainingsWidget::class,
+            DocsTrainingsWidget::class,
         ];
     }
 
