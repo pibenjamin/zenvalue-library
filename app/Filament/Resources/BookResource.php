@@ -106,9 +106,7 @@ class BookResource extends Resource
                     ->helperText('Le titre de l\'ouvrage est obligatoire')
                     ->required()
                     ->maxLength(255),
-
-
-
+                
                 Forms\Components\Toggle::make('missing')
                     ->label('Manquant')
                     ->onColor('success')
@@ -252,9 +250,6 @@ class BookResource extends Resource
                 TextColumn::make('location')
                     ->label('Localisation')
                     ->state(function (Book $record): string {
-
-   
-
                         return Book::getLocationLabel($record->location);
                     })
                     ->badge()
@@ -374,9 +369,7 @@ class BookResource extends Resource
                         return "Voulez-vous emprunter {$book->title} ?";
                     })
                      ->action(function (Book $book) {
-
                         if($book->location === Book::LOCATION_KEEP_AT_HOME) {
-
                             app(BookService::class)->borrowBookAtHome($book, auth()->user());
                         }
                         else {
@@ -546,6 +539,12 @@ class BookResource extends Resource
                     ->multiple()
                     ->relationship('authors', 'name')
                     ->options(Author::all()->pluck('name', 'id')),
+
+                Tables\Filters\SelectFilter::make('owner.name')
+                    ->label('Propriétaire')
+                    ->multiple()
+                    ->relationship('owner', 'name')
+                    ->options(User::all()->pluck('name', 'id')),
 
                 Tables\Filters\SelectFilter::make('tags.title')
                     ->label('Mots-clés')
