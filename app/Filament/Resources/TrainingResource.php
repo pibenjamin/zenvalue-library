@@ -77,12 +77,24 @@ class TrainingResource extends Resource
                     ->label('Titre')
                     ->sortable()
                     ->wrap()
+                    ->width(300)
                     ->searchable(),
                 TextColumn::make('url')
-                    ->label('URL')
+                    ->state(function (Training $record): string {
+                        return 'ouvrir';
+                    })
+                    ->label('Lien')
+                    ->icon('heroicon-o-link')
                     ->url(fn (Training $record) => $record->url)
                     ->openUrlInNewTab()
                     ->sortable()
+                    ->searchable(),
+                TextColumn::make('books.title')
+                    ->label('Livres')
+                    ->sortable()
+                    ->listWithLineBreaks()
+                    ->limitList(3)
+                    ->expandableLimitedList()
                     ->searchable(),
                 ImageColumn::make('image')
                     ->label('Image')
