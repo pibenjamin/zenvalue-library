@@ -12,11 +12,12 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\Book;
 use App\Models\Author;
+use App\Models\AquisitionRequest;
 use App\Services\ImportBookData;
 class SearchCal extends Command
 {
     protected $signature = 'app:search-isbn-cal';
-    protected $description = 'Recherche un livre par ISBN sur https://www.chasse-aux-livres.fr';
+    protected $description = 'Recherche les informations des livres non parsés sur https://www.chasse-aux-livres.fr';
 
     public function handle()
     {
@@ -41,7 +42,35 @@ class SearchCal extends Command
                     ['Langue', $book->lang],
                     ['Dimensions', $book->dimensions],
                     ['Éditeur', $book->publisher],
+                    ['ISBN', $book->isbn],
                     ['Auteurs', $book->authors->pluck('name')->implode(', ')],
+                ]
+            );
+        }
+
+        $aquisitionRequests = AquisitionRequest::where('link_to_book', '!=', 'parsed')->get();
+
+        $this->info('Nombre de demandes d\'acquisition à traiter : ' . $aquisitionRequests->count());
+
+        foreach ($aquisitionRequests as $aquisitionRequest) {
+            $this->info($aquisitionRequest->link_to_book);
+
+            $importBookData = new ImportBookData();
+            $importBookData->importFromCalPage($aquisitionRequest);
+
+            // afficher le livre
+            $this->table(
+                ['Champ', 'Valeur'],
+                [
+                    ['Titre', $aquisitionRequest->title],
+                    ['ISBN', $aquisitionRequest->isbn],
+//                    ['Couverture', $aquisitionRequest->cover_url],
+//                    ['Pages', $aquisitionRequest->pages],
+//                    ['Année', $aquisitionRequest->year_of_publication],
+//                    ['Langue', $aquisitionRequest->lang],
+//                    ['Dimensions', $aquisitionRequest->dimensions],
+//                    ['Éditeur', $aquisitionRequest->publisher],
+//                    ['Auteurs', $book->authors->pluck('name')->implode(', ')],
                 ]
             );
         }

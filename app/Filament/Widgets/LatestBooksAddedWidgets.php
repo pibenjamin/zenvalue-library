@@ -25,7 +25,8 @@ class LatestBooksAddedWidgets extends BaseWidget
         return $table
             ->query(
                 Book::query()
-                    ->latest('created_at')
+                    ->where('status', Book::STATUS_ON_SHELF)
+                    ->latest('updated_at')
                     ->limit(5)
             )
             ->heading('Derniers livres ajoutés 📚')
@@ -37,7 +38,7 @@ class LatestBooksAddedWidgets extends BaseWidget
                     Tables\Columns\ImageColumn::make('cover_url')
                     ->label('Couverture')
                     ->sortable()
-                    ->height(100),
+                    ->height(50),
 
 
                 Tables\Columns\TextColumn::make('author')

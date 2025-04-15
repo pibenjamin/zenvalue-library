@@ -16,7 +16,7 @@ class Book extends Model
     const STATUS_BORROWED               = 'borrowed';
     const STATUS_MISSING                = 'missing';
     const STATUS_DROP_OFF               = 'drop_off';
-
+    const STATUS_AQUISITION_REQUEST     = 'acquisition_request';
 
     const LOCATION_DROP_OFF            = 'office';
     const LOCATION_KEEP_AT_HOME        = 'home';
@@ -39,6 +39,7 @@ class Book extends Model
         self::STATUS_ON_SHELF               => 'Sur étagère',
         self::STATUS_BORROWED               => 'Emprunté',
         self::STATUS_MISSING                => 'Manquant',
+        self::STATUS_AQUISITION_REQUEST     => 'Demande d\'acquisition',
     ];
 
     private const LOCATION_COLORS = [
@@ -53,6 +54,7 @@ class Book extends Model
         self::STATUS_ON_SHELF               => 'success',
         self::STATUS_BORROWED               => 'danger',
         self::STATUS_MISSING                => 'danger',
+        self::STATUS_AQUISITION_REQUEST     => 'warning',
     ];
 
     private const DIFFICULTY_LABELS = [
@@ -275,4 +277,8 @@ class Book extends Model
         $this->tags()->attach($tags);
     }
 
+    public function isAquisitionRequest(): bool
+    {
+        return $this->status === self::STATUS_AQUISITION_REQUEST;
+    }
 } 

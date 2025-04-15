@@ -17,7 +17,7 @@ use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Placeholder;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
-
+use App\Services\ImportBookData;
 class AquisitionRequestResource extends Resource
 {
     protected static ?string $model = AquisitionRequest::class;
@@ -85,15 +85,34 @@ class AquisitionRequestResource extends Resource
                             ->schema([
                                 Placeholder::make('link_example')
                                 ->label('Merci de nous fournir un lien vers le livre que vous nous proposez d\'acquérir.')
-                                ->content(new HtmlString(' Nous privilégions les librairies indépendantes comme <a href="https://www.lalibrairie.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.lalibrairie.com</a> mais vous pouvez tout de même nous fournir un lien à partir d\'<a href="https://www.amazon.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">amazon.com</a>'))
+                                ->content(new HtmlString(' Nous privilégions les librairies indépendantes comme <a href="https://www.lalibrairie.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.lalibrairie.com</a>.'))
                                 ->columnSpanFull(),
 
-                                Forms\Components\TextInput::make('link_to_book')
-                                    ->label('Lien vers le livre')
-                                    ->url()
-                                    ->prefix('https://')
-                                    ->suffixIcon('heroicon-o-globe-alt')
-                                    ->maxLength(255),
+                        Forms\Components\TextInput::make('link_to_book')
+                            ->label('Page sur chasse aux livres')
+                            ->helperText(function ($record) {
+                                if (!$record) return null;
+                                return new HtmlString(
+                                    '<a href="https://www.chasse-aux-livres.fr" 
+                                        target="_blank" 
+                                        class="text-success-600 hover:text-success-500 hover:underline"
+                                    >
+                                        Voir la page sur www.chasse-aux-livres.fr
+                                    </a>'
+                                );
+                            })
+                            ->prefixIcon('heroicon-o-globe-alt')
+                        ->rules(['starts_with:https://www.chasse-aux-livres.fr/prix/'])
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('importFromCalPage')
+                                    ->label('Importer les informations')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->disabled(fn (?AquisitionRequest $record): bool => !$record || $record->link_to_book === 'parsed')
+                                    ->action(function (?AquisitionRequest $record) {
+                                        if (!$record) return;
+                                        app(ImportBookData::class)->importFromCalPage($record);
+                                    }),
+                            ),
 
                                 Forms\Components\TextInput::make('price')
                                     ->label('Prix estimé')

@@ -6,6 +6,7 @@ use App\Mail\LoanConfirmed;
 use App\Mail\UserSignaledReturn;
 use App\Models\Book;
 use App\Models\Author;
+use App\Models\AquisitionRequest;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -16,23 +17,28 @@ use Illuminate\Support\Facades\Http;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\HttpClient\HttpClient;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Database\Eloquent\Model;
 
 
 class ImportBookData
 {
-    public function importFromCalPage(Book $book)
+    public function importFromCalPage(Model $model)
     {
-        $browser = new HttpBrowser(HttpClient::create([
-                'verify_peer' => false,
-                'verify_host' => false,
-                'headers' => [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
-                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Language' => 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
-                ]
-            ]));
-            
+
+        if($model instanceof Book) {
+
+            $book = $model;
+
+            $browser = new HttpBrowser(HttpClient::create([
+                    'verify_peer' => false,
+                    'verify_host' => false,
+                    'headers' => [
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
+                        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                        'Accept-Language' => 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
+                    ]
+                ]));
+                
             $crawler = $browser->request('GET', $book->cal_page);
             $content = $browser->getResponse()->getContent();
 
@@ -263,5 +269,80 @@ class ImportBookData
             $book->slug = Str::slugify($book->title);
 
             $book->save();
+        }
+
+        if($model instanceof AquisitionRequest) {
+            $aquisitionRequest = $model;
+
+            $browser = new HttpBrowser(HttpClient::create([
+                'verify_peer' => false,
+                'verify_host' => false,
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language' => 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
+                ]
+            ]));
+            
+            $crawler = $browser->request('GET', $aquisitionRequest->link_to_book);
+            $content = $browser->getResponse()->getContent();
+
+            if (empty($content)) {
+                $message = 'Le contenu de la page n\'a pas été trouvé pour la demande d\'acquisition ' . $aquisitionRequest->title;
+                Notification::make()
+                    ->title('Contenu de la page non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+                return;
+            }
+
+           
+
+
+            $isbnCrawler = $crawler;
+            $isbnNode = $isbnCrawler->filterXPath('//div[@id="ean"]');
+
+            if($isbnNode->count() > 0) {
+                if($isbnNode->attr('data-ean')) {
+
+                    $aquisitionRequest->isbn = $isbnNode->attr('data-ean');
+                }
+                else {
+                    $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $aquisitionRequest->title;
+                    Notification::make()
+                        ->title('ISBN non trouvé');
+                }
+            }
+            else {
+                $message = 'L\'ISBN n\'a pas été trouvé pour le livre ' . $aquisitionRequest->title;
+                Notification::make()
+                    ->title('ISBN non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                    Log::error($message);
+
+            }
+
+            $titleCrawler = $crawler;
+            $titleNode = $titleCrawler->filterXPath('//div[@id="book-title-and-details"]//h1');
+            if ($titleNode->count() > 0) {
+                $aquisitionRequest->title = $titleNode->text();
+            }
+            else {
+                $message = 'Le titre n\'a pas été trouvé pour le livre ' . $aquisitionRequest->title;
+                Notification::make()
+                    ->title('Titre non trouvé')
+                    ->body($message)
+                    ->danger()
+                    ->send();
+                Log::error($message);
+            }
+            $aquisitionRequest->link_to_book = 'parsed';
+            $aquisitionRequest->save();
+
+        }
     }
 }
