@@ -32,6 +32,7 @@ class LinksTrainingsWidget extends BaseWidget
                 Link::query()
                     ->join('training_links', 'links.id', '=', 'training_links.link_id')
                     ->where('training_links.training_id', $this->record->id)
+                    ->orderBy('order')
             )
             ->heading('Les liens vers des ressources en ligne')
             ->columns([

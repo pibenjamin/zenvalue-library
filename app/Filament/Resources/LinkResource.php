@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\Training;
 
 class LinkResource extends Resource
 {
@@ -61,7 +62,10 @@ class LinkResource extends Resource
                     ->dateTime('d-m-Y'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('trainings.title')
+                    ->label('Formation')
+                    ->relationship('trainings', 'title')
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -70,7 +74,8 @@ class LinkResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->reorderable('order');
     }
 
     public static function getRelations(): array

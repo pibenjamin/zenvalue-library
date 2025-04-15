@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('url');
             $table->string('name');
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }
