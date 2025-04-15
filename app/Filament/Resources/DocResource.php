@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DocResource\Pages;
 use App\Filament\Resources\DocResource\RelationManagers;
 use App\Models\Doc;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -31,10 +32,11 @@ class DocResource extends Resource
                     ->label('Fichier')
                     ->directory('trainings/docs')
                     ->required(),
-                Forms\Components\Select::make('author_id')
-                    ->label('Auteur')
-                    ->relationship('author', 'name')
-                    ->required(),
+                Forms\Components\Select::make('authors')
+                    ->label('Auteurs')
+                    ->multiple()
+                    ->relationship('authors', 'name')
+                    ->preload(),
                 Forms\Components\Select::make('trainings')
                     ->label('Formation')
                     ->multiple()
@@ -47,10 +49,14 @@ class DocResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('path'),
-                Tables\Columns\TextColumn::make('author.name'),
-                Tables\Columns\TextColumn::make('trainings.title'),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nom'),
+                Tables\Columns\TextColumn::make('path')
+                    ->label('Fichier'),
+                Tables\Columns\TextColumn::make('authors.name')
+                    ->label('Auteur'),
+                Tables\Columns\TextColumn::make('trainings.title')
+                    ->label('Formation'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date de création')
                     ->dateTime('d-m-Y'),

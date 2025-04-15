@@ -23,7 +23,7 @@ class BookTagCloud extends Widget
     {
         $words = collect();
         
-        Book::select('title')->get()->each(function ($book) use ($words) {
+        Book::select('title')->where('status', Book::STATUS_ON_SHELF)->each(function ($book) use ($words) {
             // Remplacer les apostrophes par des espaces
             $title = str_replace(['\'', '"', '’'], ' ', Str::lower($book->title));
             
@@ -33,7 +33,7 @@ class BookTagCloud extends Widget
             
             // Filtrer les mots courts et les mots vides
             $stopWords = [
-                'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'en', 'au', 'aux', 'for', 'how', 'what', 'and', 'edition', 'ajout',
+                'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'en', 'au', 'aux', 'for', 'how', 'what', 'and', 'edition', 'ajout', 'par',
                 'l', 'd', 'j', 'n', 'm', 't', 's', 'c', 'qu', 'avec', 'the', 'pour', 'est', 'sont', 'dans', 'plus', 'ont', 'qui', 'your', 'votre', 
             ];
             

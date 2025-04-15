@@ -24,6 +24,8 @@ use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\TrainingResource\Widgets\BookTrainingsWidget;
 use App\Filament\Resources\TrainingResource\Widgets\LinksTrainingsWidget;
 use App\Filament\Resources\TrainingResource\Widgets\DocsTrainingsWidget;
+use Filament\Infolists\Components\Split;
+use Filament\Support\Enums\FontWeight;
 
 class TrainingResource extends Resource
 {
@@ -51,6 +53,14 @@ class TrainingResource extends Resource
                                             ->required()
                                             ->maxLength(255)
                                             ->columnSpan('full'),
+
+                                        Forms\Components\Select::make('trainers')
+                                            ->label('Formateurs')
+                                            ->multiple()
+                                            ->relationship('trainers', 'name')
+                                            ->preload()
+                                            ->columnSpan('full'),
+
                                         Forms\Components\TextInput::make('url')
                                             ->label('URL Catalogue')
                                             ->required()
@@ -188,62 +198,33 @@ class TrainingResource extends Resource
     {
         return $infolist
             ->schema([
-                Section::make()
-                    ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                // Colonne gauche : Informations de la formation
-                                Grid::make()
-                                    ->schema([
-                                        TextEntry::make('title')
-                                            ->label('Titre')
-                                            ->columnSpan('full'),
-
-                                        ImageEntry::make('image')
-                                            ->label('Image')
-                                            ->columnSpan('full'),
-
-                                    ])
-                                    ->columnSpan(1),
-
-                                // Colonne droite : Ressources associées
-                                Grid::make()
-                                    ->schema([
-                                        TextEntry::make('books.title')
-                                            ->label('Livres associés')
-                                            ->listWithLineBreaks()
-                                            ->bulleted()
-                                            ->columnSpan('full'),
-                                        TextEntry::make('links.name')
-                                            ->label('Liens')
-                                            ->listWithLineBreaks()
-                                            ->bulleted()
-                                            ->columnSpan('full'),
-                                        TextEntry::make('docs.name')
-                                            ->label('Documents')
-                                            ->listWithLineBreaks()
-                                            ->bulleted()
-                                            ->columnSpan('full'),
-                                    ])
-                                    ->columnSpan(1),
-                                Grid::make()
-                                    ->schema([
-                                        TextEntry::make('url')
-                                            ->label('URL')
-                                            ->url(fn (Training $record) => $record->url)
-                                            ->openUrlInNewTab()
-                                            ->color('primary')
-                                            ->columnSpan('full'),                                        
-                                        TextEntry::make('description')
-                                            ->label('Description')
-                                            ->markdown()
-                                            ->columnSpan('full'),
-                                    ])
-                                    ->columnSpan('full'),
-
-                            ]),
+                Split::make([
+                    Section::make([
+                        TextEntry::make('title')
+                            ->label('')
+                            ->weight(FontWeight::Bold)
+                            ->formatStateUsing(fn (string $state): string => "<h2 class='text-2xl'>{$state}</h2>")
+                            ->html(),
+                        TextEntry::make('trainers.name')
+                            ->label('Formateurs')
+                            ->badge(),
+                        TextEntry::make('url')
+                            ->label('')
+                            ->url(fn (Training $record) => $record->url)
+                            ->color('primary')
+                            ->openUrlInNewTab(),
                     ])
-                    ->columnSpan('full'),
+                    ->columnSpan(2),
+                    Section::make([
+                        ImageEntry::make('image')
+                            ->label('')
+                            ->width(200)
+                    ])
+                    ->grow(false)
+                    ->columnSpan(1),
+                ])
+                ->from('md')
+                ->columnSpan('full'),
             ]);
     }
 

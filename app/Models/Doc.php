@@ -16,9 +16,9 @@ class Doc extends Model
         'author_id',
     ];
 
-    public function author()
+    public function authors()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsToMany(User::class, 'doc_authors', 'doc_id', 'author_id');
     }
 
     public function trainings()

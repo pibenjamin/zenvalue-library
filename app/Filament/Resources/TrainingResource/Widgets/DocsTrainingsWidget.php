@@ -12,6 +12,8 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Filament\Notifications\Notification;
 
 class DocsTrainingsWidget extends BaseWidget
 {
@@ -33,23 +35,45 @@ class DocsTrainingsWidget extends BaseWidget
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Document')
-                    ->openUrlInNewTab()
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('authors.name')
                     ->label('Auteurs')
                     ->badge()
-                    ->color('gray')
+                    ->openUrlInNewTab()
                     ->wrap()
-                    ->verticallyAlignStart()
-                    ->searchable()
-                    ->toggleable(),
+                    ->tooltip(fn (Doc $record) => $record->authors->pluck('name')->implode(' - '))
             ])
             ->poll('3s')
-            ->filters([                   
+            ->actions([
+                Tables\Actions\Action::make('download')
+                    ->label('Télécharger')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->disableLabel()
+                    ->tooltip('Télécharger ce livre')
+                    ->button()
+                    ->color('primary')
+                    ->action(function (Doc $record) {
+                        if (!Storage::disk('public')->exists($record->path)) {
+                            Notification::make()
+                                ->title('Erreur')
+                                ->body('Le fichier n\'existe pas')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
 
+                        Notification::make()
+                            ->title('Téléchargement effectué')
+                            ->success()
+                            ->send();
+
+                        return Storage::disk('public')->download($record->path);
+                    }),
+            ])
+            ->filters([
+                //
             ]);
-            
     }
 
     protected function getTablePollingInterval(): ?string

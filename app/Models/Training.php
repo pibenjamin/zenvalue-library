@@ -29,6 +29,11 @@ class Training extends Model
     {
         return $this->belongsToMany(Link::class, 'training_links');
     }
+
+    public function trainers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'training_trainers', 'training_id', 'trainer_id');
+    }
     
 
 } 
