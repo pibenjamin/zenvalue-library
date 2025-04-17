@@ -167,6 +167,14 @@ class TrainingResource extends Resource
                     ->limitList(3)
                     ->expandableLimitedList()
                     ->searchable(),
+                
+                TextColumn::make('trainers.name')
+                    ->label('Formateurs')
+                    ->sortable()
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+
                 ImageColumn::make('image')
                     ->label('Image')
                     ->sortable()
