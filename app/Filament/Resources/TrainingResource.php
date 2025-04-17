@@ -26,6 +26,8 @@ use App\Filament\Resources\TrainingResource\Widgets\LinksTrainingsWidget;
 use App\Filament\Resources\TrainingResource\Widgets\DocsTrainingsWidget;
 use Filament\Infolists\Components\Split;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Trainer;
 
 class TrainingResource extends Resource
 {
@@ -181,7 +183,15 @@ class TrainingResource extends Resource
                     ->searchable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('trainers')
+                    ->label('Formateurs')
+                    ->options(Trainer::all()->pluck('name', 'id'))
+                    ->searchable(),
+                SelectFilter::make('trainers_not_empty')
+                    ->label('Formations avec formateurs')
+                    ->query(function (Builder $query): Builder {
+                        return $query->whereHas('trainers');
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
