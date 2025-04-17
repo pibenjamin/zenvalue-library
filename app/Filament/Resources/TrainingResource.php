@@ -99,14 +99,13 @@ class TrainingResource extends Resource
                                     ->limit(50)
                                     ->pluck('title', 'id')
                                     ->toArray())
-                            ->required()
-                            ->live(),
+                                    ->required()
+                                    ->live(),
                         Forms\Components\Select::make('docs')
                             ->label('Documents')
                             ->multiple()
                             ->relationship('docs', 'name')
                             ->preload()
-                            ->required()
                             ->createOptionForm([
                                 Forms\Components\TextInput::make('name')    
                                     ->label('Nom')
@@ -126,7 +125,6 @@ class TrainingResource extends Resource
                             ->multiple()
                             ->relationship('links', 'name')
                             ->preload()
-                            ->required()
                             ->createOptionForm([
                                 Forms\Components\TextInput::make('name')
                                     ->label('Nom')

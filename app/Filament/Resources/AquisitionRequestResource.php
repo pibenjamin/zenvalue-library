@@ -18,6 +18,8 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use App\Services\ImportBookData;
+use Filament\Forms\Get;
+
 class AquisitionRequestResource extends Resource
 {
     protected static ?string $model = AquisitionRequest::class;
@@ -62,7 +64,21 @@ class AquisitionRequestResource extends Resource
                                     ->default('pending')
                                     ->visible(fn () => 
                                         auth()->user()->hasRole('super_admin')
-                                    ),
+                                    )
+                                    ->reactive(),
+                                    
+                                Forms\Components\Textarea::make('reject_reason')
+                                    ->label('Motif du rejet')
+                                    ->placeholder('Veuillez nous indiquer le motif de rejet de la demande.')
+                                    ->rows(9)
+                                        ->visible(function (?AquisitionRequest $record = null, Get $get): bool {
+                                            if (!$record) return false;
+
+                                            if($get('status') === 'rejected') {
+                                                return true;
+                                            }
+                                            return false;
+                                    }),
 
                                 Forms\Components\Textarea::make('description')
                                     ->placeholder('Selon vous en quoi ce livre serait utile à vous-même mais également à la communauté des citizens. Exemple : nous donnons des formations sur le sujet Y mais nous n\'avons aucune référence à ce sujet ; ce sujet n\'est pas répérensé dans notre bibliothèque.')
@@ -70,14 +86,7 @@ class AquisitionRequestResource extends Resource
                                     ->rows(9),
 
 
-                                Forms\Components\Textarea::make('reject_reason')
-                                    ->label('Motif du rejet')
-                                    ->placeholder('Veuillez nous indiquer le motif de rejet de la demande.')
-                                    ->rows(9)
-                                        ->visible(function (?AquisitionRequest $record = null): bool {
-                                            if (!$record) return false;
-                                            return $record->status === 'rejected' || auth()->user()->hasRole('super_admin');
-                                        }),
+
                             ]),
 
                         Forms\Components\Section::make('Informations essentielles')

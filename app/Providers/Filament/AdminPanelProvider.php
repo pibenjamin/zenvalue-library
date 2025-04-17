@@ -66,7 +66,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
+use Filament\Widgets\FilamentInfoWidget;
 // Laravel Support
 use Illuminate\Support\Facades\App;
 
@@ -123,6 +123,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,    // Page dashboard par défaut
             ])
             ->widgets([
+                FilamentInfoWidget::class,
                 LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
                 MyLoanHistory::class,

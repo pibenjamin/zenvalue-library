@@ -6,9 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class Book extends Model
+class Book extends Model implements Sortable
 {
+    use SortableTrait;
+
+    public $sortable = [
+        'order_column_name' => 'parcours_order',
+        'sort_when_creating' => true,
+    ];
+
     const STATUS_TO_QUALIFY             = 'to_qualify';
     const STATUS_QUALIFIED              = 'qualified';
     const STATUS_REJECTED               = 'rejected';
@@ -98,7 +107,8 @@ class Book extends Model
         'status',
         'location',
         'cal_page',
-        'qr_code_interest'
+        'qr_code_interest',
+        'parcours_order'
     ];
     protected $casts = [
         'is_borrowed' => 'boolean',
@@ -110,9 +120,14 @@ class Book extends Model
         'amazon_content_page' => 'string'
     ];
 
+    public function parcours(): BelongsToMany
+    {
+        return $this->belongsToMany(Parcours::class, 'parcours_books', 'book_id', 'parcours_id');
+    }
+
     public function trainings(): BelongsToMany
     {
-        return $this->belongsToMany(Training::class, 'training_books');
+        return $this->belongsToMany(Training::class, 'training_books', 'book_id', 'training_id');
     }
 
     public function putOnShelf()

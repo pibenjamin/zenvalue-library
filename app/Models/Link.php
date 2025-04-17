@@ -18,7 +18,6 @@ class Link extends Model implements Sortable
         'order',
     ];
 
-
     public $sortable = [
         'order_column_name' => 'order',
         'sort_when_creating' => true,

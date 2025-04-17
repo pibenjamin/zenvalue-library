@@ -65,6 +65,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         ];
     }
 
+    public function parcours(): BelongsToMany
+    {
+        return $this->belongsToMany(Parcours::class, 'parcours_users', 'user_id', 'parcours_id');
+    }
+
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url;

@@ -14,7 +14,7 @@ use App\Models\Author;
 use App\Models\User;
 use App\Models\Tag;
 use App\Models\Support;
-
+use App\Models\Parcours;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Field;
 
@@ -236,7 +236,6 @@ class BookAdminResource extends Resource
                             ->columnSpanFull()
                             ->columnSpan(4),
 
-
                         Forms\Components\Select::make('tags')
                             ->label('Mots-clés')
                             ->multiple()
@@ -250,6 +249,7 @@ class BookAdminResource extends Resource
                                     ->required(),
                             ])
                             ->columnSpan(1),
+                            
                         Forms\Components\Select::make('owner_id')
                             ->label('Propriétaire')
                             ->relationship('owner', 'name')
@@ -341,7 +341,11 @@ class BookAdminResource extends Resource
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
 
-
+                TextColumn::make('parcours_order')
+                    ->label('Ordre dans le parcours')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->columnSpan(1),
 
                 TextColumn::make('cal_page')
                     ->label('Page c.a.l.')
@@ -706,7 +710,15 @@ class BookAdminResource extends Resource
                         'true' => 'Disponible',
                         'false' => 'Emprunté',
                     ]),
+
+                Tables\Filters\SelectFilter::make('parcours.name')
+                    ->label('Parcours')
+                    ->multiple()
+                    ->relationship('parcours', 'name')
+                    ->options(Parcours::all()->pluck('name', 'id')),
             ])
+            ->reorderable('parcours_order')
+            ->filtersFormColumns(3)
             ->actionsPosition(ActionsPosition::BeforeColumns);
     }
 

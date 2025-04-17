@@ -17,6 +17,7 @@ use App\Models\Support;
 use App\Models\Rating;
 use App\Models\Claim;
 use App\Models\Comment;
+use App\Models\Parcours;
 use Illuminate\Support\HtmlString;
 use Mokhosh\FilamentRating\Components\Rating as RatingComponent;
 use Filament\Forms\Components\Checkbox;
@@ -543,6 +544,14 @@ class BookResource extends Resource
                     ->multiple()
                     ->relationship('owner', 'name')
                     ->options(User::all()->pluck('name', 'id')),
+
+                Tables\Filters\SelectFilter::make('parcours.name')
+                    ->label('Parcours')
+                    ->multiple()
+                    ->relationship('parcours', 'name')
+                    ->options(Parcours::all()->pluck('name', 'id'))
+                    ->preload(),
+
 
                 Tables\Filters\SelectFilter::make('tags.title')
                     ->label('Mots-clés')
