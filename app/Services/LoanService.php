@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Mail\AdminConfirmReturn;
-
+use Illuminate\Database\Eloquent\Collection;
 
 class LoanService
 {
@@ -166,5 +166,25 @@ class LoanService
             'pending' => (clone $query)->where('status', 'pending')->count(),
             'returned' => (clone $query)->where('status', 'returned')->count(),
         ];
+    }
+
+    public function getLoanWithoutRates(): array
+    {
+        $usersToNotifyWithBook = [];
+
+        $loans = Loan::all();
+        foreach($loans as $loan) {
+            foreach($loan->book->ratings as $rating) {
+                if($rating->user_id !== $loan->borrower->id) {
+                    $usersToNotifyWithBook[] = [
+                        'user_id' => $loan->borrower->id,
+                        'book_title' => $loan->book->title,
+                        'return_date' => $loan->to_be_returned_at
+                    ];
+                }
+            }
+        }
+
+        return $usersToNotifyWithBook;
     }
 } 

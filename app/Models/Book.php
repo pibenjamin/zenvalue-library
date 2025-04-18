@@ -130,12 +130,6 @@ class Book extends Model implements Sortable
         return $this->belongsToMany(Training::class, 'training_books', 'book_id', 'training_id');
     }
 
-    public function putOnShelf()
-    {
-        $this->status = Book::STATUS_ON_SHELF;
-        $this->save();
-    }
-
     public function authors(): BelongsToMany
     {
         return $this->belongsToMany(Author::class, 'author_books');
@@ -154,6 +148,11 @@ class Book extends Model implements Sortable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class);
     }
 
     public function owner(): BelongsTo
@@ -176,24 +175,15 @@ class Book extends Model implements Sortable
         return $this->belongsTo(User::class, 'borrower_id');
     }
 
-    public function loans(): HasMany
+    public function putOnShelf()
     {
-        return $this->hasMany(Loan::class);
+        $this->status = Book::STATUS_ON_SHELF;
+        $this->save();
     }
 
-    public function getLastLoan()
+    public function isAquisitionRequest(): bool
     {
-        return $this->loans()->latest()->first();
-    }
-
-    public static function getDifficulties(): array
-    {
-        return self::DIFFICULTY_LABELS;
-    }
-
-    public static function getStatusLabels(): array
-    {
-        return self::STATUS_LABELS;
+        return $this->status === self::STATUS_AQUISITION_REQUEST;
     }
 
     public static function getLocations(): array
@@ -222,19 +212,9 @@ class Book extends Model implements Sortable
         return self::LOCATION_COLORS[$location] ?? 'stone';
     }
 
-    public function getStatusLabel(): string
+    public static function getDifficulties(): array
     {
-        return self::STATUS_LABELS[$this->status] ?? 'Non défini';
-    }
-
-    public static function getStatusColors(): array
-    {
-        return self::STATUS_COLORS;
-    }
-
-    public function getStatusColor(): string
-    {
-        return self::STATUS_COLORS[$this->status] ?? 'secondary';
+        return self::DIFFICULTY_LABELS;
     }
 
     public function getDifficultyLabel(): string
@@ -245,6 +225,11 @@ class Book extends Model implements Sortable
     public function getDifficultyColor(): string
     {
         return self::DIFFICULTY_COLORS[$this->difficulty_level] ?? 'secondary';
+    }
+
+    public function getLastLoan()
+    {
+        return $this->loans()->latest()->first();
     }
 
     public function isBorrowedByUser(User $user): int
@@ -259,13 +244,16 @@ class Book extends Model implements Sortable
                 ->whereIn('status',['in_progress', 'returned_in_progress'])->count();
     }
 
+    public function hasBeenLoanedToUser(User $user): bool
+    {
+        return $this->loans()->where('user_id', $user->id)->exists();
+    }
+
     public function getAverageRating(): float
     {
-
         if($this->ratings()->count() === 0) {
             return 0;
         }
-
         return round($this->ratings()->avg('rate'), 1);
     }
 
@@ -282,18 +270,28 @@ class Book extends Model implements Sortable
         return null;
     }
 
-    public function hasBeenLoanedToUser(User $user): bool
-    {
-        return $this->loans()->where('user_id', $user->id)->exists();
-    }
-
     public function addTags(array $tags): void
     {
         $this->tags()->attach($tags);
     }
 
-    public function isAquisitionRequest(): bool
+    public static function getStatusLabels(): array
     {
-        return $this->status === self::STATUS_AQUISITION_REQUEST;
+        return self::STATUS_LABELS;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return self::STATUS_LABELS[$this->status] ?? 'Non défini';
+    }
+
+    public static function getStatusColors(): array
+    {
+        return self::STATUS_COLORS;
+    }
+
+    public function getStatusColor(): string
+    {
+        return self::STATUS_COLORS[$this->status] ?? 'secondary';
     }
 } 

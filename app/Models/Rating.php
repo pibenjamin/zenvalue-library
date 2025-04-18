@@ -11,6 +11,7 @@ class Rating extends Model
         'book_id',
         'user_id',
         'rate',
+        'comment',
     ];
 
     public function book() : BelongsTo
