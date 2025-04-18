@@ -123,7 +123,6 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,    // Page dashboard par défaut
             ])
             ->widgets([
-                FilamentInfoWidget::class,
                 LatestBooksAddedWidgets::class,
                 LatestBooksPublished::class,
                 MyLoanHistory::class,
