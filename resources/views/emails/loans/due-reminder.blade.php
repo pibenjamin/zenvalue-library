@@ -19,6 +19,10 @@ Rappel de retour de livre 📚
         <p class="due-date">Date de retour : {{ $loan->to_be_returned_at->format('d/m/Y') }}</p>
     </div>
 
+    <a href="{{ config('app.url') }}" class="btn btn-primary">Accéder à la bibliothèque</a>
+
+
+
     <p>Pour rappel, ce livre a été emprunté le {{ $loan->borrowed_at->format('d/m/Y') }}.</p>
 @endsection
 

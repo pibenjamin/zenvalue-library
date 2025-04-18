@@ -24,7 +24,7 @@ class LoanDueReminder extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("['".config('app.name')."] Rappel : Retour de livre dans {$this->daysUntilDue} jours")
+            ->subject("[".config('app.name')."] Rappel : Retour de livre dans {$this->daysUntilDue} jours")
             ->view('emails.loans.due-reminder', [
                 'loan' => $this->loan,
                 'daysUntilDue' => $this->daysUntilDue

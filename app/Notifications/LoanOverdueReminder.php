@@ -28,7 +28,7 @@ class LoanOverdueReminder extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject("['".config('app.name')."] Rappel : Retour de livre en retard")
+            ->subject("[".config('app.name')."] Rappel : Retour de livre en retard")
             ->view('emails.loans.overdue-reminder', [
                 'loan' => $this->loan,
                 'daysOverdue' => $this->daysOverdue
