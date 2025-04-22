@@ -149,6 +149,14 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'admin' => 'success',
+                        'super_admin' => 'danger',
+                        'user' => 'warning',
+                        'formateur' => 'info',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('is_after_release')

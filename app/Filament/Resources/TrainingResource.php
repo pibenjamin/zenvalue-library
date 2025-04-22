@@ -152,7 +152,8 @@ class TrainingResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->width(300)
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('url')
                     ->state(function (Training $record): string {
                         return 'ouvrir';
@@ -162,37 +163,38 @@ class TrainingResource extends Resource
                     ->url(fn (Training $record) => $record->url)
                     ->openUrlInNewTab()
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('trainers.name')
                     ->label('Formateurs')
                     ->sortable()
                     ->badge()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
                 TextColumn::make('books.title')
                     ->label('Livres')
-                    ->color('stone')
                     ->sortable()
+                    ->listWithLineBreaks()
+                    ->limitList(3)
+                    ->expandableLimitedList()
+                    ->searchable()
+                    ->color('stone')
                     ->state(function (Training $record): string {
                         return Str::words($record->books->pluck('title')->implode(', '), 5);
                     })
                     ->badge()
-                    ->listWithLineBreaks()
-                    ->limitList(3)
-                    ->expandableLimitedList()
-                    ->searchable(),
-                
+                    ->toggleable(),
                 TextColumn::make('trainers.name')
                     ->label('Formateurs')
                     ->sortable()
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
-
                 ImageColumn::make('image')
                     ->label('Image')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
             ])
             ->filters([
                 // ajoute moi un filtre pour n'afficher que les formations avec des formateurs
