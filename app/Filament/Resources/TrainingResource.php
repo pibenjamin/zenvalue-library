@@ -28,6 +28,7 @@ use App\Filament\Resources\TrainingResource\Widgets\DocsTrainingsWidget;
 use Filament\Infolists\Components\Split;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
 
 class TrainingResource extends Resource
 {
@@ -162,6 +163,12 @@ class TrainingResource extends Resource
                     ->openUrlInNewTab()
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('trainers.name')
+                    ->label('Formateurs')
+                    ->sortable()
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
                 TextColumn::make('books.title')
                     ->label('Livres')
                     ->sortable()
@@ -183,6 +190,25 @@ class TrainingResource extends Resource
                     ->searchable(),
             ])
             ->filters([
+                // ajoute moi un filtre pour n'afficher que les formations avec des formateurs
+                SelectFilter::make('trainers')
+                    ->label('Formateurs')
+                    ->multiple()
+                    ->relationship('trainers', 'name')
+                    ->preload()
+                    ->searchable(),
+                    
+                Filter::make('no_trainers')
+                    ->form([
+                        Forms\Components\Checkbox::make('no_trainers')
+                            ->label('Avec formateur(s)'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['no_trainers'],
+                            fn (Builder $query): Builder => $query->whereHas('trainers')
+                        );
+                    }),
 
 
             ])

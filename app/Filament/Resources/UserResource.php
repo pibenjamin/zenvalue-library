@@ -114,9 +114,17 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable(),
 
                 Tables\Columns\ImageColumn::make('avatar')
@@ -124,7 +132,8 @@ class UserResource extends Resource
                     ->label('Avatar')
                     ->circular()
                     ->defaultImageUrl(url('/storage/avatars/default-avatar.png'))
-                    ->height(50),
+                    ->height(50)
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                     Tables\Columns\TextColumn::make('updated_at')
                     ->label('Modifié le')
@@ -152,7 +161,8 @@ class UserResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'OUI' => 'success',
                         'NON' => 'danger',
-                    }),
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('is_activated')
                     ->label('Activé')
@@ -163,10 +173,12 @@ class UserResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'OUI' => 'success',
                         'NON' => 'danger',
-                    }),
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('password')
-                    ->label('Mot de passe'),
+                    ->label('Mot de passe')
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->defaultPaginationPageOption(200)
             ->paginationPageOptions([200, 500, 1000])
