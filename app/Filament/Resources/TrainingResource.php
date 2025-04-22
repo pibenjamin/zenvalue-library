@@ -29,7 +29,7 @@ use Filament\Infolists\Components\Split;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-
+use Illuminate\Support\Str;
 class TrainingResource extends Resource
 {
     protected static ?string $model                 = Training::class;
@@ -171,7 +171,12 @@ class TrainingResource extends Resource
                     ->searchable(),
                 TextColumn::make('books.title')
                     ->label('Livres')
+                    ->color('stone')
                     ->sortable()
+                    ->state(function (Training $record): string {
+                        return Str::words($record->books->pluck('title')->implode(', '), 5);
+                    })
+                    ->badge()
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList()

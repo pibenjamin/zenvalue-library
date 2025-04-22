@@ -17,7 +17,12 @@ class Parcours extends Page
 
     public static function canAccess(): bool
     {
-        return env('APP_ENV') === 'local';
+        
+        if(env('APP_ENV') !== 'local') {
+            return false;
+        }
+
+        return auth()->user()->parcours()->exists();
     }
 
 }
