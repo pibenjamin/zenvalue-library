@@ -74,7 +74,7 @@ class ParcoursResource extends Resource
                             ->multiple()
                             ->relationship('users', 'name')
                             ->columnSpanFull()
-                            ->visible(function (Parcours $record) {
+                            ->visible(function () {
                                 return auth()->user()->hasRole('super_admin');
                             })
                     ])
