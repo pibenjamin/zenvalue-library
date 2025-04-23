@@ -41,7 +41,7 @@ class BookTrainingsWidget extends BaseWidget
                     ->label('Livre')
                     ->url(function (Book $record) {
                         if (auth()->user()->hasRole('super_admin')) {
-                            return route('filament.admin.resources.book-admin.edit', $record->book_id);
+                            return route('filament.admin.resources.book-admins.edit', $record->book_id);
                         }
                         return route('filament.admin.resources.books.view', $record->book_id);
                     })
