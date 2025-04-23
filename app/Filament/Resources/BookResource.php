@@ -207,7 +207,7 @@ class BookResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->withCount('ratings')
                     ->withCount('comments as comments_count')
-                    //->where('status', Book::STATUS_ON_SHELF)
+                    ->whereIn('status', [Book::STATUS_ON_SHELF])
                     ->where('missing', false)
                     ->selectSub(
                         Rating::selectRaw('ROUND(AVG(rate))')
