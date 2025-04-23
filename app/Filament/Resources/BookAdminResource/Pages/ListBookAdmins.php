@@ -139,9 +139,12 @@ class ListBookAdmins extends ListRecords
             __('Livres qualifiés') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_QUALIFIED)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_QUALIFIED)->count()),
-                __('Livres rejetés') => Tab::make()
+            __('Livres rejetés') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_REJECTED)->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::where('status', Book::STATUS_REJECTED)->count()),
+            __('Livres à acquérir') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Book::STATUS_AQUISITION_REQUEST)->orderBy('created_at', 'desc'))
+                ->badge(fn () => Book::where('status', Book::STATUS_AQUISITION_REQUEST)->count()),
             __('Tous les livres') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->orderBy('created_at', 'desc'))
                 ->badge(fn () => Book::count()),

@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\Training;
+use App\Models\Comment;
+
+
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Reader;
 
@@ -62,23 +65,35 @@ class ImportBiblioFromCsv extends Command
                     'language' => $record['Langue'],
                     'owner_id' => 1,
                     'support_id' => 1,
-                    'status' => Book::STATUS_TO_QUALIFY,
+                    'status' => Book::STATUS_AQUISITION_REQUEST,
                 ]
             );
 
+            // sauvegarde le champs "commentaire" dans la table "comments" avec 
+            //le book_id dans le champ "comments"
+            if (!empty($record['Commentaire'])) {
+                $comment = new Comment();
+                $comment->book_id = $book->id;
+                $comment->comment = $record['Commentaire'];
+                $comment->save();
+            }
+
             // Process authors
-            if (!empty($record['Auteurs'])) {
-                $authors = explode('&', $record['Auteurs']);
+            if (!empty($record['Auteur'])) {
+                // Split by either "&" or "," and trim each part
+                $authors = preg_split('/\s*[&,]\s*/', $record['Auteur']);
                 foreach ($authors as $authorName) {
                     $authorName = trim($authorName);
-                    $author = Author::firstOrCreate(
-                        ['name' => $authorName],
-                        ['name' => $authorName]
-                    );
+                    if (!empty($authorName)) {  // Skip empty names
+                        $author = Author::firstOrCreate(
+                            ['name' => $authorName],
+                            ['name' => $authorName]
+                        );
 
-                    // Attach author to book if not already attached
-                    if (!$book->authors()->where('author_id', $author->id)->exists()) {
-                        $book->authors()->attach($author->id);
+                        // Attach author to book if not already attached
+                        if (!$book->authors()->where('author_id', $author->id)->exists()) {
+                            $book->authors()->attach($author->id);
+                        }
                     }
                 }
             }
