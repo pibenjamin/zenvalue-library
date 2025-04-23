@@ -73,6 +73,16 @@ class BookTrainingsWidget extends BaseWidget
                     ->badge()
                     ->searchable()
                     ->toggleable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Statut')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->getStatusLabel();
+                    })
+                    ->color(fn (Book $record): string => $record->getStatusColor()),
+
             ])
             ->poll('3s')
             ->filters([                   
