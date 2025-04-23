@@ -647,7 +647,6 @@ class BookAdminResource extends Resource
                     ->form([
                         Forms\Components\TextInput::make('isbn')
                             ->label('ISBN')
-                            
                             ->placeholder('Rechercher par ISBN'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -669,7 +668,6 @@ class BookAdminResource extends Resource
                             fn (Builder $query): Builder => $query->whereNull('isbn')
                         );
                     }),
-
 
                 Filter::make('description_null')
                     ->form([
@@ -711,8 +709,17 @@ class BookAdminResource extends Resource
                         'false' => 'Emprunté',
                     ]),
 
+                Tables\Filters\SelectFilter::make('trainings.name')
+                    ->label('Formations')
+                    ->preload()
+                    ->multiple()
+                    ->relationship('trainings', 'title')
+                    ->options(Training::all()->pluck('title', 'id')),
+
+
                 Tables\Filters\SelectFilter::make('parcours.name')
                     ->label('Parcours')
+                    ->preload()
                     ->multiple()
                     ->relationship('parcours', 'name')
                     ->options(Parcours::all()->pluck('name', 'id')),
