@@ -16,16 +16,14 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
 class ClaimResource extends Resource
 {
-    protected static ?string $model = Claim::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-hand-raised';
-
-    protected static ?string $navigationGroup = 'Gestion du catalogue';
-
+    protected static ?string $model                 = Claim::class;
+    protected static ?string $modelLabel            = 'Requête de propriété';
+    protected static ?string $navigationLabel       = 'Requêtes de propriété';
+    protected static ?string $pluralModelLabel      = 'Requêtes de propriété';
+    protected static ?string $navigationGroup       = 'Gestion du catalogue';
     protected static ?int $navigationSort           = 5;
+    protected static ?string $navigationIcon        = 'heroicon-o-hand-raised';
 
-
-    protected static ?string $navigationLabel = 'Requêtes de propriété';
     public static function getNavigationBadge(): ?string
     {
         return Claim::where('status', 'pending')->count();

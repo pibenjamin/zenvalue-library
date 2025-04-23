@@ -350,41 +350,39 @@ class BookResource extends Resource
                     ->toggleable(),
             ])
             ->actions([
-                ActionGroup::make([
-                    Tables\Actions\Action::make('borrow')
-                        ->label('Emprunter')
-                        ->color('success')
-                        ->icon('heroicon-s-shopping-bag')
-                        ->requiresConfirmation()
-                        ->modalHeading('Emprunter ce livre')
-                    ->modalDescription(function (Book $book){
+                Tables\Actions\Action::make('borrow')
+                ->label('Emprunter')
+                ->color('success')
+                ->icon('heroicon-s-shopping-bag')
+                ->requiresConfirmation()
+                ->modalHeading('Emprunter ce livre')
+                ->modalDescription(function (Book $book){
 
-                        if($book->location === Book::LOCATION_KEEP_AT_HOME) {
+                    if($book->location === Book::LOCATION_KEEP_AT_HOME) {
 
-                            $html  = "Voulez-vous emprunter {$book->title} ?<br>";
-                            $html .= "Ce livre est gardé chez son propriétaire {$book->owner->name}, il va être informé par courriel de votre intérêt pour ce livre !<br>";
-                            $html .= "N'hésitez pas à le contacter sur teams si nécessaire.<br>";
-                            $html .= "Si le livre est muni d'un QR Code vous pourrez enregistrer votre prêt via la caméra de votre télépéhone !";
+                        $html  = "Voulez-vous emprunter {$book->title} ?<br>";
+                        $html .= "Ce livre est gardé chez son propriétaire {$book->owner->name}, il va être informé par courriel de votre intérêt pour ce livre !<br>";
+                        $html .= "N'hésitez pas à le contacter sur teams si nécessaire.<br>";
+                        $html .= "Si le livre est muni d'un QR Code vous pourrez enregistrer votre prêt via la caméra de votre télépéhone !";
 
-                            return new HtmlString($html);
-                        }
+                        return new HtmlString($html);
+                    }
 
-                        return "Voulez-vous emprunter {$book->title} ?";
-                    })
-                     ->action(function (Book $book) {
-                        if($book->location === Book::LOCATION_KEEP_AT_HOME) {
-                            app(BookService::class)->borrowBookAtHome($book, auth()->user());
-                        }
-                        else {
-                            app(LoanService::class)->borrowBook($book);
-                        }
-                    })
-                    ->tooltip(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous avez déjà emprunté ce livre' : 'Emprunter')
-                    ->button()
-                    ->size(ActionSize::Small)
-                    ->visible(fn (Book $book) => !$book->is_borrowed),
-
-
+                    return "Voulez-vous emprunter {$book->title} ?";
+                })
+                ->action(function (Book $book) {
+                    if($book->location === Book::LOCATION_KEEP_AT_HOME) {
+                        app(BookService::class)->borrowBookAtHome($book, auth()->user());
+                    }
+                    else {
+                        app(LoanService::class)->borrowBook($book);
+                    }
+                })
+                ->tooltip(fn (Book $book) => $book->isBorrowedByUser(auth()->user()) ? 'Vous avez déjà emprunté ce livre' : 'Emprunter')
+                ->button()
+                ->size(ActionSize::Small)
+                ->visible(fn (Book $book) => !$book->is_borrowed),
+            ActionGroup::make([
                 Tables\Actions\Action::make('leaveRatingAction')
                     ->label('Noter')
                     ->disableLabel()
@@ -494,10 +492,9 @@ class BookResource extends Resource
                     ->tooltip('Voir les détails'),
                 ])
                 ->label('Actions')
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->size(ActionSize::Small)
-                ->color('primary')
-                ->button()
+                ->icon('heroicon-m-ellipsis-horizontal')
+                ->size(ActionSize::Large)
+                ->color('success')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

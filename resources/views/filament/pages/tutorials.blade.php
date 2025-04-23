@@ -56,6 +56,26 @@
                 </p>
             </div>
         </div>
+
+        <!-- Carte Tutoriel 1 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div class="plyr__video-embed" id="player">
+                <video 
+                    id="player"
+                    controls
+                    class="w-full h-full"
+                >
+                    <source src="/storage/video/Emprunter-prolonger-un-pret-signaler-un-retour-de-pret.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2">Emprunter - prolonger un prêt - signaler un retour de prêt</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">
+                    
+                </p>
+            </div>
+        </div>
+
     </div>
 </x-filament-panels::page>
 
