@@ -47,6 +47,7 @@ class BookTrainingsWidget extends BaseWidget
                     })
                     ->openUrlInNewTab()
                     ->sortable()
+                    ->wrap()
                     ->toggleable(),
                 Tables\Columns\ImageColumn::make('cover_url')
                     ->label('Couverture')
