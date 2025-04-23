@@ -233,6 +233,10 @@ class BookResource extends Resource
                 TextColumn::make('is_borrowed')
                     ->label('Disponibilité')
                     ->state(function (Book $record): string {
+
+                        if($record->status === Book::STATUS_AQUISITION_REQUEST) {
+                            return 'À acquérir';
+                        }
                         return $record->is_borrowed ? 'Emprunté' : 'Disponible';
                     })
                     ->badge()
