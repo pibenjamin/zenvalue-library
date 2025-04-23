@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Tag;
 use App\Models\Support;
 use App\Models\Parcours;
+use App\Models\Training;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Field;
 
