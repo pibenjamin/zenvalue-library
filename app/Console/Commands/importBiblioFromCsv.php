@@ -62,7 +62,7 @@ class ImportBiblioFromCsv extends Command
                 ['title' => $record['Titre']],
                 [
                     'title' => $record['Titre'],
-                    'language' => $record['Langue'],
+                    'language' => isset($record['Langue']) ? $record['Langue'] : null,
                     'owner_id' => 1,
                     'support_id' => 1,
                     'status' => Book::STATUS_AQUISITION_REQUEST,

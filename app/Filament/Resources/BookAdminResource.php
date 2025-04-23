@@ -637,6 +637,12 @@ class BookAdminResource extends Resource
                         'en' => 'Anglais',
                     ])
                     ->default(null),    
+
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Statut')
+                    ->multiple()
+                    ->options(Book::getStatusLabels())
+                    ->default(null),
                     
                 Filter::make('lang_null')
                     ->form([
