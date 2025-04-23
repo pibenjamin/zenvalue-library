@@ -315,13 +315,15 @@ class BookAdminResource extends Resource
         ->columns([
             TextColumn::make('id')
                 ->label('ID')
-                    ->sortable(),
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('title')
                     ->label('Titre')
                     ->sortable()
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('missing')
                     ->label('Manquant')
@@ -330,7 +332,7 @@ class BookAdminResource extends Resource
                     ->state(function (Book $record): string {
                         return $record->missing ? 'oui' : 'non';
                     })
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                     
                     TextColumn::make('lang')
@@ -340,29 +342,31 @@ class BookAdminResource extends Resource
                     ->state(function (Book $record): string {
                         return $record->lang ?? '?';
                     })
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('parcours_order')
                     ->label('Ordre dans le parcours')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->columnSpan(1),
 
                 TextColumn::make('cal_page')
                     ->label('Page c.a.l.')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 ImageColumn::make('authors.photo_url')
                     ->label('Portraits')
                     ->circular()
                     ->stacked()
                     ->tooltip(fn (Book $record): string => $record->authors->pluck('name')->implode(', '))
-                    ->height(50),
+                    ->height(50)
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('authors.name')
                     ->label('Auteurs')
                     ->width('200px')
                     ->badge()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->color('gray')
                     ->wrap()
                     ->listWithLineBreaks()
@@ -372,11 +376,13 @@ class BookAdminResource extends Resource
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
                     ->height(75),
 
                 TextColumn::make('missing')
                     ->label('Perdu')
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->state(function ($record): string {
                         return $record->missing ? 'oui' : 'non';
                     })
@@ -389,12 +395,14 @@ class BookAdminResource extends Resource
 
                 TextColumn::make('isbn')
                     ->label('ISBN')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('status')
                     ->label('Statut')
                     ->sortable()
                     ->badge()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->state(function (Book $record): string {
                         return $record->getStatusLabel();
                     })
@@ -410,6 +418,7 @@ class BookAdminResource extends Resource
                         'Emprunté' => 'danger',
                         'Disponible' => 'success',
                     })
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->tooltip(fn (Book $record) => $record->is_borrowed 
                         ? "Retour prévu le " . \Carbon\Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
                         : "Ce livre est actuellement disponible"
@@ -417,10 +426,12 @@ class BookAdminResource extends Resource
 
                 TextColumn::make('year_of_publication')
                     ->label('Année')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('owner.name')
                     ->label('Propriétaire')
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->badge()
                     ->color('gray')
                     ->sortable()
@@ -430,6 +441,7 @@ class BookAdminResource extends Resource
                 TextColumn::make('difficulty_level')
                     ->label('Difficulté')
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->badge()
                     ->state(function ($record): string {
                         return $record->getDifficultyLabel();
@@ -445,7 +457,8 @@ class BookAdminResource extends Resource
                     ->badge()
                     ->color('gray')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->actions([
                 ActionGroup::make([

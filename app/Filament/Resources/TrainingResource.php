@@ -188,7 +188,7 @@ class TrainingResource extends Resource
                     ->label('Formateurs')
                     ->sortable()
                     ->badge()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
                 ImageColumn::make('image')
                     ->label('Image')
