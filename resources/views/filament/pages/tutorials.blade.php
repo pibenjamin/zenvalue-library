@@ -2,9 +2,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Carte Tutoriel 1 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div class="plyr__video-embed" id="player">
+            <div class="plyr__video-embed" id="player1">
                 <video 
-                    id="player"
+                    id="player1"
                     controls
                     class="w-full h-full"
                 >
@@ -20,9 +20,9 @@
         </div>
         <!-- Carte Tutoriel 2 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div class="plyr__video-embed" id="player">
+            <div class="plyr__video-embed" id="player2">
                 <video 
-                    id="player"
+                    id="player2"
                     controls
                     class="w-full h-full"
                 >
@@ -37,9 +37,9 @@
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div class="plyr__video-embed" id="player">
+            <div class="plyr__video-embed" id="player3">
                 <video 
-                    id="player"
+                    id="player3"
                     controls
                     class="w-full h-full"
                 >
@@ -57,16 +57,15 @@
             </div>
         </div>
 
-        <!-- Carte Tutoriel 1 -->
+        <!-- Carte Tutoriel 4 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div class="plyr__video-embed" id="player">
-                <video 
-                    id="player"
-                    controls
+            <div class="aspect-w-16 aspect-h-9">
+                <iframe
+                    src="https://clip.place/videos/embed/tUnyDDeR7EYXtRHPgajfa9"
+                    frameborder="0"
+                    allowfullscreen
                     class="w-full h-full"
-                >
-                    <source src="/storage/video/Emprunter-prolonger-un-pret-signaler-un-retour-de-pret.mp4" type="video/mp4">
-                </video>
+                ></iframe>
             </div>
             <div class="p-4">
                 <h3 class="text-lg font-semibold mb-2">Emprunter - prolonger un prêt - signaler un retour de prêt</h3>
@@ -75,12 +74,12 @@
                 </p>
             </div>
         </div>
-
     </div>
 </x-filament-panels::page>
 
 <script>
-    const player = new Plyr('#player');
+    // Initialize Plyr for local videos only
+    const players = ['player1', 'player2', 'player3'].map(id => new Plyr(`#${id}`));
 </script>
 
 
