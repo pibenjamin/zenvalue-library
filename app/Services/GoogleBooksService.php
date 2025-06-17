@@ -14,6 +14,8 @@ class GoogleBooksService
 {
     private $apiKey;
     private $baseUrl = 'https://www.googleapis.com/books/v1/volumes';
+    private $lastRequestTime = 0;
+    private $minRequestInterval = 1; // 1 seconde entre chaque requête
 
     public function __construct()
     {
@@ -21,6 +23,22 @@ class GoogleBooksService
         if (empty($this->apiKey)) {
             throw new \Exception('Google Books API key is not configured. Please add GOOGLE_CLOUD_API to your .env file.');
         }
+    }
+
+    /**
+     * Attend le temps nécessaire avant de faire une nouvelle requête
+     */
+    private function waitForNextRequest(): void
+    {
+        $now = microtime(true);
+        $timeSinceLastRequest = $now - $this->lastRequestTime;
+        
+        if ($timeSinceLastRequest < $this->minRequestInterval) {
+            $sleepTime = $this->minRequestInterval - $timeSinceLastRequest;
+            usleep($sleepTime * 1000000); // Convertir en microsecondes
+        }
+        
+        $this->lastRequestTime = microtime(true);
     }
 
     /**
@@ -36,6 +54,8 @@ class GoogleBooksService
                 $this->logError('ISBN manquant pour le livre', ['book_id' => $book->id]);
                 return false;
             }
+
+            $this->waitForNextRequest();
 
             $response = Http::get($this->baseUrl, [
                 'q' => "isbn:{$book->isbn}",
@@ -83,6 +103,7 @@ class GoogleBooksService
 
             // Gestion de la couverture
             if (!empty($bookData['imageLinks']['thumbnail'])) {
+                $this->waitForNextRequest(); // Attendre avant de télécharger la couverture
                 $book->cover_url = $this->downloadAndSaveCover($bookData['imageLinks']['thumbnail'], $book);
             }
 
