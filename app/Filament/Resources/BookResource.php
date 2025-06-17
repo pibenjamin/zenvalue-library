@@ -495,6 +495,8 @@ class BookResource extends Resource
                 ->icon('heroicon-m-ellipsis-horizontal')
                 ->size(ActionSize::Large)
                 ->color('success')
+
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

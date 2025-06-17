@@ -23,5 +23,6 @@ class Tutorials extends Page
 
         ];
     }
+    
 
 }
