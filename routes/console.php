@@ -14,7 +14,7 @@ Schedule::command('loans:send-reminders')
     ->emailOutputTo('benjaminpiscart@gmail.com');
 
     Schedule::command('app:import-with-isbn')
-    ->everyTwoMinutes();
+    ->dailyAt('12:00');
 
 Schedule::command('schema:dump')
     ->dailyAt('00:00');
