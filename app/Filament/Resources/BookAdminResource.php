@@ -308,8 +308,8 @@ class BookAdminResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->columnSpan(1),
 
-                TextColumn::make('cal_page')
-                    ->label('Page c.a.l.')
+                TextColumn::make('isbn')
+                    ->label('ISBN')
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 ImageColumn::make('authors.photo_url')
