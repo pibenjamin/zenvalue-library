@@ -50,32 +50,7 @@ class ListBookAdmins extends ListRecords
 
             ])
             ->action(function (array $data, $livewire): void {
-
                 $ids            = $livewire->getSelectedTableRecords()->pluck('id')->toArray();
-                dd($ids);
-
-                /*
-                foreach ($data['add_tags'] as $tag) {
-
-                    if(!$Tag = Tag::where('title', $tag)->first()) 
-                    {
-                        $Tag = Tag::create([
-                            'title' => $tag,
-                            'slug' => Str::slug($tag),
-                        ]);
-                    }
-
-                    foreach ($livewire->getSelectedTableRecords() as $record) {
-
-                        dd($record->title);
-                       
-                    }
-                
-                }   
-                */
-
-
-                //                dd($data, $arguments, $livewire->getFormData());
             });
     }
 
@@ -114,13 +89,7 @@ class ListBookAdmins extends ListRecords
                         dd($ $record->tags()->attach($Tag));
                        
                     }
-                
                 }        
-
-
-                
-
-                //                dd($data, $arguments, $livewire->getFormData());
             });
     }
 

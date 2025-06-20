@@ -1,0 +1,1 @@
+Faites une rechercher sur <a href="https://www.chasse-aux-livres.fr" target="_blank" >Trouver le lVous trouverez l'ISBN au dos du livre ou sur le web par exemple sur ce site <a href="https://www.la-chasse-aux-livres.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.la-chasse-aux-livres.com</a>.

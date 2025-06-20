@@ -80,13 +80,13 @@ class ListBooks extends ListRecords
                 ->description('Merci de renseigner ses informations')
                 ->schema([  
                     ViewField::make('rating')
-                    ->view('filament.forms.components.book-cal-text-helper'),
+                    ->view('filament.forms.components.book-isbn-text-helper'),
                 
-                    TextInput::make('cal_page')
-                    ->label('Adresse de la page')
+                    TextInput::make('isbn')
+                    ->label('ISBN')
+                    ->placeholder('XXXXXXXXXXXXX')
                     ->disableLabel()                   
-                    ->rules(['starts_with:https://www.chasse-aux-livres.fr/prix/'])
-                    ->prefixIcon('heroicon-o-globe-alt')
+                    ->prefixIcon('heroicon-o-book-open')
                     ->required(),
                 ]),
             Step::make('QR code')
