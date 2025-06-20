@@ -91,7 +91,9 @@ class AquisitionRequestResource extends Resource
                             ->schema([
                                 Placeholder::make('link_example')
                                 ->label('Merci de nous fournir un lien vers le livre que vous nous proposez d\'acquérir.')
-                                ->content(new HtmlString(' Nous privilégions les librairies indépendantes comme <a href="https://www.lalibrairie.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.lalibrairie.com</a>.'))
+                                ->content(new HtmlString(' Nous privilégions les librairies indépendantes comme <a href="https://www.lalibrairie.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.lalibrairie.com</a>.
+                                <br>Vous pouvez trouver l\'ISBN sur le livre ou sur ce site <a href="https://www.la-chasse-aux-livres.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.la-chasse-aux-livres.com</a>.
+                                '))
                                 ->columnSpanFull(),
 
                                 Forms\Components\TextInput::make('isbn')
