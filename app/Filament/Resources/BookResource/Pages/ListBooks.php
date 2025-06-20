@@ -44,6 +44,7 @@ class ListBooks extends ListRecords
         ->size('xl')
         ->icon('heroicon-o-plus')
         ->color('primary')
+        ->visible(fn () => !auth()->user()->hasAnyRole(['super_admin', 'admin']))
         ->steps([
             Step::make('Localisation')
                 ->description('Choisissez la localisation du livre')
@@ -156,7 +157,9 @@ class ListBooks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->visible(fn () => !auth()->user()->hasAnyRole(['super_admin', 'admin'])),
+
             $this->getContributeAction(),
         ];
     }
