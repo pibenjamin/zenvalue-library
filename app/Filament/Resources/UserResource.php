@@ -223,9 +223,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
+            'create' => Pages\CreateUser::route('/create'),
             'index' => Pages\ListUsers::route('/'),
             'view' => Pages\ViewUser::route('/{record}'),
-            'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }

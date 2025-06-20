@@ -62,7 +62,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Set;
 use Filament\Forms\Get;
-use App\Services\ImportBookData;
+use App\Services\GoogleBooksService;
 
 class BookAdminResource extends Resource
 {
@@ -133,8 +133,22 @@ class BookAdminResource extends Resource
 
                         Forms\Components\TextInput::make('isbn')
                             ->label('ISBN')
+                            ->helperText(function ($record) {
+                                if (!$record) return null;
+                                return new HtmlString('Récupérer les informations depuis Google Books');
+                            })
                             ->maxLength(255)
-                            ->default(null),
+                            ->prefixIcon('heroicon-o-globe-alt')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('importFromGoogleBooks')
+                                    ->label('Importer les informations')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->disabled(fn (?Book $record): bool => !$record || $record->cal_page === 'parsed')
+                                    ->action(function (?Book $record) {
+                                        if (!$record) return;
+                                        app(\App\Services\GoogleBooksService::class)->importBookData($record);
+                                    }),
+                            ),
 
                         Forms\Components\TextInput::make('lang')
                             ->label('Langue')
@@ -169,63 +183,7 @@ class BookAdminResource extends Resource
                     ->columns(3)
                     ->collapsible(),
 
-                Forms\Components\Section::make('Import de données')
-                    ->schema([
-                        Forms\Components\TextInput::make('ol_key')
-                            ->label('Code Open Library')
-                            ->helperText(function ($record) {
-                                if (!$record) return null;
-                                return new HtmlString(
-                                    '<a href="https://openlibrary.org/works/' . $record->ol_key . '" 
-                                        target="_blank" 
-                                        class="text-success-600 hover:text-success-500 hover:underline"
-                                    >
-                                        Voir la page sur openlibrary.org
-                                    </a>'
-                                );
-                            })
-                            ->prefixIcon('heroicon-o-globe-alt')
-                            ->suffixAction(
-                                Forms\Components\Actions\Action::make('importFromCalPage')
-                                    ->label('Importer les informations')
-                                    ->icon('heroicon-o-arrow-down-tray')
-                                    ->modalContent(fn (Book $record): View => view(
-                                        'filament.modals.view.compare_with_ol',
-                                        ['record' => $record,
-                                         'ol_data' => app(OpenLibraryService::class)->extractBookDataFromOLKey($record->ol_key)],
-                                    ))
-                                    ->modalCancelActionLabel('Fermer')
-                                    ->action(function (?Book $record) {
-                                }),
-                            ),
 
-                        Forms\Components\TextInput::make('cal_page')
-                            ->label('Page sur chasse aux livres')
-                            ->helperText(function ($record) {
-                                if (!$record) return null;
-                                return new HtmlString(
-                                    '<a href="https://www.chasse-aux-livres.fr" 
-                                        target="_blank" 
-                                        class="text-success-600 hover:text-success-500 hover:underline"
-                                    >
-                                        Voir la page sur www.chasse-aux-livres.fr
-                                    </a>'
-                                );
-                            })
-                            ->prefixIcon('heroicon-o-globe-alt')
-                            ->suffixAction(
-                                Forms\Components\Actions\Action::make('importFromCalPage')
-                                    ->label('Importer les informations')
-                                    ->icon('heroicon-o-arrow-down-tray')
-                                    ->disabled(fn (?Book $record): bool => !$record || $record->cal_page === 'parsed')
-                                    ->action(function (?Book $record) {
-                                        if (!$record) return;
-                                        app(ImportBookData::class)->importFromCalPage($record);
-                                    }),
-                            ),
-                    ])
-                    ->columns(2)
-                    ->collapsible(),
 
                 Forms\Components\Section::make('Qualifications supplémentaires')
                     ->schema([
@@ -350,8 +308,8 @@ class BookAdminResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->columnSpan(1),
 
-                TextColumn::make('cal_page')
-                    ->label('Page c.a.l.')
+                TextColumn::make('isbn')
+                    ->label('ISBN')
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 ImageColumn::make('authors.photo_url')
@@ -516,68 +474,6 @@ class BookAdminResource extends Resource
                         ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->putOnShelf())
                         ->modalDescription('Voulez-vous vraiment mettre le statut de ces livres à qualifier ?'),
-
-                    /*
-                    BulkAction::make('add_tags')
-                        ->label('Ajouter un mot-clé')
-                        ->icon('heroicon-o-tag')
-                        ->action(function (Collection $records, array $data): void {
-
-                            $bookIds = $records->pluck('id')->toArray();
-
-                            dd($data, $bookIds);
-
-                            $bookIds = $records->pluck('id')->toArray();
-                            $selectedTags = $data['tags'];
-
-                            
-
-                            foreach ($selectedTags as $tag) {
-                                if(!$Tag = Tag::where('title', $tag)->first()) 
-                                {
-                                    $Tag = Tag::create([
-                                        'title' => $tag,
-                                        'slug' => Str::slug($tag),
-                                    ]);
-                                }
-            
-                                foreach ($records as $record) {
-                                    $record->tags()->attach($Tag->id);
-                                }
-                            }   
-                        })
-                        ->form([
-                            Forms\Components\Select::make('tags')
-                                ->label('Mots-clés')
-                                ->multiple()
-                                ->relationship('tags', 'title')
-                                ->preload()
-                                ->createOptionForm([
-                                    Forms\Components\TextInput::make('title')
-                                        ->label('Nom')
-                                ])
-                        ])
-                        ->action(function (Collection $records, array $data): void {
-
-                            dd($records->pluck('id')->toArray(), $data);
-                            $bookIds = $records->pluck('id')->toArray();
-                            $selectedTags = $data['tags'];
-
-                            foreach ($selectedTags as $tag) {
-                                if(!$Tag = Tag::where('title', $tag)->first()) 
-                                {
-                                    $Tag = Tag::create([
-                                        'title' => $tag,
-                                        'slug' => Str::slug($tag),
-                                    ]);
-                                }
-            
-                                foreach ($records as $record) {
-                                    $record->tags()->attach($Tag->id);
-                                }
-                            }   
-                        }),
-                    */
 
                     BulkAction::make('lang')
                         ->label('Saisir la langue')

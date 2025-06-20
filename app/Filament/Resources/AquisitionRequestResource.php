@@ -84,9 +84,6 @@ class AquisitionRequestResource extends Resource
                                     ->placeholder('Selon vous en quoi ce livre serait utile à vous-même mais également à la communauté des citizens. Exemple : nous donnons des formations sur le sujet Y mais nous n\'avons aucune référence à ce sujet ; ce sujet n\'est pas répérensé dans notre bibliothèque.')
                                     ->required()
                                     ->rows(9),
-
-
-
                             ]),
 
                         Forms\Components\Section::make('Informations essentielles')
@@ -97,31 +94,24 @@ class AquisitionRequestResource extends Resource
                                 ->content(new HtmlString(' Nous privilégions les librairies indépendantes comme <a href="https://www.lalibrairie.com" target="_blank" class="underline text-primary-600 hover:text-primary-500">www.lalibrairie.com</a>.'))
                                 ->columnSpanFull(),
 
-                        Forms\Components\TextInput::make('link_to_book')
-                            ->label('Page sur chasse aux livres')
-                            ->helperText(function ($record) {
-                                if (!$record) return null;
-                                return new HtmlString(
-                                    '<a href="https://www.chasse-aux-livres.fr" 
-                                        target="_blank" 
-                                        class="text-success-600 hover:text-success-500 hover:underline"
-                                    >
-                                        Voir la page sur www.chasse-aux-livres.fr
-                                    </a>'
-                                );
-                            })
-                            ->prefixIcon('heroicon-o-globe-alt')
-                        ->rules(['starts_with:https://www.chasse-aux-livres.fr/prix/'])
-                            ->suffixAction(
-                                Forms\Components\Actions\Action::make('importFromCalPage')
-                                    ->label('Importer les informations')
-                                    ->icon('heroicon-o-arrow-down-tray')
-                                    ->disabled(fn (?AquisitionRequest $record): bool => !$record || $record->link_to_book === 'parsed')
-                                    ->action(function (?AquisitionRequest $record) {
-                                        if (!$record) return;
-                                        app(ImportBookData::class)->importFromCalPage($record);
-                                    }),
-                            ),
+                                Forms\Components\TextInput::make('isbn')
+                                ->label('ISBN')
+                                ->required()
+                                ->helperText(function ($record) {
+                                    return new HtmlString('Récupérer les informations depuis Google Books');
+                                })
+                                ->maxLength(255)
+                                ->prefixIcon('heroicon-o-globe-alt')
+                                ->suffixAction(
+                                    Forms\Components\Actions\Action::make('importFromGoogleBooks')
+                                        ->label('Importer les informations')
+                                        ->icon('heroicon-o-arrow-down-tray')
+                                        ->disabled(fn (?AquisitionRequest $record): bool => !$record || $record->parsed === true)
+                                        ->action(function (?AquisitionRequest $record) {
+                                            if (!$record) return;
+                                            app(\App\Services\GoogleBooksService::class)->importBookData($record);
+                                        }),
+                                ),
 
                                 Forms\Components\TextInput::make('price')
                                     ->label('Prix estimé')

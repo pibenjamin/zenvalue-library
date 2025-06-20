@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'webshare' => [
+        'api_key' => env('WEBSHARE_API_KEY'),
+    ],
+
+    'google' => [
+        'api_key' => env('GOOGLE_CLOUD_API'),
+    ],
+
 ];

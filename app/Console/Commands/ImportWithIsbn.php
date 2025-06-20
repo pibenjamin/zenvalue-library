@@ -13,23 +13,23 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\AquisitionRequest;
-use App\Services\ImportBookData;
-class SearchCal extends Command
-{
-    protected $signature = 'app:search-isbn-cal';
-    protected $description = 'Recherche les informations des livres non parsés sur https://www.chasse-aux-livres.fr';
+use App\Services\GoogleBooksService;
 
-    public function handle()
+class ImportWithIsbn extends Command
+{
+    protected $signature = 'app:import-with-isbn';
+    protected $description = 'Importe les informations des livres via l\'ISBN';
+
+    public function handle(GoogleBooksService $googleBooksService)
     {
-        $books = Book::whereNotNull('cal_page')->where('cal_page', '!=', 'parsed')->get();
+        $books = Book::where('parsed', false)->whereNotNull('isbn')->get();
 
         $this->info('Nombre de livres à traiter : ' . $books->count());
 
         foreach ($books as $book) {
-            $this->info($book->cal_page);
+            $this->info($book->isbn);
 
-            $importBookData = new ImportBookData();
-            $importBookData->importFromCalPage($book);
+            $success = $googleBooksService->importBookData($book);
 
             // afficher le livre
             $this->table(
@@ -48,15 +48,18 @@ class SearchCal extends Command
             );
         }
 
-        $aquisitionRequests = AquisitionRequest::where('link_to_book', '!=', 'parsed')->get();
+        $aquisitionRequests = AquisitionRequest::where('link_to_book', '!=', 'parsed')->whereNotNull('isbn')->get();
 
         $this->info('Nombre de demandes d\'acquisition à traiter : ' . $aquisitionRequests->count());
 
         foreach ($aquisitionRequests as $aquisitionRequest) {
-            $this->info($aquisitionRequest->link_to_book);
+            $this->info($aquisitionRequest->isbn);
 
-            $importBookData = new ImportBookData();
-            $importBookData->importFromCalPage($aquisitionRequest);
+            // Ici, on ne peut importer que si l'ISBN est présent
+            $book = Book::where('isbn', $aquisitionRequest->isbn)->first();
+            if ($book) {
+                $success = $googleBooksService->importBookData($book);
+            }
 
             // afficher le livre
             $this->table(
@@ -64,13 +67,6 @@ class SearchCal extends Command
                 [
                     ['Titre', $aquisitionRequest->title],
                     ['ISBN', $aquisitionRequest->isbn],
-//                    ['Couverture', $aquisitionRequest->cover_url],
-//                    ['Pages', $aquisitionRequest->pages],
-//                    ['Année', $aquisitionRequest->year_of_publication],
-//                    ['Langue', $aquisitionRequest->lang],
-//                    ['Dimensions', $aquisitionRequest->dimensions],
-//                    ['Éditeur', $aquisitionRequest->publisher],
-//                    ['Auteurs', $book->authors->pluck('name')->implode(', ')],
                 ]
             );
         }
