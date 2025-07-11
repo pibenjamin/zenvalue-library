@@ -268,6 +268,15 @@ class LoanResource extends Resource
     {
         return [
             Tables\Actions\EditAction::make(),
+            Tables\Actions\Action::make('confirm_return')
+                ->label('Valider le retour !!!!')
+                ->icon('heroicon-s-check-circle')
+                ->color('success')
+                ->visible(fn (Loan $record) => 
+                    auth()->user()?->hasRole('super_admin'))
+                ->action(fn (Loan $record) => 
+                    app(LoanService::class)->validateReturn($record)
+                ),
             Tables\Actions\Action::make('extend_loan')
                 ->label('Prolonger le prêt')
                 ->color('success')

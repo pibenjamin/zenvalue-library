@@ -103,6 +103,22 @@ class LoanService
         ));
     }    
 
+    /**
+     * Generate a secure confirmation token for loan return validation
+     */
+    private function generateConfirmationToken(): string
+    {
+        return hash('sha256', Str::random(32) . time() . config('app.key'));
+    }
+
+    /**
+     * Generate the validation URL for loan return confirmation
+     */
+    private function generateValidationUrl(string $token): string
+    {
+        return url('/admin/validate-return/' . $token);
+    }
+
     public function userSignaleReturn(Loan $loan): void
     {
         if (!$loan) 
@@ -130,7 +146,7 @@ class LoanService
             return;
         }
 
-        $token = hash('sha256', Str::random(32) . time() . config('app.key'));
+        $token = $this->generateConfirmationToken();
 
         $loan->returned_at = now();
         $loan->status = Loan::STATUS_RETURN_IN_PROGRESS;
