@@ -103,13 +103,13 @@ class ListBooks extends ListRecords
             
         ])
         ->action(function (array $data) {
-            $cal_page           = $data['cal_page'];
+            $isbn               = $data['isbn'];
             $selectedLocation   = $data['location'];
             $qr_code_interest   = $data['qr_code_interest'];
 
             $book = Book::create([
                 'title'             => '[Livre en cours d\'ajout]',
-                'cal_page'          => $cal_page,
+                'isbn'              => $isbn,
                 'status'            => Book::STATUS_TO_QUALIFY,
                 'owner_id'          => auth()->id(),
                 'support_id'        => 1,
