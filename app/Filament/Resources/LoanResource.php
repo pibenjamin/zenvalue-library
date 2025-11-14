@@ -42,6 +42,7 @@ use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Support\Enums\ActionSize;
+use Illuminate\Support\Facades\Auth;
 
 // Widgets
 
@@ -55,48 +56,51 @@ class LoanResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return auth()->user()?->hasAnyRole(['admin', 'super_admin']) 
+        return self::userHasAnyRole(['admin', 'super_admin']) 
             ? 'Emprunts' 
             : 'Mes emprunts';
     }
 
-    private static function getLoanCountsByStatus(?int $borrowerId = null): array
-    {
-        $query = static::getModel()::query();
-        
-        if ($borrowerId) {
-            $query->where('borrower_id', $borrowerId);
-        }
+    // Removed redundant local counter. Counts are provided by LoanService.
 
-        if(auth()->user()?->hasRole(['admin', 'super_admin'])){
-            return [
-                'overdue'               => (clone $query)->where('status', 'overdue')->count(),
-                'in_progress'           => (clone $query)->where('status', 'in_progress')->count(),
-                'returned'              => (clone $query)->where('status', 'returned')->count(),
-                'return_in_progress'    => (clone $query)->where('status', 'return_in_progress')->count(),
-            ];
-        }
+    private static function userHasRole(string|array $roles): bool
+    {
+        $user = Auth::user();
+        return $user instanceof \App\Models\User && method_exists($user, 'hasRole') && $user->hasRole($roles);
+    }
+
+    private static function userHasAnyRole(array $roles): bool
+    {
+        $user = Auth::user();
+        return $user instanceof \App\Models\User && method_exists($user, 'hasAnyRole') && $user->hasAnyRole($roles);
+    }
+
+    private static function userCan(string $ability, mixed $arguments = null): bool
+    {
+        $user = Auth::user();
+        return $user instanceof \App\Models\User && method_exists($user, 'can') && $user->can($ability, $arguments);
     }
 
     public static function getNavigationBadge(): ?string
     {
         $counts = app(LoanService::class)->getLoanCountsByStatus(
-            auth()->user()?->hasRole('user') ? auth()->id() : null
+            self::userHasRole('user') ? Auth::id() : null
         );
         
-        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+        if(self::userHasAnyRole(['admin', 'super_admin'])){
     
             return implode(' - ', array_values($counts));
         }
-        if(auth()->user()?->hasRole(['user'])){
+        if(self::userHasRole('user')){
     
             return $counts['in_progress'];
         }
+        return null;
     }
 
     public static function getNavigationBadgeTooltip(): ?string
     {
-        if(auth()->user()?->hasAnyRole(['admin', 'super_admin'])){
+        if(self::userHasAnyRole(['admin', 'super_admin'])){
             return 'Nombre de prêts en cours - en attente - retournés';
         }
 
@@ -172,9 +176,9 @@ class LoanResource extends Resource
         return $table
             ->modifyQueryUsing(fn (Builder $query) => 
                 $query->when(
-                    auth()->user()?->hasRole('user'),
+                    self::userHasRole('user'),
                     fn (Builder $query) => 
-                    $query->where('borrower_id', auth()->id())
+                    $query->where('borrower_id', Auth::id())
                 )->orderByRaw("FIELD(status, 'overdue', 'return_in_progress', 'in_progress', 'returned') ASC")
                 ->orderBy('to_be_returned_at', 'asc')
             )
@@ -241,7 +245,7 @@ class LoanResource extends Resource
             Tables\Columns\TextColumn::make('borrower.email')
                 ->label('Emprunteur')
                 ->sortable()
-                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin')),
+                ->visible(fn (): bool => self::userHasRole('super_admin') || self::userHasRole('admin')),
 
             Tables\Columns\ImageColumn::make('book.cover_url')
                 ->label('Couverture')
@@ -252,7 +256,7 @@ class LoanResource extends Resource
             Tables\Columns\TextColumn::make('book.title')
                 ->label('Ouvrage')
                 ->url(fn (Loan $record) 
-                    => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin') ? 
+                    => self::userHasRole('super_admin') || self::userHasRole('admin') ? 
                     route('filament.admin.resources.book-admins.edit', $record->book_id) : 
                     url('admin/books?tableSearch=' . $record->book->title))
                 
@@ -273,7 +277,7 @@ class LoanResource extends Resource
                 ->icon('heroicon-s-check-circle')
                 ->color('success')
                 ->visible(fn (Loan $record) => 
-                    auth()->user()?->hasRole('super_admin'))
+                    self::userHasRole('super_admin'))
                 ->action(fn (Loan $record) => 
                     app(LoanService::class)->validateReturn($record)
                 ),
@@ -300,7 +304,7 @@ class LoanResource extends Resource
         return Tables\Actions\Action::make('validate_return')
             ->label('Valider le retour')
             ->visible(fn (Loan $record) => 
-                auth()->user()?->hasRole('super_admin') && 
+                self::userHasRole('super_admin') && 
                 $record->status === 'in_progress'
             )
             ->action(fn (Loan $record) => 
@@ -326,8 +330,8 @@ class LoanResource extends Resource
                 $record->refresh();
             })
             ->visible(fn (Loan $record) => 
-                auth()->user()?->can('return', $record) && 
-                $record->status === Loan::STATUS_IN_PROGRESS || $record->status === Loan::STATUS_OVERDUE
+                self::userCan('return', $record) && 
+                ($record->status === Loan::STATUS_IN_PROGRESS || $record->status === Loan::STATUS_OVERDUE)
             );
     }
 
@@ -335,7 +339,7 @@ class LoanResource extends Resource
     {
         return Tables\Actions\BulkActionGroup::make([
             Tables\Actions\DeleteBulkAction::make()
-                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin')),
+                ->visible(fn (): bool => self::userHasRole('super_admin') || self::userHasRole('admin')),
         ]);
     }
 

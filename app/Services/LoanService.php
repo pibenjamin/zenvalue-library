@@ -77,7 +77,6 @@ class LoanService
         }
     }
 
-
     public function validateReturn(Loan $loan)
     {
         $token = $loan->token;
@@ -171,16 +170,17 @@ class LoanService
 
     public function getLoanCountsByStatus(?int $borrowerId = null): array
     {
-        $query = Loan::query();
-        
-        if ($borrowerId) {
-            $query->where('borrower_id', $borrowerId);
+        $baseQuery = Loan::query();
+
+        if (!is_null($borrowerId)) {
+            $baseQuery->where('borrower_id', $borrowerId);
         }
 
         return [
-            'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
-            'pending' => (clone $query)->where('status', 'pending')->count(),
-            'returned' => (clone $query)->where('status', 'returned')->count(),
+            'overdue'             => (clone $baseQuery)->where('status', Loan::STATUS_OVERDUE)->count(),
+            'return_in_progress'  => (clone $baseQuery)->where('status', Loan::STATUS_RETURN_IN_PROGRESS)->count(),
+            'in_progress'         => (clone $baseQuery)->where('status', Loan::STATUS_IN_PROGRESS)->count(),
+            'returned'            => (clone $baseQuery)->where('status', Loan::STATUS_RETURNED)->count(),
         ];
     }
 
