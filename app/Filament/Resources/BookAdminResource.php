@@ -36,7 +36,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Webbingbrasil\FilamentCopyActions\Forms\Actions\CopyAction;
@@ -77,175 +76,166 @@ class BookAdminResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informations essentielles du livre')
-                    ->schema([
-                        Forms\Components\TextInput::make('title')
-                            ->label('Titre')
-                            ->placeholder('Titre de l\'ouvrage')
-                            ->maxLength(255)
-                            ->reactive()
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(function (Set $set, $state) {
-                                $set('slug', Str::slugify($state));
-                            })
-                            ->suffixAction(CopyAction::make())
-                            ->columnSpan(4),
+                Forms\Components\Wizard::make()
+                    ->steps([
+                        Forms\Components\Wizard\Step::make('Informations essentielles')
+                            ->schema([
+                                Forms\Components\TextInput::make('title')
+                                    ->label('Titre')
+                                    ->placeholder('Titre de l\'ouvrage')
+                                    ->maxLength(255)
+                                    ->required()
+                                    ->reactive()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        $set('slug', Str::slugify($state));
+                                    })
+                                    ->suffixAction(CopyAction::make())
+                                    ->columnSpan(4),
 
-                        Forms\Components\TextInput::make('slug')
-                            ->visibleOn(['edit', 'create'])
-                            ->maxLength(255)
-                            ->columnSpan(4),
+                                Forms\Components\TextInput::make('slug')
+                                    ->visibleOn(['edit', 'create'])
+                                    ->maxLength(255)
+                                    ->columnSpan(4),
 
-                        Forms\Components\Select::make('authors')
-                            ->label('Auteurs')
-                            ->multiple()
-                            ->relationship('authors', 'name')
-                            ->preload()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Nom')
-                                    ->required(),
-                                Forms\Components\FileUpload::make('photo_url')
-                                    ->label('Photo')
-                                    ->directory('authors')
-                                    ->maxSize(5120) // 5MB
+                                Forms\Components\Select::make('authors')
+                                    ->label('Auteurs')
+                                    ->multiple()
+                                    ->relationship('authors', 'name')
+                                    ->preload()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('name')
+                                            ->label('Nom')
+                                            ->required(),
+                                        Forms\Components\FileUpload::make('photo_url')
+                                            ->label('Photo')
+                                            ->directory('authors')
+                                            ->maxSize(5120)
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columnSpan(1),
+
+                                Forms\Components\TextInput::make('isbn')
+                                    ->label('ISBN')
+                                    ->helperText('Format: 978-2-123456-78-9')
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-globe-alt')
+                                    ->suffixAction(
+                                        Forms\Components\Actions\Action::make('importFromGoogleBooks')
+                                            ->label('Importer depuis Google Books')
+                                            ->icon('heroicon-o-arrow-down-tray')
+                                            ->disabled(fn (?Book $record): bool => ! $record || $record->parsed)
+                                            ->action(function (?Book $record) {
+                                                if (! $record) {
+                                                    return;
+                                                }
+                                                app(GoogleBooksService::class)->importBookData($record);
+                                            }),
+                                    ),
+
+                                Forms\Components\TextInput::make('lang')
+                                    ->label('Langue')
+                                    ->maxLength(255),
+
+                                Forms\Components\TextInput::make('year_of_publication')
+                                    ->label('Année de publication')
+                                    ->numeric()
+                                    ->minValue(1800)
+                                    ->maxValue(now()->year),
+
+                                Forms\Components\TextInput::make('publisher')
+                                    ->label('Éditeur')
+                                    ->maxLength(255),
+
+                                Forms\Components\TextInput::make('pages')
+                                    ->label('Nombre de pages')
+                                    ->numeric(),
+
+                                Forms\Components\FileUpload::make('cover_url')
+                                    ->label('Couverture')
+                                    ->directory('books/covers')
+                                    ->maxSize(5120)
+                                    ->image()
+                                    ->imagePreviewHeight('200')
                                     ->columnSpanFull(),
                             ])
-                            ->columnSpan(1),
+                            ->columns(3),
 
-                        Forms\Components\TextInput::make('isbn')
-                            ->label('ISBN')
-                            ->helperText(function ($record) {
-                                if (! $record) {
-                                    return null;
-                                }
+                        Forms\Components\Wizard\Step::make('Qualifications')
+                            ->schema([
+                                Forms\Components\Textarea::make('description')
+                                    ->label('Description')
+                                    ->placeholder('Description de l\'ouvrage')
+                                    ->rows(4)
+                                    ->columnSpanFull(),
 
-                                return new HtmlString('Récupérer les informations depuis Google Books');
-                            })
-                            ->maxLength(255)
-                            ->prefixIcon('heroicon-o-globe-alt')
-                            ->suffixAction(
-                                Forms\Components\Actions\Action::make('importFromGoogleBooks')
-                                    ->label('Importer les informations')
-                                    ->icon('heroicon-o-arrow-down-tray')
-                                    ->disabled(fn (?Book $record): bool => ! $record || $record->cal_page === 'parsed')
-                                    ->action(function (?Book $record) {
-                                        if (! $record) {
-                                            return;
-                                        }
-                                        app(GoogleBooksService::class)->importBookData($record);
-                                    }),
-                            ),
+                                Forms\Components\Select::make('tags')
+                                    ->label('Mots-clés')
+                                    ->multiple()
+                                    ->relationship('tags', 'title')
+                                    ->preload()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('title')
+                                            ->label('Nom')
+                                            ->placeholder('Nom du mot-clé')
+                                            ->unique(ignoreRecord: true)
+                                            ->required(),
+                                    ])
+                                    ->columnSpan(1),
 
-                        Forms\Components\TextInput::make('lang')
-                            ->label('Langue')
-                            ->maxLength(255)
-                            ->default(null),
+                                Forms\Components\Select::make('owner_id')
+                                    ->label('Propriétaire')
+                                    ->relationship('owner', 'name')
+                                    ->required()
+                                    ->columnSpan(1),
 
-                        Forms\Components\TextInput::make('year_of_publication')
-                            ->label('Année de publication')
-                            ->numeric()
-                            ->minValue(1800)
-                            ->maxValue(now()->year)
-                            ->default(null),
+                                Forms\Components\Select::make('support_id')
+                                    ->label('Support')
+                                    ->default(Support::where('slug', 'papier')->first()->id)
+                                    ->relationship('support', 'name')
+                                    ->required()
+                                    ->columnSpan(1),
 
-                        Forms\Components\TextInput::make('publisher')
-                            ->label('Editeur')
-                            ->maxLength(255)
-                            ->default(null),
+                                Forms\Components\Select::make('difficulty_level')
+                                    ->label('Difficulté')
+                                    ->options(Book::getDifficulties())
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(4),
 
-                        Forms\Components\TextInput::make('pages')
-                            ->label('# Pages')
-                            ->numeric()
-                            ->default(null),
+                        Forms\Components\Wizard\Step::make('Statut & Localisation')
+                            ->schema([
+                                Forms\Components\Select::make('status')
+                                    ->label('Statut')
+                                    ->options(Book::getStatusLabels())
+                                    ->default(Book::STATUS_QUALIFIED)
+                                    ->required(),
 
-                        Forms\Components\FileUpload::make('cover_url')
-                            ->label('Couverture')
-                            ->directory('books/covers')
-                            ->maxSize(5120) // 5MB
-                            ->columnSpanFull()
-                            ->columnSpan(4),
+                                Forms\Components\Select::make('location')
+                                    ->label('Localisation')
+                                    ->options(Book::getLocations())
+                                    ->default(Book::LOCATION_DROP_OFF)
+                                    ->required(),
 
-                    ])
-                    ->columns(3)
-                    ->collapsible(),
+                                Forms\Components\Toggle::make('missing')
+                                    ->label('Marquer comme manquant')
+                                    ->onColor('success')
+                                    ->offColor('danger')
+                                    ->default(false),
 
-                Forms\Components\Section::make('Qualifications supplémentaires')
-                    ->schema([
-                        Forms\Components\Textarea::make('description')
-                            ->label('Description')
-                            ->placeholder('Description de l\'ouvrage')
-                            ->helperText('La description de l\'ouvrage est optionnelle')
-                            ->rows(5)
-                            ->columnSpanFull()
-                            ->columnSpan(4),
-
-                        Forms\Components\Select::make('tags')
-                            ->label('Mots-clés')
-                            ->multiple()
-                            ->relationship('tags', 'title')
-                            ->preload()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('title')
-                                    ->label('Nom')
-                                    ->placeholder('Nom du mot-clé')
-                                    ->unique(ignoreRecord: true)
+                                Forms\Components\Toggle::make('is_borrowed')
+                                    ->label('Emprunté')
+                                    ->helperText(fn (?Book $record): string => ! $record ? 'Ce livre sera disponible une fois créé' :
+                                        ($record->is_borrowed ?
+                                            "jusqu'au ".Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') :
+                                            'Ce livre est actuellement disponible'
+                                        )
+                                    )
                                     ->required(),
                             ])
-                            ->columnSpan(1),
-
-                        Forms\Components\Select::make('owner_id')
-                            ->label('Propriétaire')
-                            ->relationship('owner', 'name')
-                            ->required()
-                            ->columnSpan(1),
-
-                        Forms\Components\Select::make('support_id')
-                            ->label('Support')
-                            ->default(Support::where('slug', 'papier')->first()->id)
-                            ->relationship('support', 'name')
-                            ->required()
-                            ->columnSpan(1),
-
-                        Forms\Components\Select::make('difficulty_level')
-                            ->label('Difficulté')
-                            ->options(Book::getDifficulties())
-                            ->default(null)
-                            ->columnSpan(1),
+                            ->columns(4),
                     ])
-                    ->columns(4)
-                    ->collapsible(),
-
-                Forms\Components\Section::make('Statut')
-                    ->schema([
-                        Forms\Components\Toggle::make('missing')
-                            ->label('Manquant')
-                            ->onColor('success')
-                            ->offColor('danger')
-                            ->default(false),
-
-                        Forms\Components\Select::make('status')
-                            ->label('Statut')
-                            ->options(Book::getStatusLabels())
-                            ->default(Book::STATUS_QUALIFIED),
-
-                        Forms\Components\Select::make('location')
-                            ->label('Localisation')
-                            ->options(Book::getLocations())
-                            ->default(Book::LOCATION_DROP_OFF),
-
-                        Forms\Components\Toggle::make('is_borrowed')
-                            ->label('Emprunté')
-                            ->helperText(fn (?Book $record): string => ! $record ? 'Ce livre sera disponible une fois créé' :
-                            ($record->is_borrowed ?
-                                "jusqu'au ".Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y') :
-                                'Ce livre est actuellement disponible'
-                            )
-                            )
-                            ->required(),
-                    ])
-                    ->columns(4)
-                    ->collapsible(),
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -263,79 +253,6 @@ class BookAdminResource extends Resource
                     ->sortable()
                     ->wrap()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                TextColumn::make('missing')
-                    ->label('Manquant')
-                    ->sortable()
-                    ->badge()
-                    ->state(function (Book $record): string {
-                        return $record->missing ? 'oui' : 'non';
-                    })
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                TextColumn::make('lang')
-                    ->label('Langue')
-                    ->sortable()
-                    ->badge()
-                    ->state(function (Book $record): string {
-                        return $record->lang ?? '?';
-                    })
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                TextColumn::make('parcours_order')
-                    ->label('Ordre dans le parcours')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false)
-                    ->columnSpan(1),
-
-                TextColumn::make('isbn')
-                    ->label('ISBN')
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                ImageColumn::make('authors.photo_url')
-                    ->label('Portraits')
-                    ->circular()
-                    ->stacked()
-                    ->tooltip(fn (Book $record): string => $record->authors->pluck('name')->implode(', '))
-                    ->height(50)
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                TextColumn::make('authors.name')
-                    ->label('Auteurs')
-                    ->width('200px')
-                    ->badge()
-                    ->toggleable(isToggledHiddenByDefault: false)
-                    ->color('gray')
-                    ->wrap()
-                    ->listWithLineBreaks()
-                    ->verticallyAlignStart()
-                    ->searchable(),
-
-                ImageColumn::make('cover_url')
-                    ->label('Couverture')
-                    ->disk('public')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false)
-                    ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
-                    ->height(75),
-
-                TextColumn::make('missing')
-                    ->label('Perdu')
-                    ->toggleable(isToggledHiddenByDefault: false)
-                    ->state(function ($record): string {
-                        return $record->missing ? 'oui' : 'non';
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'oui' => 'danger',
-                        'non' => 'success',
-                    })
-                    ->sortable(),
-
-                TextColumn::make('isbn')
-                    ->label('ISBN')
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('status')
@@ -358,20 +275,57 @@ class BookAdminResource extends Resource
                         'Emprunté' => 'danger',
                         'Disponible' => 'success',
                     })
+                    ->toggleable(isToggledHiddenByDefault: false),
+
+                ImageColumn::make('cover_url')
+                    ->label('Couverture')
+                    ->disk('public')
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->tooltip(fn (Book $record) => $record->is_borrowed
-                        ? 'Retour prévu le '.Carbon::parse($record->getLastLoan()->to_be_returned_at)->format('d/m/Y')
-                        : 'Ce livre est actuellement disponible'
-                    ),
+                    ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
+                    ->height(75),
+
+                TextColumn::make('missing')
+                    ->label('Manquant')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->missing ? 'oui' : 'non';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('lang')
+                    ->label('Langue')
+                    ->sortable()
+                    ->badge()
+                    ->state(function (Book $record): string {
+                        return $record->lang ?? '?';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('isbn')
+                    ->label('ISBN')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('authors.name')
+                    ->label('Auteurs')
+                    ->width('200px')
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->color('gray')
+                    ->wrap()
+                    ->listWithLineBreaks()
+                    ->verticallyAlignStart()
+                    ->searchable(),
 
                 TextColumn::make('year_of_publication')
                     ->label('Année')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('owner.name')
                     ->label('Propriétaire')
-                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->badge()
                     ->color('gray')
                     ->sortable()
@@ -453,7 +407,8 @@ class BookAdminResource extends Resource
                         ->icon('heroicon-o-archive-box-arrow-down')
                         ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->putOnShelf())
-                        ->modalDescription('Voulez-vous vraiment mettre le statut de ces livres à qualifier ?'),
+                        ->modalDescription('Voulez-vous vraiment mettre le statut de ces livres à qualifier ?')
+                        ->deselectRecordsAfterCompletion(),
 
                     BulkAction::make('lang')
                         ->label('Saisir la langue')
@@ -470,7 +425,8 @@ class BookAdminResource extends Resource
                         ->action(fn (Collection $records, array $data) => $records->each(function (Book $record) use ($data) {
                             $record->lang = $data['lang'];
                             $record->save();
-                        })),
+                        }))
+                        ->deselectRecordsAfterCompletion(),
 
                     BulkAction::make('generateQrCodes')
                         ->label('Générer les QR codes')
@@ -495,13 +451,13 @@ class BookAdminResource extends Resource
                         ->icon('heroicon-o-pencil-square')
                         ->form([
                             Forms\Components\Select::make('location')
-                                ->label('Localisation')
+                                ->label('Nouvelle localisation')
                                 ->options(Book::getLocations())
-                                ->placeholder('Sélectionner une localisation (laisser vide pour ne pas modifier)'),
+                                ->placeholder('Conservée si vide'),
                             Forms\Components\Select::make('status')
-                                ->label('Statut')
+                                ->label('Nouveau statut')
                                 ->options(Book::getStatusLabels())
-                                ->placeholder('Sélectionner un statut (laisser vide pour ne pas modifier)'),
+                                ->placeholder('Conservé si vide'),
                         ])
                         ->action(fn (Collection $records, array $data) => $records->each(function (Book $record) use ($data) {
                             if (! empty($data['location'])) {
@@ -511,7 +467,8 @@ class BookAdminResource extends Resource
                                 $record->status = $data['status'];
                             }
                             $record->save();
-                        })),
+                        }))
+                        ->deselectRecordsAfterCompletion(),
                 ]),
 
             ])
