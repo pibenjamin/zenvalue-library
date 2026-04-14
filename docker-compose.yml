@@ -16,6 +16,11 @@ services:
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data
+      - OPCACHE_ENABLE=1
+      - OPCACHE_ENABLE_CLI=1
+      - OPCACHE_MEMORY_CONSUMPTION=256
+      - OPCACHE_REVALIDATE_FREQ=0
+      - OPCACHE_INTERNED_STRINGS_BUFFER=16
     networks:
       - zbv_network
     depends_on:
@@ -43,12 +48,14 @@ services:
       MYSQL_DATABASE: zbv
       MYSQL_USER: zbv
       MYSQL_PASSWORD: secret
+      MYSQL_DEFAULT_STORAGE_ENGINE: InnoDB
     ports:
       - "3310:3306"
     volumes:
       - zbv_db_data:/var/lib/mysql
     networks:
       - zbv_network
+    command: --default-authentication-plugin=mysql_native_password --innodb_buffer_pool_size=256M
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

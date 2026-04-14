@@ -333,6 +333,7 @@ class BookAdminResource extends Resource
                 
                 ImageColumn::make('cover_url')
                     ->label('Couverture')
+                    ->disk('public')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->defaultImageUrl(url('/storage/books/covers/book-placeholder.jpeg'))
@@ -526,6 +527,7 @@ class BookAdminResource extends Resource
                         'false' => 'Non',
                     ]),
 
+
                 Tables\Filters\SelectFilter::make('lang')
                     ->label('Langue')
                     ->options([
@@ -553,7 +555,7 @@ class BookAdminResource extends Resource
                     }),                    
 
                 Tables\Filters\SelectFilter::make('missing')
-                    ->label('Manquant')
+                    ->label('Perdu')
                     ->options([
                         'true' => 'Oui',
                         'false' => 'Non',

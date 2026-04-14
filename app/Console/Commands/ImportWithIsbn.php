@@ -2,29 +2,26 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Symfony\Component\BrowserKit\HttpBrowser;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-
-use App\Models\Book;
-use App\Models\Author;
 use App\Models\AquisitionRequest;
+use App\Models\Book;
 use App\Services\GoogleBooksService;
+use Illuminate\Console\Command;
 
 class ImportWithIsbn extends Command
 {
-    protected $signature = 'app:import-with-isbn';
+    protected $signature = 'app:import-with-isbn {--force : Force la réimportation même pour les livres déjà parsés}';
+
     protected $description = 'Importe les informations des livres via l\'ISBN';
 
     public function handle(GoogleBooksService $googleBooksService)
     {
-        $books = Book::where('parsed', false)->whereNotNull('isbn')->get();
+        $booksQuery = Book::whereNotNull('isbn');
+        if (! $this->option('force')) {
+            $booksQuery->where('parsed', false);
+        }
+        $books = $booksQuery->get();
 
-        $this->info('Nombre de livres à traiter : ' . $books->count());
+        $this->info('Nombre de livres à traiter : '.$books->count());
 
         foreach ($books as $book) {
             $this->info($book->isbn);
@@ -48,9 +45,13 @@ class ImportWithIsbn extends Command
             );
         }
 
-        $aquisitionRequests = AquisitionRequest::where('link_to_book', '!=', 'parsed')->whereNotNull('isbn')->get();
+        $aquisitionQuery = AquisitionRequest::whereNotNull('isbn');
+        if (! $this->option('force')) {
+            $aquisitionQuery->where('link_to_book', '!=', 'parsed');
+        }
+        $aquisitionRequests = $aquisitionQuery->get();
 
-        $this->info('Nombre de demandes d\'acquisition à traiter : ' . $aquisitionRequests->count());
+        $this->info('Nombre de demandes d\'acquisition à traiter : '.$aquisitionRequests->count());
 
         foreach ($aquisitionRequests as $aquisitionRequest) {
             $this->info($aquisitionRequest->isbn);
@@ -71,5 +72,4 @@ class ImportWithIsbn extends Command
             );
         }
     }
-} 
-
+}
